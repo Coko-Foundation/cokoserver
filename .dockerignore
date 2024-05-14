@@ -11,6 +11,8 @@ node_modules
 npm-debug.log
 package-lock.json
 yarn-error.log
+.yarn/cache
+.yarn/install-state.gz
 
 # misc
 .devcontainer
