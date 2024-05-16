@@ -7,11 +7,14 @@ const path = require('path')
 const isFunction = require('lodash/isFunction')
 
 const logger = require('./logger')
+const seedGlobalTeams = require('./startup/seedGlobalTeams')
 
 let server
 
 const startServer = async (app = express()) => {
   if (server) return server
+
+  await seedGlobalTeams()
 
   let configureApp
   // ./server/app.js in your app is used if it exist,

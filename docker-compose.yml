@@ -61,6 +61,7 @@ services:
       - ./dev:/home/node/app/dev
       - ./src:/home/node/app/src
       - ./authorization:/home/node/app/authorization
+    tty: true
 
   db:
     image: postgres:13-alpine
