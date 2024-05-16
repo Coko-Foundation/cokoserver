@@ -19,4 +19,6 @@ exports.up = knex => {
   }
 }
 
-exports.down = knex => knex.schema.dropTable('chat_threads')
+exports.down = knex => {
+  return knex.schema.dropTable('chat_threads')
+}

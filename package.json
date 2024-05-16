@@ -80,7 +80,7 @@
     "sharp": "^0.29.3",
     "subscriptions-transport-ws": "^0.9.19",
     "tmp-promise": "^2.0.0",
-    "umzug": "^2.1.0",
+    "umzug": "^3.8.0",
     "uuid": "^8.3.2",
     "waait": "^1.0.5"
   },
@@ -90,7 +90,7 @@
     "jest": "^26.6.3",
     "jest-environment-node": "^26.6.2",
     "node-wait-for-it": "^0.2.0",
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.1.0",
     "standard-version": "^7.1.0",
     "supertest": "^3.1.0",
     "winston": "^2.3.1"

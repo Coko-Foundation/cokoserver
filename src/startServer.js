@@ -7,6 +7,7 @@ const path = require('path')
 const isFunction = require('lodash/isFunction')
 
 const logger = require('./logger')
+const migrate = require('./dbManager/migrate')
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 
 let server
@@ -14,6 +15,7 @@ let server
 const startServer = async (app = express()) => {
   if (server) return server
 
+  await migrate()
   await seedGlobalTeams()
 
   let configureApp

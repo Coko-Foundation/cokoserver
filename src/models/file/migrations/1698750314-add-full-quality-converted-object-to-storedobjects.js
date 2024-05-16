@@ -3,21 +3,21 @@ const mime = require('mime-types')
 const fs = require('fs-extra')
 const path = require('path')
 const sharp = require('sharp')
-const { useTransaction } = require('@coko/server')
 
-const File = require('@coko/server/src/models/file/file.model')
+const useTransaction = require('../../useTransaction')
+const File = require('../file.model')
 
 const {
   connectToFileStorage,
   download,
   uploadFileHandler,
-} = require('@coko/server/src/services/fileStorage')
+} = require('../../../services/fileStorage')
 
 const {
   convertFileStreamIntoBuffer,
   getFileExtension,
   getImageFileMetadata,
-} = require('@coko/server/src/helpers')
+} = require('../../../helpers')
 
 const imageSizeConversionMapper = {
   tiff: {
@@ -59,7 +59,7 @@ const sharpConversionFullFilePath = async (
   return tempFullFilePath
 }
 
-exports.up = async knex => {
+exports.up = async () => {
   try {
     return useTransaction(async trx => {
       await connectToFileStorage()

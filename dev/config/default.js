@@ -38,9 +38,20 @@ module.exports = {
   },
   'pubsweet-server': {
     host: 'localhost',
+    useFileStorage: true,
   },
   authsome: {
     mode: path.join(__dirname, 'authsome.js'),
+  },
+  fileStorage: {
+    accessKeyId: 'cokoServerUser',
+    secretAccessKey: 'superSecretUserPassword',
+    bucket: 'uploads',
+    protocol: 'http',
+    host: 'localhost',
+    port: '9000',
+    minioConsolePort: '9001',
+    s3SeparateDeleteOperations: false,
   },
   integrations: {
     dummy: {

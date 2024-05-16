@@ -155,4 +155,6 @@ exports.up = async knex => {
   }
 }
 
-exports.down = async knex => knex.schema.dropTable('identities')
+exports.down = async knex => {
+  return knex.schema.dropTable('identities')
+}
