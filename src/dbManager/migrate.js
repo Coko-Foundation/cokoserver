@@ -9,8 +9,6 @@ const isFunction = require('lodash/isFunction')
 const logger = require('../logger')
 const db = require('./db')
 
-const v4BaseMessage = 'Starting with coko server v4,'
-
 const resolveRelative = m => require.resolve(m, { paths: [process.cwd()] })
 
 const tryRequireRelative = componentPath => {
@@ -98,6 +96,7 @@ const getTimestampFromName = migrationName => {
 }
 
 const isMigrationAfterThreshold = (migrationName, threshold) => {
+  if (!threshold) return false // table hasn't been created yet, so no restrictions yet
   const migrationUnixTimestamp = getTimestampFromName(migrationName)
   return migrationUnixTimestamp > threshold
 }
@@ -122,17 +121,26 @@ const customResolver = (params, threshold) => {
   const isSql = extname(filePath) === '.sql'
   const isPastThreshold = isMigrationAfterThreshold(name, threshold)
 
+  class MigrationResolverRulesError extends Error {
+    constructor(message) {
+      super(
+        `Starting with coko server v4: ${message}. This error occured in ${name}.`,
+      )
+      this.name = 'MigrationResolverRulesError'
+    }
+  }
+
+  if (!doesMigrationFilenameStartWithUnixTimestamp(name)) {
+    throw new MigrationResolverRulesError(
+      `Migration files must start with a unix timestamp larger than 1000000000, followed by a dash (-)`,
+    )
+  }
+
   if (isPastThreshold) {
     if (isSql) {
       // TO DO -- migration error?
-      throw new Error(
-        `${v4BaseMessage} migration files must be js files. Use knex.raw if you need to write sql code.`,
-      )
-    }
-
-    if (!doesMigrationFilenameStartWithUnixTimestamp(name)) {
-      throw new Error(
-        `${v4BaseMessage} migration files must start with a unix timestamp larger than 1000000000, followed by a dash (-).`,
+      throw new MigrationResolverRulesError(
+        `Migration files must be js files. Use knex.raw if you need to write sql code`,
       )
     }
   }
@@ -152,8 +160,8 @@ const customResolver = (params, threshold) => {
 
   if (isPastThreshold) {
     if (!migration.down || !isFunction(migration.down)) {
-      throw new Error(
-        `${v4BaseMessage} all migrations need to define a down function so that the migration can be rolled back`,
+      throw new MigrationResolverRulesError(
+        `All migrations need to define a down function so that the migration can be rolled back`,
       )
     }
   }
@@ -205,6 +213,21 @@ const getMetaCreated = async () => {
   return createdDateAsUnixTimestamp
 }
 
+const updateLastSuccessfulMigrateCheckpoint = async () => {
+  logger.info('Migrate: Updating last successful migration checkpoint')
+
+  const lastMigrationRow = await db('migrations')
+    .select('id')
+    .orderBy('runAt', 'desc')
+    .first()
+
+  await db('coko_server_meta').update({
+    lastSuccessfulMigrateCheckpoint: lastMigrationRow.id,
+  })
+
+  logger.info('Migrate: Last successful migration checkpoint updated')
+}
+
 /**
  * After installing v4, some rules will apply for migrations, but only for new
  * migrations, so that developers don't have to rewrite all existing migrations.
@@ -216,7 +239,11 @@ const getMetaCreated = async () => {
 const migrate = async options => {
   const threshold = await getMetaCreated()
   const umzug = getUmzug(threshold)
+
   await umzug.up(options)
+  logger.info('Migrate: All migrations ran successfully!')
+
+  await updateLastSuccessfulMigrateCheckpoint()
 }
 
 module.exports = migrate
