@@ -140,9 +140,9 @@ const customResolver = (params, threshold) => {
   if (isSql) {
     return {
       name,
-      up: async database => {
-        const fileContents = await fs.readFile(filePath, 'utf-8')
-        return database.raw(fileContents)
+      up: async () => {
+        const fileContents = fs.readFileSync(filePath).toString()
+        return db.raw(fileContents)
       },
     }
   }
@@ -195,7 +195,7 @@ const getUmzug = threshold => {
 // #region helpers
 const getMetaCreatedAsUnixTimestamp = async () => {
   if (!(await meta.exists())) return null
-  const data = meta.getData()
+  const data = await meta.getData()
 
   const createdDateAsUnixTimestamp = Math.floor(
     new Date(data.created).getTime() / 1000,
