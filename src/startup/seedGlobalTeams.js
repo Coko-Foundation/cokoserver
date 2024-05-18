@@ -1,12 +1,12 @@
 const config = require('config')
+const chalk = require('chalk')
 
 const logger = require('../logger')
 const useTransaction = require('../models/useTransaction')
 const Team = require('../models/team/team.model')
 
 const seedGlobalTeams = async () => {
-  logger.info('')
-  logger.info('Coko server => Seeding global teams...')
+  logger.info(`\n${chalk.cyan('Task:')} Seed global teams\n`)
 
   if (!config.has('teams.global')) {
     logger.info('No global teams declared in config')
@@ -29,7 +29,11 @@ const seedGlobalTeams = async () => {
         )
 
         if (exists) {
-          logger.info(`- Global team "${teamData.role}" already exists`)
+          logger.info(
+            `${chalk.cyan('\u25cf')} Global team "${
+              teamData.role
+            }" already exists`,
+          )
           return
         }
 
@@ -41,12 +45,12 @@ const seedGlobalTeams = async () => {
           { trx },
         )
 
-        logger.info(`- Added global team "${teamData.role}"`)
+        logger.info(
+          `${chalk.cyan('\u25cf')} Added global team "${teamData.role}"`,
+        )
       }),
     )
   })
-
-  logger.info('')
 }
 
 module.exports = seedGlobalTeams

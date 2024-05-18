@@ -1,22 +1,14 @@
-const fs = require('fs')
+const fs = require('fs-extra')
+const chalk = require('chalk')
 
 const logger = require('../logger')
 const tempFolderPath = require('../utils/tempFolderPath')
 
-const ensureTempFolderExists = () => {
-  logger.info('Ensuring "tmp" folder exists...')
+const ensureTempFolderExists = async () => {
+  logger.info(`\n${chalk.cyan('Task:')} Ensure tmp folder exists\n`)
 
-  fs.stat(tempFolderPath, (err, stats) => {
-    if (err || !stats.isDirectory()) {
-      logger.info(
-        '[ensureTempFolderExists]: "tmp" folder does not exist. Creating...',
-      )
-      fs.mkdirSync(tempFolderPath)
-      logger.info('[ensureTempFolderExists]: "tmp" folder created')
-    } else {
-      logger.info('[ensureTempFolderExists]: "tmp" folder already exists')
-    }
-  })
+  await fs.ensureDir(tempFolderPath)
+  logger.info(`${chalk.cyan('\u25cf')} tmp folder now exists`)
 }
 
 module.exports = ensureTempFolderExists

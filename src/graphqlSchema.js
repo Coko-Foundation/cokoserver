@@ -1,6 +1,7 @@
 const config = require('config')
 const isEmpty = require('lodash/isEmpty')
 const merge = require('lodash/merge')
+const chalk = require('chalk')
 
 const { applyMiddleware } = require('graphql-middleware')
 const { shield } = require('graphql-shield')
@@ -66,8 +67,7 @@ const logRegistration = name =>
   logger.info(`${baseMessage} Middleware: Registered ${name} middleware`)
 
 const middleware = []
-logger.info('')
-logger.info(`${baseMessage} Registering graphql middleware...`)
+logger.info(`\n${chalk.cyan('Task:')} Register graphql middleware\n`)
 
 /**
  * Authorization middleware

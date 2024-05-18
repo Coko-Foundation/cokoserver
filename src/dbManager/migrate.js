@@ -5,6 +5,7 @@ const config = require('config')
 const { Umzug } = require('umzug')
 const sortBy = require('lodash/sortBy')
 const isFunction = require('lodash/isFunction')
+const chalk = require('chalk')
 
 const logger = require('../logger')
 const db = require('./db')
@@ -175,7 +176,7 @@ const getUmzug = threshold => {
       resolve: params => customResolver(params, threshold),
     },
     storage: customStorage,
-    logger,
+    logging: false,
   })
 
   const umzug = new Umzug({
@@ -187,6 +188,16 @@ const getUmzug = threshold => {
       return sortedMigrations
     },
   })
+
+  umzug.on('migrating', e => logger.info(`Migrating ${e.name}`))
+  umzug.on('migrated', (e, f) =>
+    logger.info(chalk.green(`Successfully migrated ${e.name}\n`)),
+  )
+
+  umzug.on('reverting', e => logger.info(`Reverting ${e.name}`))
+  umzug.on('reverted', (e, f) =>
+    logger.info(chalk.green(`Successfully reverted ${e.name}\n`)),
+  )
 
   return umzug
 }
@@ -207,17 +218,23 @@ const getMetaCreatedAsUnixTimestamp = async () => {
 const updateCheckpoint = async () => {
   if (!(await meta.exists())) {
     logger.info(
-      'Migrate: Coko server meta table does not exist! Not updating last successful migrate checkpoint',
+      `${chalk.cyan(
+        '\u25cf',
+      )} Coko server meta table does not exist! Not updating last successful migrate checkpoint`,
     )
     return
   }
 
-  logger.info('Migrate: Last successful migrate checkpoint: updating')
+  logger.info(
+    `${chalk.cyan('\u25cf')} Last successful migrate checkpoint: updating`,
+  )
 
   const lastMigration = await migrations.getLastMigration()
   await meta.setCheckpoint(lastMigration)
 
-  logger.info('Migrate: Last successful migrate checkpoint: updated')
+  logger.info(
+    `${chalk.cyan('\u25cf')} Last successful migrate checkpoint: updated`,
+  )
 }
 // #endregion helpers
 
@@ -231,6 +248,8 @@ const updateCheckpoint = async () => {
  * coko server v4).
  */
 const migrate = async (options = {}) => {
+  logger.info(`\n${chalk.cyan('Task:')} Run migrations\n`)
+
   const threshold = await getMetaCreatedAsUnixTimestamp()
   const umzug = getUmzug(threshold)
 
@@ -268,7 +287,13 @@ const migrate = async (options = {}) => {
     await umzug.up(otherOptions)
   }
 
-  logger.info('Migrate: All migrations ran successfully!')
+  logger.info(
+    `${chalk.cyan('\u25cf')} ${chalk.green(
+      'All migrations ran successfully!',
+    )} \u2705`,
+  )
+
+  // logger.info(`${chalk.cyan('\u25cf')} All migrations ran successfully! \u2705`)
   await updateCheckpoint()
 }
 
