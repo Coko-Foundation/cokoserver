@@ -2,6 +2,10 @@
 
 const { program } = require('commander')
 
+const madge = require('madge')
+const output = require('madge/lib/output')
+const ora = require('ora')
+
 const pkg = require('../../package.json')
 const logger = require('../logger')
 const { migrate, rollback, pending, executed } = require('../dbManager/migrate')
@@ -93,6 +97,28 @@ migrateCommand
       logger.error(e)
       process.exit(1)
     }
+  })
+
+program
+  .command('circular')
+  .description('Run or roll back migrations')
+  .showHelpAfterError()
+  .action(async () => {
+    const res = await madge(process.cwd())
+    const circular = res.circular()
+
+    // borrowed from the madge cli tool: https://github.com/pahen/madge/blob/master/bin/cli.js#L9
+    const spinner = ora({
+      text: 'Finding files',
+      color: 'white',
+      interval: 100000,
+      isEnabled: program.spinner === 'false' ? false : null,
+    })
+
+    output.circular(spinner, res, circular, {
+      json: program.json,
+      printCount: program.count,
+    })
   })
 
 program
