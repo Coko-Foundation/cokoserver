@@ -11,6 +11,7 @@ const {
 } = require('../fileStorage')
 
 const { uploadOneFile, cleanBucket } = require('./helpers/helpers')
+const tempFolderPath = require('../../utils/tempFolderPath')
 
 describe('File Storage Service', () => {
   beforeAll(async () => {
@@ -21,11 +22,9 @@ describe('File Storage Service', () => {
     cleanBucket()
   })
 
-  afterAll(() =>
-    fs.remove(
-      path.join(process.cwd(), 'src', 'services', '__tests__', 'files', 'temp'),
-    ),
-  )
+  afterAll(async () => {
+    await fs.emptyDir(tempFolderPath)
+  })
 
   it('communicates with file server', async () => {
     const fileServerHealth = await healthCheck()
@@ -166,19 +165,7 @@ describe('File Storage Service', () => {
 
   it('downloads locally the given file', async () => {
     const file = await uploadOneFile()
-    fs.ensureDir(
-      path.join(process.cwd(), 'src', 'services', '__tests__', 'files', 'temp'),
-    )
-
-    const tempPath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'temp',
-      `${file.key}`,
-    )
+    const tempPath = path.join(tempFolderPath, `${file.key}`)
 
     await download(file.key, tempPath)
     expect(fs.existsSync(tempPath)).toBe(true)

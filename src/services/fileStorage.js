@@ -7,6 +7,7 @@ const path = require('path')
 const mime = require('mime-types')
 
 const logger = require('../logger')
+const tempFolderPath = require('../utils/tempFolderPath')
 
 const {
   getFileExtension,
@@ -18,8 +19,6 @@ const {
   emptyUndefinedOrNull,
 } = require('../helpers')
 
-const { tempFolderPath } = config.get('pubsweet-server')
-
 const imageConversionToSupportedFormatMapper = {
   eps: 'svg',
 }
@@ -27,7 +26,7 @@ const imageConversionToSupportedFormatMapper = {
 // Initializing Storage Interface
 let s3
 
-const healthCheck = () => {
+const healthCheck = async () => {
   try {
     if (!s3) {
       throw new Error(
@@ -55,7 +54,7 @@ const healthCheck = () => {
   }
 }
 
-const connectToFileStorage = () => {
+const connectToFileStorage = async () => {
   if (!config.has('fileStorage')) {
     throw new Error(
       'You have declared that you will use file storage but fileStorage configuration is missing',
@@ -112,7 +111,7 @@ const connectToFileStorage = () => {
     endpoint: serverUrl,
   })
 
-  healthCheck()
+  await healthCheck()
 }
 
 const getURL = async (objectKey, options = {}) => {
@@ -167,7 +166,7 @@ const handleImageUpload = async (fileStream, hashedFilename) => {
   try {
     const storedObjects = []
     const randomHash = crypto.randomBytes(6).toString('hex')
-    const tempDirRoot = tempFolderPath || path.join(process.cwd(), 'temp')
+    const tempDirRoot = tempFolderPath
     const tempDir = path.join(tempDirRoot, randomHash)
     let tempSmallFilePath
     let tempMediumFilePath

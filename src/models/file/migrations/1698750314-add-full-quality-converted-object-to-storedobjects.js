@@ -6,6 +6,7 @@ const sharp = require('sharp')
 
 const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
+const tempFolderPath = require('../../../utils/tempFolderPath')
 
 const {
   connectToFileStorage,
@@ -65,7 +66,7 @@ exports.up = async () => {
       await connectToFileStorage()
       const files = await File.query(trx)
 
-      const tempDir = path.join(__dirname, '..', 'temp')
+      const tempDir = tempFolderPath
       await fs.ensureDir(tempDir)
 
       await Promise.all(
@@ -77,7 +78,7 @@ exports.up = async () => {
           )
 
           if (mimetype.match(/^image\//) && !fullStoredObject) {
-            const tempFileDir = path.join(__dirname, '..', 'temp', file.id)
+            const tempFileDir = path.join(tempDir, file.id)
             await fs.ensureDir(tempFileDir)
 
             const originalStoredObject = file.storedObjects.find(
@@ -148,7 +149,7 @@ exports.up = async () => {
       )
 
       try {
-        await fs.remove(tempDir)
+        await fs.emptyDir(tempDir)
       } catch (e) {
         throw new Error(e)
       }

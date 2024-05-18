@@ -17,6 +17,7 @@ const app = require('./app')
 const startServer = require('./startServer')
 const { BaseModel, useTransaction } = require('./models')
 const modelTypes = require('./models/_helpers/types')
+const tempFolderPath = require('./utils/tempFolderPath')
 
 const {
   healthCheck,
@@ -76,6 +77,7 @@ module.exports = {
   createTables,
   useTransaction,
   isEnvVariableTrue,
+  tempFolderPath,
 
   cron,
   uuid,

@@ -230,7 +230,7 @@ const updateCheckpoint = async () => {
  * apply (the creation of the meta table, ie. from the moment they upgraded to
  * coko server v4).
  */
-const migrate = async options => {
+const migrate = async (options = {}) => {
   const threshold = await getMetaCreatedAsUnixTimestamp()
   const umzug = getUmzug(threshold)
 

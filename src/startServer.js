@@ -9,12 +9,14 @@ const isFunction = require('lodash/isFunction')
 const logger = require('./logger')
 const { migrate } = require('./dbManager/migrate')
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
+const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
 
 let server
 
 const startServer = async (app = express()) => {
   if (server) return server
 
+  await ensureTempFolderExists()
   await migrate()
   await seedGlobalTeams()
 
