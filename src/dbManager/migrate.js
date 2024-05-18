@@ -8,7 +8,17 @@ const isFunction = require('lodash/isFunction')
 
 const logger = require('../logger')
 const db = require('./db')
+const { migrations, meta } = require('./migrateDbHelpers')
 
+const MigrateOptionIntegrityError = require('../errors/migrate/MigrateOptionIntegrityError')
+const MigrateSkipLimitError = require('../errors/migrate/MigrateSkipLimitError')
+const MigrationResolverRulesError = require('../errors/migrate/MigrationResolverRulesError')
+const RollbackLimitError = require('../errors/migrate/RollbackLimitError')
+const RollbackUnavailableError = require('../errors/migrate/RollbackUnavailableError')
+
+const META_ID = '1715865523-create-coko-server-meta.js'
+
+// #region umzug
 const resolveRelative = m => require.resolve(m, { paths: [process.cwd()] })
 
 const tryRequireRelative = componentPath => {
@@ -69,22 +79,12 @@ const getGlobPattern = () => {
 }
 
 const customStorage = {
-  async logMigration(migration) {
-    await db.raw('INSERT INTO migrations (id) VALUES (?)', [migration.name])
-  },
+  logMigration: async migration => migrations.logMigration(migration.name),
+  unlogMigration: async migration => migrations.unlogMigration(migration.name),
 
-  async unlogMigration(migration) {
-    await db.raw('DELETE FROM migrations WHERE id = ?', [migration.name])
-  },
-
-  async executed() {
-    await db.raw(
-      `CREATE TABLE IF NOT EXISTS migrations (
-        id TEXT PRIMARY KEY,
-        run_at TIMESTAMPTZ DEFAULT current_timestamp
-      )`,
-    )
-    const { rows } = await db.raw('SELECT id FROM migrations')
+  executed: async () => {
+    await migrations.createTable()
+    const rows = await migrations.getRows()
     return rows.map(row => row.id)
   },
 }
@@ -121,26 +121,18 @@ const customResolver = (params, threshold) => {
   const isSql = extname(filePath) === '.sql'
   const isPastThreshold = isMigrationAfterThreshold(name, threshold)
 
-  class MigrationResolverRulesError extends Error {
-    constructor(message) {
-      super(
-        `Starting with coko server v4: ${message}. This error occured in ${name}.`,
-      )
-      this.name = 'MigrationResolverRulesError'
-    }
-  }
-
   if (!doesMigrationFilenameStartWithUnixTimestamp(name)) {
     throw new MigrationResolverRulesError(
       `Migration files must start with a unix timestamp larger than 1000000000, followed by a dash (-)`,
+      name,
     )
   }
 
   if (isPastThreshold) {
     if (isSql) {
-      // TO DO -- migration error?
       throw new MigrationResolverRulesError(
         `Migration files must be js files. Use knex.raw if you need to write sql code`,
+        name,
       )
     }
   }
@@ -162,6 +154,7 @@ const customResolver = (params, threshold) => {
     if (!migration.down || !isFunction(migration.down)) {
       throw new MigrationResolverRulesError(
         `All migrations need to define a down function so that the migration can be rolled back`,
+        name,
       )
     }
   }
@@ -181,7 +174,6 @@ const getUmzug = threshold => {
       glob: globPattern,
       resolve: params => customResolver(params, threshold),
     },
-    context: { knex: db },
     storage: customStorage,
     logger,
   })
@@ -198,13 +190,12 @@ const getUmzug = threshold => {
 
   return umzug
 }
+// #endregion umzug
 
-const getMetaCreated = async () => {
-  const tableExists = await db.schema.hasTable('coko_server_meta')
-  if (!tableExists) return null
-
-  const { rows } = await db.raw(`SELECT created FROM coko_server_meta`)
-  const data = rows[0] // this table always has one row only
+// #region helpers
+const getMetaCreatedAsUnixTimestamp = async () => {
+  if (!(await meta.exists())) return null
+  const data = meta.getData()
 
   const createdDateAsUnixTimestamp = Math.floor(
     new Date(data.created).getTime() / 1000,
@@ -213,21 +204,24 @@ const getMetaCreated = async () => {
   return createdDateAsUnixTimestamp
 }
 
-const updateLastSuccessfulMigrateCheckpoint = async () => {
-  logger.info('Migrate: Updating last successful migration checkpoint')
+const updateCheckpoint = async () => {
+  if (!(await meta.exists())) {
+    logger.info(
+      'Migrate: Coko server meta table does not exist! Not updating last successful migrate checkpoint',
+    )
+    return
+  }
 
-  const lastMigrationRow = await db('migrations')
-    .select('id')
-    .orderBy('runAt', 'desc')
-    .first()
+  logger.info('Migrate: Last successful migrate checkpoint: updating')
 
-  await db('coko_server_meta').update({
-    lastSuccessfulMigrateCheckpoint: lastMigrationRow.id,
-  })
+  const lastMigration = await migrations.getLastMigration()
+  await meta.setCheckpoint(lastMigration)
 
-  logger.info('Migrate: Last successful migration checkpoint updated')
+  logger.info('Migrate: Last successful migrate checkpoint: updated')
 }
+// #endregion helpers
 
+// #region commands
 /**
  * After installing v4, some rules will apply for migrations, but only for new
  * migrations, so that developers don't have to rewrite all existing migrations.
@@ -237,13 +231,148 @@ const updateLastSuccessfulMigrateCheckpoint = async () => {
  * coko server v4).
  */
 const migrate = async options => {
-  const threshold = await getMetaCreated()
+  const threshold = await getMetaCreatedAsUnixTimestamp()
   const umzug = getUmzug(threshold)
 
-  await umzug.up(options)
-  logger.info('Migrate: All migrations ran successfully!')
+  const { skipLast, ...otherOptions } = options
 
-  await updateLastSuccessfulMigrateCheckpoint()
+  if (skipLast || Number.isNaN(skipLast)) {
+    if (!Number.isInteger(skipLast) || skipLast <= 0) {
+      throw new MigrateOptionIntegrityError(
+        'Skip value must be a positive integer.',
+      )
+    }
+
+    const pending = await umzug.pending()
+
+    if (pending.length === 0) {
+      throw new MigrateSkipLimitError('There are no pending migrations.')
+    }
+
+    if (skipLast === pending.length) {
+      throw new MigrateSkipLimitError(
+        'Skip value equals number of pending migrations. There is nothing to migrate.',
+      )
+    }
+
+    if (skipLast > pending.length) {
+      throw new MigrateSkipLimitError(
+        'Skip value exceeds number of pending migrations.',
+        pending.length - 1,
+      )
+    }
+
+    const runTo = pending[pending.length - 1 - skipLast].name
+    await umzug.up({ to: runTo })
+  } else {
+    await umzug.up(otherOptions)
+  }
+
+  logger.info('Migrate: All migrations ran successfully!')
+  await updateCheckpoint()
 }
 
-module.exports = migrate
+const rollback = async options => {
+  if (!(await meta.exists())) throw new RollbackUnavailableError()
+
+  const migrationRows = await migrations.getRows()
+  const metaPosition = migrationRows.findIndex(item => item.id === META_ID)
+  const metaIsLast = metaPosition === migrationRows.length - 1
+
+  if (metaIsLast) {
+    throw new RollbackLimitError('No migrations have run after the upgrade.', {
+      metaLimit: true,
+    })
+  }
+
+  const downOptions = {}
+  const checkpoint = await meta.getCheckpoint()
+
+  if (!options.lastSuccessfulRun) {
+    const maximum = migrationRows.length - 1 - metaPosition
+    const stepTooFar = (options.step || 1) > maximum
+
+    if (stepTooFar) {
+      throw new RollbackLimitError(
+        `Maximum steps value for the current state of the migration table is ${maximum}.`,
+        { metaLimit: true },
+      )
+    }
+
+    if (options.step && options.step > 1) downOptions.step = options.step
+  } else {
+    const checkpointPosition = migrationRows.findIndex(
+      item => item.id === checkpoint,
+    )
+
+    const checkpointTooFar = checkpointPosition <= metaPosition
+
+    if (checkpointTooFar) {
+      throw new RollbackLimitError(
+        `Check that the checkpoint in the coko_server_meta table in your database is a migration that ran after ${META_ID}`,
+        { metaLimit: true },
+      )
+    }
+
+    /**
+     * The 'to' option is inclusive, ie. it will revert all migrations,
+     * INCLUDING the one specified. We want to roll back up to, but not
+     * including the specified migration. So we find the one right after.
+     */
+    if (migrationRows.length - 1 === checkpointPosition) {
+      throw new RollbackLimitError(
+        'No migrations have completed successfully since the last checkpoint. There is nothing to revert.',
+      )
+    }
+
+    const revertTo = migrationRows[checkpointPosition + 1].id
+
+    downOptions.to = revertTo
+  }
+
+  // If we don't clear the checkpoint, we get a reference error, as the checkpoint
+  // is a foreign key to the migrations id column
+  await meta.clearCheckpoint()
+
+  try {
+    const umzug = getUmzug()
+    await umzug.down(downOptions)
+    logger.info('Migrate: Migration rollback successful!')
+  } catch (e) {
+    logger.error(e)
+
+    // Restore original cleared checkpoint
+    if (checkpoint) await meta.setCheckpoint(checkpoint)
+
+    throw e
+  }
+
+  await updateCheckpoint()
+}
+
+const pending = async () => {
+  const umzug = getUmzug()
+  const pendingMigrations = await umzug.pending()
+
+  if (pendingMigrations.length === 0) {
+    logger.info('Migrate: There are no pending migrations.')
+  } else {
+    logger.info(`Migrate: Pending migrations:`)
+    logger.info(pendingMigrations)
+  }
+}
+
+const executed = async () => {
+  const umzug = getUmzug()
+  const executedMigrations = await umzug.executed()
+
+  if (executedMigrations.length === 0) {
+    logger.info('Migrate: There are no executed migrations.')
+  } else {
+    logger.info(`Migrate: Executed migrations:`)
+    logger.info(executedMigrations)
+  }
+}
+// #endregion commmands
+
+module.exports = { migrate, rollback, pending, executed }

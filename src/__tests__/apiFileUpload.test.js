@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const migrate = require('../dbManager/migrate')
+const { migrate } = require('../dbManager/migrate')
 const { User } = require('../models')
 
 const api = require('./helpers/api')

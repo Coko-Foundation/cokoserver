@@ -1,4 +1,4 @@
-const migrate = require('../../dbManager/migrate')
+const { migrate } = require('../../dbManager/migrate')
 
 // Ideally, instead of running a single worker, we should be spinning up
 // one db per worker, so that the tests run in parallel without interfering

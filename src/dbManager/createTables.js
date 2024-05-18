@@ -1,6 +1,6 @@
 const logger = require('../logger')
 const db = require('./db')
-const migrate = require('./migrate')
+const { migrate } = require('./migrate')
 
 const createTables = async clobber => {
   const { rows } = await db.raw(`

@@ -7,7 +7,7 @@ const path = require('path')
 const isFunction = require('lodash/isFunction')
 
 const logger = require('./logger')
-const migrate = require('./dbManager/migrate')
+const { migrate } = require('./dbManager/migrate')
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 
 let server

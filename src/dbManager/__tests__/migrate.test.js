@@ -7,7 +7,7 @@ Object.assign(config, {
   },
 })
 
-const migrate = require('../migrate')
+const { migrate } = require('../migrate')
 
 describe('Migrate', () => {
   it('throws an error when a broken migration runs', async () => {
