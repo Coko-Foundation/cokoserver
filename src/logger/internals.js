@@ -16,7 +16,7 @@ const logErrorTask = str => {
 }
 
 const logInit = str => {
-  logger.info(chalk.yellow(`\n${PICKAXE}  ${str}  ${PICKAXE}`))
+  logger.info(chalk.yellow(`\n${PICKAXE}   ${str}  ${PICKAXE}`))
 }
 
 const logSuccess = str => {

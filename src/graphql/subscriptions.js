@@ -12,8 +12,6 @@ const { token } = require('../authentication')
 module.exports = {
   addSubscriptions: server => {
     /* eslint-disable-next-line global-require */
-    const connectors = require('../connectors')
-    /* eslint-disable-next-line global-require */
     const helpers = require('../authorization')
 
     SubscriptionServer.create(
@@ -33,7 +31,7 @@ module.exports = {
                 reject(new Error('Bad auth token'))
               }
 
-              resolve({ user: id, connectors, helpers })
+              resolve({ user: id, helpers })
             })
           })
         },
