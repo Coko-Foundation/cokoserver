@@ -83,7 +83,6 @@
     "pg-boss": "^5.2.0",
     "sharp": "^0.29.3",
     "subscriptions-transport-ws": "^0.9.19",
-    "tmp-promise": "^2.0.0",
     "umzug": "^3.8.0",
     "uuid": "^8.3.2",
     "waait": "^1.0.5"
