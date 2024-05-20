@@ -11,7 +11,6 @@ const config = require('config')
 
 const errors = require('./errors')
 const logger = require('./logger')
-const helpers = require('./authorization')
 const loaders = require('./graphql/loaders')
 const schema = require('./graphqlSchema')
 
@@ -34,7 +33,6 @@ const createGraphQLServer = testUserContext => {
     uploads: false,
     schema,
     context: ({ req, res }) => ({
-      helpers,
       user: testUserContext || req.user,
       loaders: createdLoaders,
       req,

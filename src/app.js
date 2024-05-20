@@ -23,7 +23,6 @@ const { connectToFileStorage } = require('./services/fileStorage')
 
 const configureApp = app => {
   const models = require('@pubsweet/models')
-  const authsome = require('./authsome')
 
   app.locals.models = models
 
@@ -76,7 +75,6 @@ const configureApp = app => {
   passport.use('local', authentication.strategies.local)
 
   app.locals.passport = passport
-  app.locals.authsome = authsome
 
   registerComponents(app)
 

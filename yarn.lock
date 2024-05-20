@@ -1409,7 +1409,6 @@ __metadata:
     "@hapi/joi": "npm:^14.3.0"
     "@pubsweet/models": "npm:^0.3.21"
     apollo-server-express: "npm:^2.11.0"
-    authsome: "npm:^0.1.0"
     axios: "npm:^0.24.0"
     bcrypt: "npm:5.1.1"
     body-parser: "npm:^1.19.0"
@@ -4238,13 +4237,6 @@ __metadata:
   bin:
     atob: bin/atob.js
   checksum: 10c0/ada635b519dc0c576bb0b3ca63a73b50eefacf390abb3f062558342a8d68f2db91d0c8db54ce81b0d89de3b0f000de71f3ae7d761fd7d8cc624278fe443d6c7e
-  languageName: node
-  linkType: hard
-
-"authsome@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "authsome@npm:0.1.0"
-  checksum: 10c0/a945297cee4f48b3c9a75a50e07660dbf1e8bf6c92540be3cecc0f2a2374bbe46b24506b42322a4e4ed0993c73f1fd8f5a3dec89bf9af8ebc2add453b2f05cab
   languageName: node
   linkType: hard
 

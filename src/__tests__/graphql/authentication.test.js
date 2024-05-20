@@ -2,7 +2,6 @@
 
 // const { omit } = require('lodash')
 
-// const authsome = require('../../authsome')
 const clearDb = require('../../models/__tests__/_clearDb')
 const api = require('../helpers/api')
 const authentication = require('../../authentication')
@@ -143,45 +142,6 @@ describe('GraphQL authentication', () => {
   //             'Operation not permitted: unauthenticated users cannot perform read operation on User',
   //         },
   //       ],
-  //     })
-  //   })
-
-  //   it('filters the returned data', async () => {
-  //     jest
-  //       .spyOn(authsome, 'can')
-  //       /* eslint-disable-next-line no-shadow */
-  //       .mockReturnValue({ filter: user => omit(user, 'email') })
-
-  //     const { body } = await api.graphql.query(
-  //       `{ users { username, email } }`,
-  //       {},
-  //       token,
-  //     )
-
-  //     expect(body).toEqual({
-  //       data: { users: [{ username: 'testuser', email: null }] },
-  //     })
-  //   })
-
-  //   it('returns not found if not authorized', async () => {
-  //     jest
-  //       .spyOn(authsome, 'can')
-  //       .mockReturnValueOnce(true)
-  //       .mockReturnValueOnce(false)
-
-  //     const { body } = await api.graphql.query(
-  //       `query($id: ID) {
-  //         user(id: $id) {
-  //           username
-  //         }
-  //       }`,
-  //       { id: user.id },
-  //       token,
-  //     )
-
-  //     expect(body).toMatchObject({
-  //       data: { user: null },
-  //       errors: [{ message: `Object not found: user with id ${user.id}` }],
   //     })
   //   })
   // })

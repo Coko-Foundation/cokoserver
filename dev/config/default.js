@@ -1,4 +1,4 @@
-const path = require('path')
+// const path = require('path')
 
 const components = require('./components')
 
@@ -39,9 +39,6 @@ module.exports = {
   'pubsweet-server': {
     host: 'localhost',
     useFileStorage: true,
-  },
-  authsome: {
-    mode: path.join(__dirname, 'authsome.js'),
   },
   fileStorage: {
     accessKeyId: 'cokoServerUser',
