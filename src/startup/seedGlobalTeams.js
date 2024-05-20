@@ -1,15 +1,14 @@
 const config = require('config')
-const chalk = require('chalk')
 
-const logger = require('../logger')
+const { logTask, logTaskItem } = require('../logger/internals')
 const useTransaction = require('../models/useTransaction')
 const Team = require('../models/team/team.model')
 
 const seedGlobalTeams = async () => {
-  logger.info(`\n${chalk.cyan('Task:')} Seed global teams\n`)
+  logTask('Seed global teams')
 
   if (!config.has('teams.global')) {
-    logger.info('No global teams declared in config')
+    logTaskItem('No global teams declared in config')
     return
   }
 
@@ -29,11 +28,7 @@ const seedGlobalTeams = async () => {
         )
 
         if (exists) {
-          logger.info(
-            `${chalk.cyan('\u25cf')} Global team "${
-              teamData.role
-            }" already exists`,
-          )
+          logTaskItem(`Global team "${teamData.role}" already exists`)
           return
         }
 
@@ -45,9 +40,7 @@ const seedGlobalTeams = async () => {
           { trx },
         )
 
-        logger.info(
-          `${chalk.cyan('\u25cf')} Added global team "${teamData.role}"`,
-        )
+        logTaskItem(`Added global team "${teamData.role}"`)
       }),
     )
   })

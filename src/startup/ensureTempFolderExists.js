@@ -1,14 +1,13 @@
 const fs = require('fs-extra')
-const chalk = require('chalk')
 
-const logger = require('../logger')
+const { logTask, logTaskItem } = require('../logger/internals')
 const tempFolderPath = require('../utils/tempFolderPath')
 
 const ensureTempFolderExists = async () => {
-  logger.info(`\n${chalk.cyan('Task:')} Ensure tmp folder exists\n`)
+  logTask(`Ensure tmp folder exists`)
 
   await fs.ensureDir(tempFolderPath)
-  logger.info(`${chalk.cyan('\u25cf')} tmp folder now exists`)
+  logTaskItem(`tmp folder now exists`)
 }
 
 module.exports = ensureTempFolderExists

@@ -1,7 +1,6 @@
 const config = require('config')
 const isEmpty = require('lodash/isEmpty')
 const merge = require('lodash/merge')
-const chalk = require('chalk')
 
 const { applyMiddleware } = require('graphql-middleware')
 const { shield } = require('graphql-shield')
@@ -9,6 +8,7 @@ const { GraphQLUpload } = require('graphql-upload')
 const { makeExecutableSchema } = require('apollo-server-express')
 
 const logger = require('./logger')
+const { logTask } = require('./logger/internals')
 const tryRequireRelative = require('./tryRequireRelative')
 
 const upload = require('./upload')
@@ -67,7 +67,7 @@ const logRegistration = name =>
   logger.info(`${baseMessage} Middleware: Registered ${name} middleware`)
 
 const middleware = []
-logger.info(`\n${chalk.cyan('Task:')} Register graphql middleware\n`)
+logTask('Register graphql middleware')
 
 /**
  * Authorization middleware
