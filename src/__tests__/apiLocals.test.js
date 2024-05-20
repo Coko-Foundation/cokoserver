@@ -28,12 +28,6 @@ describe('api/app locals', () => {
     const teamInstance = new api.locals.models.Team()
     expect(teamInstance.type).toEqual('team')
 
-    // const fragmentInstance = new api.locals.models.Fragment()
-    // expect(fragmentInstance.type).toEqual('fragment')
-
-    // const colelctionInstance = new api.locals.models.Collection()
-    // expect(colelctionInstance.type).toEqual('collection')
-
     const user = await api.locals.models.User.findOne({
       username: userData.username,
     })
