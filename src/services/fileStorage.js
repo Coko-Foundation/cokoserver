@@ -1,10 +1,13 @@
-const AWS = require('aws-sdk')
 const fs = require('fs-extra')
 const config = require('config')
 const forEach = require('lodash/forEach')
 const crypto = require('crypto')
 const path = require('path')
 const mime = require('mime-types')
+
+const { S3, GetObjectCommand } = require('@aws-sdk/client-s3')
+const { Upload } = require('@aws-sdk/lib-storage')
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const logger = require('../logger')
 const tempFolderPath = require('../utils/tempFolderPath')
@@ -22,6 +25,8 @@ const {
 const imageConversionToSupportedFormatMapper = {
   eps: 'svg',
 }
+
+const DEFAULT_REGION = 'us-east-1'
 
 // Initializing Storage Interface
 let s3
@@ -65,6 +70,7 @@ const connectToFileStorage = async () => {
     accessKeyId,
     secretAccessKey,
     bucket,
+    region,
     protocol,
     host,
     port,
@@ -101,14 +107,16 @@ const connectToFileStorage = async () => {
 
   const serverUrl = `${protocol}://${host}${port ? `:${port}` : ''}`
 
-  s3 = new AWS.S3({
-    accessKeyId,
-    signatureVersion: 'v4',
-    secretAccessKey,
-    s3ForcePathStyle: !emptyUndefinedOrNull(s3ForcePathStyle)
+  s3 = new S3({
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+    forcePathStyle: !emptyUndefinedOrNull(s3ForcePathStyle)
       ? JSON.parse(s3ForcePathStyle)
       : true,
     endpoint: serverUrl,
+    region: region || DEFAULT_REGION,
   })
 
   await healthCheck()
@@ -130,10 +138,15 @@ const getURL = async (objectKey, options = {}) => {
     Expires: expiresIn || parseInt(86400, 10), // 1 day lease
   }
 
-  return s3.getSignedUrl('getObject', s3Params)
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: objectKey,
+  })
+
+  return getSignedUrl(s3, command, s3Params)
 }
 
-const uploadFileHandler = (fileStream, filename, mimetype) => {
+const uploadFileHandler = async (fileStream, filename, mimetype) => {
   if (!s3) {
     throw new Error(
       's3 does not exist! Probably configuration is missing/invalid',
@@ -149,17 +162,20 @@ const uploadFileHandler = (fileStream, filename, mimetype) => {
     ContentType: mimetype,
   }
 
-  return new Promise((resolve, reject) => {
-    s3.upload(params, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-
-      // do we need etag?
-      const { Key } = data
-      resolve({ key: Key })
-    })
+  const upload = new Upload({
+    client: s3,
+    params,
   })
+
+  // upload.on('httpUploadProgress', progress => {
+  //   console.log(progress)
+  // })
+
+  const data = await upload.done()
+
+  // do we need etag?
+  const { Key } = data
+  return { key: Key }
 }
 
 const handleImageUpload = async (fileStream, hashedFilename) => {
@@ -533,7 +549,7 @@ const deleteFiles = objectKeys => {
   })
 }
 
-const download = (key, localPath) => {
+const download = async (key, localPath) => {
   if (!s3) {
     throw new Error(
       's3 does not exist! Probably configuration is missing/invalid',
@@ -541,27 +557,34 @@ const download = (key, localPath) => {
   }
 
   const { bucket } = config.get('fileStorage')
-  const fileStream = fs.createWriteStream(localPath)
-  const s3Stream = s3.getObject({ Bucket: bucket, Key: key }).createReadStream()
 
-  return new Promise((resolve, reject) => {
-    // Listen for errors returned by the service
-    s3Stream.on('error', err => {
-      // NoSuchKey: The specified key does not exist
-      reject(err)
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key,
+  })
+
+  let item
+
+  try {
+    item = await s3.send(command)
+  } catch (e) {
+    throw new Error(
+      `Cannot retrieve item ${key} from bucket ${bucket}: ${e.message}`,
+    )
+  }
+
+  try {
+    const writeStream = fs.createWriteStream(localPath)
+    item.Body.pipe(writeStream)
+
+    await new Promise(resolve => {
+      writeStream.on('finish', resolve)
     })
 
-    s3Stream
-      .pipe(fileStream)
-      .on('error', err => {
-        // capture any errors that occur when writing data to the file
-        reject(err)
-        console.error('File Stream:', err)
-      })
-      .on('close', () => {
-        resolve()
-      })
-  })
+    writeStream.end()
+  } catch (e) {
+    throw new Error(`Error writing item ${key} to disk. ${e.message}`)
+  }
 }
 
 module.exports = {

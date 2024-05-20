@@ -77,7 +77,7 @@ describe('File Storage Service', () => {
     expect(storedObject).toHaveLength(4)
   })
 
-  it('uploads an png image file', async () => {
+  it('uploads a png image file', async () => {
     const filePath = path.join(
       process.cwd(),
       'src',
@@ -169,5 +169,8 @@ describe('File Storage Service', () => {
 
     await download(file.key, tempPath)
     expect(fs.existsSync(tempPath)).toBe(true)
+
+    const content = await fs.readFile(tempPath, 'utf8')
+    expect(content).toBe('This is a dummy text file')
   })
 })

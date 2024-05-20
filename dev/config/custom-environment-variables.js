@@ -18,6 +18,7 @@ module.exports = {
     accessKeyId: 'S3_ACCESS_KEY_ID',
     secretAccessKey: 'S3_SECRET_ACCESS_KEY',
     bucket: 'S3_BUCKET',
+    region: 'S3_REGION',
     protocol: 'S3_PROTOCOL',
     host: 'S3_HOST',
     port: 'S3_PORT',

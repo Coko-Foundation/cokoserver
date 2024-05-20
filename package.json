@@ -35,11 +35,13 @@
     "pg": "^8.7.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.577.0",
+    "@aws-sdk/lib-storage": "^3.578.0",
+    "@aws-sdk/s3-request-presigner": "^3.577.0",
     "@hapi/joi": "^14.3.0",
     "@pubsweet/models": "^0.3.21",
     "apollo-server-express": "^2.11.0",
     "authsome": "^0.1.0",
-    "aws-sdk": "^2.1046.0",
     "axios": "^0.24.0",
     "bcrypt": "5.1.1",
     "body-parser": "^1.19.0",
