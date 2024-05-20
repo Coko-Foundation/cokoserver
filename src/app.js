@@ -21,7 +21,7 @@ const healthcheck = require('./healthcheck')
 const createCORSConfig = require('./corsConfig')
 const { connectToFileStorage } = require('./services/fileStorage')
 
-const configureApp = app => {
+const configureApp = async app => {
   app.use(bodyParser.json({ limit: '50mb' }))
 
   morgan.token('graphql', ({ body }, res, type) => {
@@ -140,7 +140,7 @@ const configureApp = app => {
     config.has('pubsweet-server.useFileStorage') &&
     config.get('pubsweet-server.useFileStorage')
   ) {
-    connectToFileStorage()
+    await connectToFileStorage()
   }
 
   // Actions to perform when the HTTP server starts listening

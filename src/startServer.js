@@ -9,13 +9,17 @@ const isFunction = require('lodash/isFunction')
 const logger = require('./logger')
 const { logInit } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
+
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
+const { runCustomStartupScripts } = require('./startup/customScripts')
 
 let server
 
 const startServer = async (app = express()) => {
   if (server) return server
+
+  const startTime = performance.now()
 
   logInit('Coko server init tasks')
 
@@ -57,7 +61,10 @@ const startServer = async (app = express()) => {
     throw new Error('App module is not a function!')
   }
 
-  const configuredApp = configureApp(app)
+  const configuredApp = await configureApp(app)
+
+  await runCustomStartupScripts()
+
   const port = config['pubsweet-server'].port || 3000
   configuredApp.set('port', port)
   const httpServer = http.createServer(configuredApp)
@@ -78,6 +85,12 @@ const startServer = async (app = express()) => {
   }
 
   server = httpServer
+
+  const endTime = performance.now()
+  const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
+  logInit(
+    `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
+  )
 
   return httpServer
 }

@@ -236,9 +236,8 @@ const updateCheckpoint = async () => {
   const currentCheckpoint = await meta.getCheckpoint()
 
   if (lastMigration === currentCheckpoint) {
-    logTaskItem(
-      `${baseMsg} Checkpoint already at latest migration. Performing no operation.`,
-    )
+    logTaskItem(`${baseMsg} Checkpoint already at latest migration.`)
+    logTaskItem(`${baseMsg} Performing no operation.`)
     return
   }
 
