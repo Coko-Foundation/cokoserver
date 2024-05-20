@@ -1407,7 +1407,6 @@ __metadata:
     "@aws-sdk/s3-request-presigner": "npm:^3.577.0"
     "@coko/lint": "npm:^2.1.0"
     "@hapi/joi": "npm:^14.3.0"
-    "@pubsweet/models": "npm:^0.3.21"
     apollo-server-express: "npm:^2.11.0"
     axios: "npm:^0.24.0"
     bcrypt: "npm:5.1.1"
@@ -1798,7 +1797,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:^14.3.0, @hapi/joi@npm:^14.5.0":
+"@hapi/joi@npm:^14.3.0":
   version: 14.5.0
   resolution: "@hapi/joi@npm:14.5.0"
   dependencies:
@@ -2300,28 +2299,6 @@ __metadata:
   version: 1.1.0
   resolution: "@protobufjs/utf8@npm:1.1.0"
   checksum: 10c0/a3fe31fe3fa29aa3349e2e04ee13dc170cc6af7c23d92ad49e3eeaf79b9766264544d3da824dba93b7855bd6a2982fb40032ef40693da98a136d835752beb487
-  languageName: node
-  linkType: hard
-
-"@pubsweet/logger@npm:^0.2.61":
-  version: 0.2.61
-  resolution: "@pubsweet/logger@npm:0.2.61"
-  dependencies:
-    "@hapi/joi": "npm:^14.5.0"
-    config: "npm:^3.0.1"
-  checksum: 10c0/a885c1b77e97a850bb964cba315603cbc2b6d026e4bbfd9c655f3c6d059f5ef9db4f0f40d214edbb81007bd509df8888c97d7d2c9d9bf7bb451e852628b48b9f
-  languageName: node
-  linkType: hard
-
-"@pubsweet/models@npm:^0.3.21":
-  version: 0.3.26
-  resolution: "@pubsweet/models@npm:0.3.26"
-  dependencies:
-    "@pubsweet/logger": "npm:^0.2.61"
-  peerDependencies:
-    config: ">=3.0.1"
-    pubsweet-server: ">=13.2.0"
-  checksum: 10c0/7b90cc68ab9977fd25d32de50f3dc39988e2ad1b6b286bd57b543d3dbd54ca3178a40aad4cf63478a748af087b0830a5a8b9dbf1530c791768ffc067bf0fb596
   languageName: node
   linkType: hard
 
@@ -5224,7 +5201,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"config@npm:^3.0.1, config@npm:^3.3.2":
+"config@npm:^3.3.2":
   version: 3.3.11
   resolution: "config@npm:3.3.11"
   dependencies:

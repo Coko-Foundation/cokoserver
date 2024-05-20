@@ -6,6 +6,7 @@ const AnonymousStrategy = require('passport-anonymous').Strategy
 const LocalStrategy = require('passport-local').Strategy
 
 const logger = require('./logger')
+const User = require('./models/user/user.model')
 
 const createToken = user => {
   logger.debug('Creating token for', user.username)
@@ -41,8 +42,6 @@ const verifyPassword = (username, password, done) => {
   const errorMessage = 'Wrong username or password.'
   logger.debug('User finding:', username)
 
-  /* eslint-disable-next-line global-require */
-  const { User } = require('@pubsweet/models')
   User.findByUsername(username)
     .then(user => {
       logger.debug('User found:', user.username)

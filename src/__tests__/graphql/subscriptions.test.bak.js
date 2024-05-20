@@ -1,6 +1,5 @@
 /* eslint-disable jest/no-commented-out-tests */
 
-// const { User } = require('@pubsweet/models')
 // const { fixtures } = require('@pubsweet/model-user/test')
 
 // const WebSocket = require('ws')

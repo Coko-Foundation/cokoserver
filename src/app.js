@@ -22,10 +22,6 @@ const createCORSConfig = require('./corsConfig')
 const { connectToFileStorage } = require('./services/fileStorage')
 
 const configureApp = app => {
-  const models = require('@pubsweet/models')
-
-  app.locals.models = models
-
   app.use(bodyParser.json({ limit: '50mb' }))
 
   morgan.token('graphql', ({ body }, res, type) => {

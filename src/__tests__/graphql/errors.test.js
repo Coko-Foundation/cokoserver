@@ -1,9 +1,9 @@
-const { User } = require('@pubsweet/models')
 const errors = require('../../errors')
 const api = require('../helpers/api')
 const authentication = require('../../authentication')
 const clearDb = require('../../models/__tests__/_clearDb')
 const db = require('../../dbManager/db')
+const User = require('../../models/user/user.model')
 
 /* eslint-disable-next-line jest/no-disabled-tests */
 describe.skip('GraphQL errors', () => {
