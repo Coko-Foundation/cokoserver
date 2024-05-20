@@ -216,25 +216,34 @@ const getMetaCreatedAsUnixTimestamp = async () => {
 }
 
 const updateCheckpoint = async () => {
+  const baseMsg = 'Last successful migrate checkpoint:'
+
   if (!(await meta.exists())) {
-    logger.info(
+    logger.error(
       `${chalk.cyan(
         '\u25cf',
-      )} Coko server meta table does not exist! Not updating last successful migrate checkpoint`,
+      )} ${baseMsg} Coko server meta table does not exist! Not updating last successful migrate checkpoint`,
     )
     return
   }
 
-  logger.info(
-    `${chalk.cyan('\u25cf')} Last successful migrate checkpoint: updating`,
-  )
-
   const lastMigration = await migrations.getLastMigration()
+  const currentCheckpoint = await meta.getCheckpoint()
+
+  if (lastMigration === currentCheckpoint) {
+    logger.info(
+      `${chalk.cyan(
+        '\u25cf',
+      )} ${baseMsg} Checkpoint already at latest migration. Perfomring no operation.`,
+    )
+    return
+  }
+
+  logger.info(`${chalk.cyan('\u25cf')} ${baseMsg} updating`)
+
   await meta.setCheckpoint(lastMigration)
 
-  logger.info(
-    `${chalk.cyan('\u25cf')} Last successful migrate checkpoint: updated`,
-  )
+  logger.info(`${chalk.cyan('\u25cf')} ${baseMsg} updated`)
 }
 // #endregion helpers
 
