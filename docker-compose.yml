@@ -51,7 +51,7 @@ services:
       # - MAILER_PORT=${MAILER_PORT}
       # - MAILER_USER=${MAILER_USER}
       # - MAILER_PASSWORD=${MAILER_PASSWORD}
-      # - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
+      - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
       - S3_PROTOCOL=http
       - S3_HOST=filehosting
       - S3_PORT=${S3_PORT:-9000}

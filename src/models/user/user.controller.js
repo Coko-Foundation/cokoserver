@@ -663,8 +663,8 @@ const sendPasswordResetEmail = async (email, options = {}) => {
     const { trx } = options
     return useTransaction(
       async tr => {
-        const tokenLength = config.has('password-reset.token-length')
-          ? config.get('password-reset.token-length')
+        const tokenLength = config.has('passwordReset.token-length')
+          ? config.get('passwordReset.token-length')
           : 32
 
         const identity = await Identity.findOne(

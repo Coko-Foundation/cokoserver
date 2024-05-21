@@ -1,7 +1,11 @@
 const config = require('config')
 
-const { logTask } = require('../logger/internals')
+const { logTask, logTaskItem } = require('../logger/internals')
 const ConfigSchemaError = require('../errors/ConfigSchemaError')
+
+const renameMap = {
+  'password-reset': 'passwordReset',
+}
 
 const throwPubsweetKeyError = key => {
   throw new ConfigSchemaError(
@@ -24,6 +28,16 @@ const check = () => {
   removedKeys.forEach(key => {
     if (config.has(key)) throwRemovedError(key)
   })
+
+  Object.keys(renameMap).forEach(key => {
+    if (config.has(key)) {
+      throw new ConfigSchemaError(
+        `Key ${key} has been renamed to ${renameMap[key]}`,
+      )
+    }
+  })
+
+  logTaskItem('Configuration check complete')
 }
 
 module.exports = check

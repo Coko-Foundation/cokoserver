@@ -24,7 +24,7 @@ module.exports = {
     maximumWidthForSmallImages: 'MAXIMUM_WIDTH_FOR_SMALL_IMAGES',
     maximumWidthForMediumImages: 'MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES',
   },
-  'password-reset': {
+  passwordReset: {
     path: 'PASSWORD_RESET_PATH',
   },
   mailer: {
