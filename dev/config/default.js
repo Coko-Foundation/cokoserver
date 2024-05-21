@@ -3,9 +3,7 @@
 const components = require('./components')
 
 module.exports = {
-  pubsweet: {
-    components,
-  },
+  components,
   teams: {
     global: {
       admin: {

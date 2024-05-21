@@ -1,10 +1,8 @@
 const config = require('config')
 
 Object.assign(config, {
-  pubsweet: {
-    /* eslint-disable-next-line node/no-path-concat */
-    components: [`${__dirname}/./mocks/componentWithBrokenMigration`],
-  },
+  /* eslint-disable-next-line node/no-path-concat */
+  components: [`${__dirname}/./mocks/componentWithBrokenMigration`],
 })
 
 const { migrate } = require('../migrate')

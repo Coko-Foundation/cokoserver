@@ -3,7 +3,7 @@ module.exports = {
   host: 'SERVER_HOST',
   port: 'SERVER_PORT',
   protocol: 'SERVER_PROTOCOL',
-  secret: 'PUBSWEET_SECRET',
+  secret: 'SECRET',
   db: {
     user: 'POSTGRES_USER',
     password: 'POSTGRES_PASSWORD',

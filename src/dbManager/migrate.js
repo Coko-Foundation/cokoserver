@@ -65,8 +65,8 @@ const getMigrationPaths = () => {
     }
   }
 
-  if (config.has('pubsweet.components')) {
-    config.get('pubsweet.components').forEach(componentPath => {
+  if (config.has('components')) {
+    config.get('components').forEach(componentPath => {
       getPathsRecursively(componentPath)
     })
   }

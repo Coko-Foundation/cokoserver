@@ -42,8 +42,8 @@ function getSchemaRecursively(componentName) {
   }
 }
 
-if (config.has('pubsweet.components')) {
-  config.get('pubsweet.components').forEach(componentName => {
+if (config.has('components')) {
+  config.get('components').forEach(componentName => {
     getSchemaRecursively(componentName)
   })
 }
