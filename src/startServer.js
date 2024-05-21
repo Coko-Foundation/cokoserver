@@ -13,6 +13,7 @@ const { migrate } = require('./dbManager/migrate')
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
 const { runCustomStartupScripts } = require('./startup/customScripts')
+const checkConfig = require('./startup/checkConfig')
 
 let server
 
@@ -23,6 +24,7 @@ const startServer = async (app = express()) => {
 
   logInit('Coko server init tasks')
 
+  checkConfig()
   await ensureTempFolderExists()
   await migrate()
   await seedGlobalTeams()
