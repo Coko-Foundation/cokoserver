@@ -3,6 +3,14 @@ const config = require('config')
 const { logTask, logTaskItem } = require('../logger/internals')
 const ConfigSchemaError = require('../errors/ConfigSchemaError')
 
+const removedKeys = [
+  'apollo',
+  'authsome',
+  'password-reset.token-length',
+  'pubsweet-client',
+  'publicKeys',
+]
+
 const renameMap = {
   'password-reset': 'passwordReset',
 }
@@ -22,8 +30,6 @@ const check = () => {
 
   if (config.has('pubsweet')) throwPubsweetKeyError('pubsweet')
   if (config.has('pubsweet-server')) throwPubsweetKeyError('pubsweet=server')
-
-  const removedKeys = ['apollo', 'authsome', 'pubsweet-client', 'publicKeys']
 
   removedKeys.forEach(key => {
     if (config.has(key)) throwRemovedError(key)

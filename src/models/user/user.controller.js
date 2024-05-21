@@ -663,10 +663,6 @@ const sendPasswordResetEmail = async (email, options = {}) => {
     const { trx } = options
     return useTransaction(
       async tr => {
-        const tokenLength = config.has('passwordReset.token-length')
-          ? config.get('passwordReset.token-length')
-          : 32
-
         const identity = await Identity.findOne(
           {
             isDefault: true,
@@ -686,7 +682,7 @@ const sendPasswordResetEmail = async (email, options = {}) => {
 
         const user = await User.findById(identity.userId, { trx: tr })
 
-        const resetToken = crypto.randomBytes(tokenLength).toString('hex')
+        const resetToken = crypto.randomBytes(32).toString('hex')
 
         await user.patch(
           {
