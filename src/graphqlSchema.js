@@ -49,12 +49,12 @@ if (config.has('pubsweet.components')) {
 }
 
 // merge in app-specific types and resolvers from config
-if (config.has('pubsweet-server.typeDefs')) {
-  typeDefs.push(config.get('pubsweet-server.typeDefs'))
+if (config.has('typeDefs')) {
+  typeDefs.push(config.get('typeDefs'))
 }
 
-if (config.has('pubsweet-server.resolvers')) {
-  merge(resolvers, config.get('pubsweet-server.resolvers'))
+if (config.has('resolvers')) {
+  merge(resolvers, config.get('resolvers'))
 }
 
 const schema = makeExecutableSchema({ typeDefs, resolvers })

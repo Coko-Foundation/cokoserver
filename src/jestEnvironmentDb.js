@@ -7,7 +7,7 @@
 
 // const config = require('config')
 
-// const dbConfig = config['pubsweet-server'] && config['pubsweet-server'].db
+// const dbConfig = config.db
 // Object.assign(dbConfig, {
 //   connectionTimeoutMillis: 5000,
 //   idleTimeoutMillis: 1000,

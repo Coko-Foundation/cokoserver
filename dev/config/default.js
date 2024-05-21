@@ -36,10 +36,8 @@ module.exports = {
       },
     },
   },
-  'pubsweet-server': {
-    host: 'localhost',
-    useFileStorage: true,
-  },
+  host: 'localhost',
+  useFileStorage: true,
   fileStorage: {
     accessKeyId: 'cokoServerUser',
     secretAccessKey: 'superSecretUserPassword',

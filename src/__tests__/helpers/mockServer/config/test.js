@@ -1,10 +1,8 @@
 module.exports = {
-  'pubsweet-server': {
-    logger: {
-      info: () => {},
-      error: () => {},
-      debug: () => {},
-      warn: () => {},
-    },
+  logger: {
+    info: () => {},
+    error: () => {},
+    debug: () => {},
+    warn: () => {},
   },
 }

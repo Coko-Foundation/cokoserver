@@ -12,7 +12,7 @@ const randomBytes = promisify(crypto.randomBytes)
 const resolvers = {
   Mutation: {
     upload: async (_, { file, fileSize }, context) => {
-      const uploadsPath = config.get('pubsweet-server').uploads
+      const uploadsPath = config.get('uploads')
       const pubsub = await getPubsub()
       const { createReadStream, filename, encoding } = await file
       const stream = createReadStream()

@@ -3,11 +3,7 @@ process.env.SUPPRESS_NO_CONFIG_WARNING = true
 const config = require('config')
 const validations = require('./validations')
 
-let loggerConfig
-
-if (config.has('pubsweet-server')) {
-  loggerConfig = config.get('pubsweet-server').logger
-}
+const loggerConfig = config.has('logger') && config.get('logger')
 
 let logger = validations.validateConfig(loggerConfig)
 let configured = Boolean(logger)

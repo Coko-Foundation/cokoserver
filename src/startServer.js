@@ -30,15 +30,15 @@ const startServer = async (app = express()) => {
   let configureApp
   // ./server/app.js in your app is used if it exist,
   // and no different entrypoint is configured in the
-  // config at `pubsweet-server.app`
+  // config at `app`
   const appPath = path.resolve('.', 'server', 'app.js')
 
-  if (config.has('pubsweet-server.app')) {
+  if (config.has('app')) {
     // See if a custom app entrypoint is configured
 
     try {
       /* eslint-disable-next-line global-require, import/no-dynamic-require */
-      configureApp = require(config.get('pubsweet-server.app'))
+      configureApp = require(config.get('app'))
     } catch (e) {
       logger.error(e)
       throw new Error('Cannot load app from provided path!')
@@ -65,7 +65,7 @@ const startServer = async (app = express()) => {
 
   await runCustomStartupScripts()
 
-  const port = config['pubsweet-server'].port || 3000
+  const port = config.port || 3000
   configuredApp.set('port', port)
   const httpServer = http.createServer(configuredApp)
   httpServer.app = configuredApp

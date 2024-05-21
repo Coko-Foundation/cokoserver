@@ -3,7 +3,7 @@ const supertest = require('supertest')
 
 describe('Starting the server', () => {
   describe('Function exported by src/index.js', () => {
-    process.env.NODE_CONFIG = '{"pubsweet-server":{"port":4001}}'
+    process.env.NODE_CONFIG = '{"port":4001}'
     /* eslint-disable-next-line global-require */
     const startServer = require('../startServer')
 
@@ -32,10 +32,8 @@ describe('Starting the server', () => {
 
     it('fails if file does not exist', async () => {
       process.env.NODE_CONFIG = JSON.stringify({
-        'pubsweet-server': {
-          port: 4001,
-          app: 'some/file/that/does/not/exist.js',
-        },
+        port: 4001,
+        app: 'some/file/that/does/not/exist.js',
       })
       /* eslint-disable-next-line global-require */
       const startServer = require('../startServer')
@@ -47,10 +45,8 @@ describe('Starting the server', () => {
     /* eslint-disable-next-line jest/no-done-callback */
     it('starts the app using the custom file', async done => {
       process.env.NODE_CONFIG = JSON.stringify({
-        'pubsweet-server': {
-          port: 4001,
-          app: path.resolve(__dirname, 'helpers', 'customApp.js'),
-        },
+        port: 4001,
+        app: path.resolve(__dirname, 'helpers', 'customApp.js'),
       })
 
       /* eslint-disable-next-line global-require */
@@ -68,9 +64,7 @@ describe('Starting the server', () => {
     /* eslint-disable-next-line jest/no-done-callback */
     it('starts the app using a custom file at ./server/app.js', async done => {
       process.env.NODE_CONFIG = JSON.stringify({
-        'pubsweet-server': {
-          port: 4001,
-        },
+        port: 4001,
       })
       process.env.NODE_CONFIG_STRICT_MODE = false
       // Change directory to test/helpers, to reflect the env of an actual app

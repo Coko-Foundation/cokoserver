@@ -8,8 +8,8 @@ const pg = require('pg')
 const connectionConfig = require('../dbManager/connectionConfig')
 
 const ignoreTerminatedError =
-  config.has('pubsweet-server.ignoreTerminatedConnectionError') &&
-  config.get('pubsweet-server.ignoreTerminatedConnectionError')
+  config.has('ignoreTerminatedConnectionError') &&
+  config.get('ignoreTerminatedConnectionError')
 
 let pubsub
 let client

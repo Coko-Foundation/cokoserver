@@ -425,11 +425,11 @@ const verifyEmail = async (token, options = {}) => {
         )
 
         const emailVerificationExpiryAmount = config.get(
-          'pubsweet-server.emailVerificationTokenExpiry.amount',
+          'emailVerificationTokenExpiry.amount',
         )
 
         const emailVerificationExpiryUnit = config.get(
-          'pubsweet-server.emailVerificationTokenExpiry.unit',
+          'emailVerificationTokenExpiry.unit',
         )
 
         if (!identity)
@@ -735,11 +735,11 @@ const resetPassword = async (token, password, options = {}) => {
         }
 
         const passwordResetTokenExpiryAmount = config.get(
-          'pubsweet-server.passwordResetTokenExpiry.amount',
+          'passwordResetTokenExpiry.amount',
         )
 
         const passwordResetTokenExpiryUnit = config.get(
-          'pubsweet-server.passwordResetTokenExpiry.unit',
+          'passwordResetTokenExpiry.unit',
         )
 
         if (

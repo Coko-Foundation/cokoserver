@@ -110,7 +110,7 @@ describe('Logging manager', () => {
       jest.resetModules()
       config = require('config')
       const winston = require('winston')
-      config['pubsweet-server'] = { logger: winston }
+      config.logger = winston
       const logger = require('../index')
       const rawLogger = logger.getRawLogger()
       expect(rawLogger).toEqual(require('winston'))
@@ -119,7 +119,7 @@ describe('Logging manager', () => {
     it('defaults to console', () => {
       jest.resetModules()
       config = require('config')
-      config['pubsweet-server'] = {}
+      config.logger = null
       const logger = require('../index')
       const rawLogger = logger.getRawLogger()
       expect(rawLogger).toEqual(global.console)
@@ -128,7 +128,7 @@ describe('Logging manager', () => {
     it('logger passed must be an object', () => {
       jest.resetModules()
       config = require('config')
-      config['pubsweet-server'] = { logger: 'wiiiiiiiiinston' }
+      config.logger = 'wiiiiiiiiinston'
       expect.hasAssertions()
 
       try {
@@ -143,7 +143,7 @@ describe('Logging manager', () => {
       jest.resetModules()
       config = require('config')
       const winston = require('winston')
-      config['pubsweet-server'] = { logger: winston }
+      config.logger = winston
       const logger = require('../index')
       expect(() => logger.configure(winston)).toThrow(/already been configured/)
     })

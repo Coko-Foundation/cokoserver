@@ -39,7 +39,7 @@ const configureApp = async app => {
   })
 
   app.use(
-    morgan(config.get('pubsweet-server').morganLogFormat || 'combined', {
+    morgan(config.get('morganLogFormat') || 'combined', {
       stream: logger.stream,
     }),
   )
@@ -55,11 +55,8 @@ const configureApp = async app => {
   app.use(express.static(path.resolve('.', '_build')))
   app.use(express.static(path.resolve('.', 'static')))
 
-  if (config.has('pubsweet-server.uploads')) {
-    app.use(
-      '/uploads',
-      express.static(path.resolve(config.get('pubsweet-server.uploads'))),
-    )
+  if (config.has('uploads')) {
+    app.use('/uploads', express.static(path.resolve(config.get('uploads'))))
   }
 
   // Register passport authentication strategies
@@ -81,8 +78,8 @@ const configureApp = async app => {
   let useGraphQLServer = true
 
   if (
-    config.has('pubsweet-server.useGraphQLServer') &&
-    config.get('pubsweet-server.useGraphQLServer') === false
+    config.has('useGraphQLServer') &&
+    config.get('useGraphQLServer') === false
   ) {
     useGraphQLServer = false
   }
@@ -92,10 +89,7 @@ const configureApp = async app => {
     gqlApi(app) // GraphQL API
   }
 
-  if (
-    config.has('pubsweet-server.serveClient') &&
-    config.get('pubsweet-server.serveClient')
-  ) {
+  if (config.has('serveClient') && config.get('serveClient')) {
     app.use('/', index)
   }
 
@@ -129,17 +123,11 @@ const configureApp = async app => {
 
   let useJobQueue = true
 
-  if (
-    config.has('pubsweet-server.useJobQueue') &&
-    config.get('pubsweet-server.useJobQueue') === false
-  ) {
+  if (config.has('useJobQueue') && config.get('useJobQueue') === false) {
     useJobQueue = false
   }
 
-  if (
-    config.has('pubsweet-server.useFileStorage') &&
-    config.get('pubsweet-server.useFileStorage')
-  ) {
+  if (config.has('useFileStorage') && config.get('useFileStorage')) {
     await connectToFileStorage()
   }
 
@@ -156,9 +144,9 @@ const configureApp = async app => {
       await subscribeJobsToQueue() // Subscribe job callbacks to the queue
     }
 
-    if (config.has('pubsweet-server.cron.path')) {
+    if (config.has('cron.path')) {
       /* eslint-disable-next-line import/no-dynamic-require */
-      require(config.get('pubsweet-server.cron.path'))
+      require(config.get('cron.path'))
     }
   }
 

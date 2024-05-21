@@ -21,7 +21,7 @@ describe.skip('integrated job queue', () => {
   })
 
   // This is to verify that pg-boss has been setup with pg-boss.start()
-  // in the process of starting pubsweet-server
+  // in the process of starting coko server
   it('ready to connect and process jobs when server starts', async done => {
     const queueName = 'aJobQueue3'
 

@@ -16,9 +16,7 @@ const schema = require('./graphqlSchema')
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-const extraApolloConfig = config.has('pubsweet-server.apollo')
-  ? config.get('pubsweet-server.apollo')
-  : {}
+const extraApolloConfig = config.has('apollo') ? config.get('apollo') : {}
 
 const createGraphQLServer = testUserContext => {
   if (process.env.NODE_ENV !== 'test' && testUserContext) {
@@ -80,10 +78,8 @@ const createGraphQLServer = testUserContext => {
   }
 
   if (isDevelopment) {
-    const host = `${config.get('pubsweet-server.host')}${
-      config.get('pubsweet-server.port')
-        ? `:${config.get('pubsweet-server.port')}`
-        : ''
+    const host = `${config.get('host')}${
+      config.get('port') ? `:${config.get('port')}` : ''
     }`
 
     serverConfig.playground = {

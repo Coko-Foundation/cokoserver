@@ -10,7 +10,7 @@ const api = express.Router()
 const authBearer = passport.authenticate('bearer', { session: false })
 
 const storage = multer.diskStorage({
-  destination: config.get('pubsweet-server').uploads,
+  destination: config.get('uploads'),
   filename(req, file, cb) {
     /* eslint-disable-next-line node/no-deprecated-api */
     crypto.pseudoRandomBytes(16, (err, raw) => {

@@ -20,8 +20,7 @@ const deferJob = async (name, startAfter, data, options) => {
   try {
     // This is equivalent to the "app.js:useJobQueue" check
     const jobQueueDisabled =
-      config.has('pubsweet-server.useJobQueue') &&
-      config.get('pubsweet-server.useJobQueue') === false
+      config.has('useJobQueue') && config.get('useJobQueue') === false
 
     if (jobQueueDisabled) {
       throw new Error(`Job queue is disabled`)

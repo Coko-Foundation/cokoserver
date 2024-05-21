@@ -55,7 +55,7 @@ boss.on('error', async error => {
   }
 })
 
-// 'Start' is for queue maintainers (i.e. pubsweet-server)
+// 'Start' is for queue maintainers (i.e. coko server)
 let started = false
 // 'Connect' is for queue observers (e.g. a job worker)
 // let connected = false

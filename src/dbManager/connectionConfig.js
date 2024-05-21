@@ -2,8 +2,7 @@ const config = require('config')
 
 const { isEnvVariableTrue } = require('../utils/env')
 
-const connectionConfig =
-  config['pubsweet-server'] && config['pubsweet-server'].db
+const connectionConfig = config.get('db')
 
 // clone to allow mutation for the case of adding ssl
 const connection = { ...connectionConfig }

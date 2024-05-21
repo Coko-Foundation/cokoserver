@@ -48,7 +48,7 @@ describe('token management', () => {
     // Resetting modules to reload with the new config
     jest.resetModules()
 
-    process.env.NODE_CONFIG = `{"pubsweet-server":{"tokenExpiresIn":"2 days"}}`
+    process.env.NODE_CONFIG = `{"tokenExpiresIn":"2 days"}`
 
     const {
       token: { create: createToken, verify: verifyToken },

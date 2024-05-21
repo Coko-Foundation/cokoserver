@@ -1,19 +1,17 @@
 module.exports = {
   clientUrl: 'CLIENT_URL',
-  'pubsweet-server': {
-    host: 'SERVER_HOST',
-    port: 'SERVER_PORT',
-    protocol: 'SERVER_PROTOCOL',
-    secret: 'PUBSWEET_SECRET',
-    db: {
-      user: 'POSTGRES_USER',
-      password: 'POSTGRES_PASSWORD',
-      host: 'POSTGRES_HOST',
-      database: 'POSTGRES_DB',
-      port: 'POSTGRES_PORT',
-    },
-    serverUrl: 'SERVER_URL',
+  host: 'SERVER_HOST',
+  port: 'SERVER_PORT',
+  protocol: 'SERVER_PROTOCOL',
+  secret: 'PUBSWEET_SECRET',
+  db: {
+    user: 'POSTGRES_USER',
+    password: 'POSTGRES_PASSWORD',
+    host: 'POSTGRES_HOST',
+    database: 'POSTGRES_DB',
+    port: 'POSTGRES_PORT',
   },
+  serverUrl: 'SERVER_URL',
   fileStorage: {
     accessKeyId: 'S3_ACCESS_KEY_ID',
     secretAccessKey: 'S3_SECRET_ACCESS_KEY',
