@@ -3,9 +3,12 @@ const config = require('config')
 const { knexSnakeCaseMappers } = require('objection')
 const connection = require('./connectionConfig')
 
-const pool = config.get('pool')
+const pool = config.has('pool') && config.get('pool')
 
-const acquireConnectionTimeout = config.get('acquireConnectionTimeout') || 5000
+const acquireConnectionTimeout =
+  (config.has('acquireConnectionTimeout') &&
+    config.get('acquireConnectionTimeout')) ||
+  5000
 
 const db = knex({
   client: 'pg',

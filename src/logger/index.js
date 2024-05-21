@@ -3,7 +3,11 @@ process.env.SUPPRESS_NO_CONFIG_WARNING = true
 const config = require('config')
 const validations = require('./validations')
 
-const loggerConfig = config.has('logger') && config.get('logger')
+let loggerConfig
+
+if (config.has('logger')) {
+  loggerConfig = config.get('logger')
+}
 
 let logger = validations.validateConfig(loggerConfig)
 let configured = Boolean(logger)

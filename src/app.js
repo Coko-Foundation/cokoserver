@@ -39,9 +39,13 @@ const configureApp = async app => {
   })
 
   app.use(
-    morgan(config.get('morganLogFormat') || 'combined', {
-      stream: logger.stream,
-    }),
+    morgan(
+      (config.has('morganLogFormat') && config.get('morganLogFormat')) ||
+        'combined',
+      {
+        stream: logger.stream,
+      },
+    ),
   )
 
   app.use(bodyParser.urlencoded({ extended: false }))
@@ -56,7 +60,12 @@ const configureApp = async app => {
   app.use(express.static(path.resolve('.', 'static')))
 
   if (config.has('uploads')) {
-    app.use('/uploads', express.static(path.resolve(config.get('uploads'))))
+    app.use(
+      '/uploads',
+      express.static(
+        path.resolve(config.has('uploads') && config.get('uploads')),
+      ),
+    )
   }
 
   // Register passport authentication strategies
