@@ -13,7 +13,6 @@ const { File } = require('./models')
 const { createFile, deleteFiles } = require('./models/file/file.controller')
 
 const { boss, connectToJobQueue } = require('./jobs')
-const app = require('./app')
 const startServer = require('./startServer')
 const { BaseModel, useTransaction } = require('./models')
 const modelTypes = require('./models/_helpers/types')
@@ -57,7 +56,6 @@ const createJWT = authentication.token.create
 const verifyJWT = authentication.token.verify
 
 module.exports = {
-  app,
   createJWT,
   verifyJWT,
   pubsubManager,

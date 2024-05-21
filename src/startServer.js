@@ -2,13 +2,11 @@ const express = require('express')
 const { promisify } = require('util')
 const http = require('http')
 const config = require('config')
-const fs = require('fs')
-const path = require('path')
-const isFunction = require('lodash/isFunction')
 
 const logger = require('./logger')
 const { logInit } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
+const configureApp = require('./app')
 
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
@@ -17,7 +15,7 @@ const checkConfig = require('./startup/checkConfig')
 
 let server
 
-const startServer = async (app = express()) => {
+const startServer = async () => {
   if (server) return server
 
   const startTime = performance.now()
@@ -29,40 +27,7 @@ const startServer = async (app = express()) => {
   await migrate()
   await seedGlobalTeams()
 
-  let configureApp
-  // ./server/app.js in your app is used if it exist,
-  // and no different entrypoint is configured in the
-  // config at `app`
-  const appPath = path.resolve('.', 'server', 'app.js')
-
-  if (config.has('app')) {
-    // See if a custom app entrypoint is configured
-
-    try {
-      /* eslint-disable-next-line global-require, import/no-dynamic-require */
-      configureApp = require(config.get('app'))
-    } catch (e) {
-      logger.error(e)
-      throw new Error('Cannot load app from provided path!')
-    }
-  } else if (fs.existsSync(appPath)) {
-    // See if a custom app entrypoint exists at ./server/app.js
-    /* eslint-disable-next-line global-require, import/no-dynamic-require */
-    configureApp = require(appPath)
-  } else {
-    // If no custom entrypoints exist, use the default
-    /* eslint-disable-next-line global-require */
-    configureApp = require('./app')
-  }
-
-  if (!configureApp) {
-    throw new Error('App module not found!')
-  }
-
-  if (!isFunction(configureApp)) {
-    throw new Error('App module is not a function!')
-  }
-
+  const app = express()
   const configuredApp = await configureApp(app)
 
   await runCustomStartupScripts()
