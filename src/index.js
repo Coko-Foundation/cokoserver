@@ -6,7 +6,6 @@ const { send: sendEmail } = require('./services/sendEmail')
 const logger = require('./logger')
 const db = require('./dbManager/db')
 const { migrate } = require('./dbManager/migrate')
-const createTables = require('./dbManager/createTables')
 const pubsubManager = require('./graphql/pubsub')
 const authentication = require('./authentication')
 const { File } = require('./models')
@@ -72,7 +71,6 @@ module.exports = {
   logger,
   db,
   migrate,
-  createTables,
   useTransaction,
   isEnvVariableTrue,
   tempFolderPath,
