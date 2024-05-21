@@ -9,11 +9,21 @@ const throwPubsweetKeyError = key => {
   )
 }
 
+const throwRemovedError = key => {
+  throw new ConfigSchemaError(`The "${key}" key has been removed.`)
+}
+
 const check = () => {
   logTask('Checking configuration')
 
   if (config.has('pubsweet')) throwPubsweetKeyError('pubsweet')
   if (config.has('pubsweet-server')) throwPubsweetKeyError('pubsweet=server')
+
+  const removedKeys = ['apollo', 'authsome', 'pubsweet-client', 'publicKeys']
+
+  removedKeys.forEach(key => {
+    if (config.has(key)) throwRemovedError(key)
+  })
 }
 
 module.exports = check
