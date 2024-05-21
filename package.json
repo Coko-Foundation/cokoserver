@@ -19,7 +19,7 @@
     "cz": "./node_modules/.bin/git-cz",
     "prepare": "husky install",
     "release": "standard-version",
-    "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=1 docker compose run server yarn jest --verbose"
+    "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=1 yarn jest --verbose"
   },
   "husky": {
     "hooks": {

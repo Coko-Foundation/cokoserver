@@ -1,10 +1,8 @@
 module.exports = {
   logger: {
-    logger: {
-      info: () => {},
-      error: () => {},
-      debug: () => {},
-      warn: () => {},
-    },
+    info: () => {},
+    error: () => {},
+    debug: () => {},
+    warn: () => {},
   },
 }

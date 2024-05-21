@@ -16,31 +16,29 @@ const seedGlobalTeams = async () => {
 
   await useTransaction(async trx => {
     await Promise.all(
-      Object.keys(configGlobalTeams).map(async k => {
-        const teamData = configGlobalTeams[k]
-
+      configGlobalTeams.map(async t => {
         const exists = await Team.findOne(
           {
             global: true,
-            role: teamData.role,
+            role: t.role,
           },
           { trx },
         )
 
         if (exists) {
-          logTaskItem(`Global team "${teamData.role}" already exists`)
+          logTaskItem(`Global team "${t.role}" already exists`)
           return
         }
 
         await Team.insert(
           {
-            ...teamData,
+            ...t,
             global: true,
           },
           { trx },
         )
 
-        logTaskItem(`Added global team "${teamData.role}"`)
+        logTaskItem(`Added global team "${t.role}"`)
       }),
     )
   })

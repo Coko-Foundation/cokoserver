@@ -3,34 +3,34 @@ const components = require('./components')
 module.exports = {
   components,
   teams: {
-    global: {
-      admin: {
+    global: [
+      {
         displayName: 'Admin',
         role: 'admin',
       },
-      editor: {
+      {
         displayName: 'Editor',
         role: 'editor',
       },
-      author: {
+      {
         displayName: 'Author',
         role: 'author',
       },
-    },
-    nonGlobal: {
-      editor: {
+    ],
+    nonGlobal: [
+      {
         displayName: 'Editor',
         role: 'editor',
       },
-      author: {
+      {
         displayName: 'Author',
         role: 'author',
       },
-      reviewer: {
+      {
         displayName: 'Reviewer',
         role: 'reviewer',
       },
-    },
+    ],
   },
   host: 'localhost',
   useFileStorage: true,

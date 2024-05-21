@@ -1,14 +1,15 @@
 const createTestServer = require('./helpers/createTestServer')
 const { Team, TeamMember, User } = require('..')
-
+const db = require('../../dbManager/db')
 const clearDb = require('./_clearDb')
 
 describe('Team API', () => {
-  beforeEach(() => clearDb())
+  beforeEach(async () => {
+    await clearDb()
+  })
 
-  afterAll(() => {
-    const knex = Team.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
   })
 
   it('returns global teams with members', async () => {
