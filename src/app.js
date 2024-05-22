@@ -21,6 +21,8 @@ const healthcheck = require('./healthcheck')
 const createCORSConfig = require('./corsConfig')
 const { connectToFileStorage } = require('./services/fileStorage')
 
+const mountStatic = require('./startup/static')
+
 const configureApp = async app => {
   app.use(bodyParser.json({ limit: '50mb' }))
 
@@ -56,12 +58,7 @@ const configureApp = async app => {
   const CORSConfig = createCORSConfig()
   app.use(cors(CORSConfig))
 
-  const staticFolders =
-    (config.has('staticFolders') && config.get('staticFolders')) || []
-
-  staticFolders.forEach(p => {
-    app.use(express.static(path.resolve(p)))
-  })
+  mountStatic(app)
 
   if (config.has('uploads')) {
     app.use(
