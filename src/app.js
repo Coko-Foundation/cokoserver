@@ -99,10 +99,6 @@ const configureApp = async app => {
     gqlApi(app) // GraphQL API
   }
 
-  if (config.has('serveClient') && config.get('serveClient')) {
-    app.use('/', index)
-  }
-
   app.use((err, req, res, next) => {
     // Development error handler, will print stacktrace
     if (app.get('env') === 'development' || app.get('env') === 'test') {
