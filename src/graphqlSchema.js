@@ -47,15 +47,6 @@ if (config.has('components')) {
   })
 }
 
-// merge in app-specific types and resolvers from config
-if (config.has('typeDefs')) {
-  typeDefs.push(config.get('typeDefs'))
-}
-
-if (config.has('resolvers')) {
-  merge(resolvers, config.get('resolvers'))
-}
-
 const schema = makeExecutableSchema({ typeDefs, resolvers })
 // #endregion BUILD-SCHEMA
 
