@@ -15,7 +15,6 @@ const wait = require('waait')
 
 const logger = require('./logger')
 const api = require('./routes/api')
-const index = require('./routes/index')
 const registerComponents = require('./registerComponents')
 const healthcheck = require('./healthcheck')
 const createCORSConfig = require('./corsConfig')
