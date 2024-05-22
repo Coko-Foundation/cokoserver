@@ -89,7 +89,6 @@
     "@coko/lint": "^2.1.0",
     "faker": "^5.5.3",
     "jest": "^26.6.3",
-    "jest-environment-node": "^26.6.2",
     "node-wait-for-it": "^0.2.0",
     "nodemon": "^3.1.0",
     "standard-version": "^7.1.0",
