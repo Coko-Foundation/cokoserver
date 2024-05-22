@@ -69,7 +69,6 @@
     "mime-types": "^2.1.34",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
-    "multer": "^1.1.0",
     "node-cron": "^2.0.3",
     "nodemailer": "^6.4.18",
     "objection": "^2.2.15",

@@ -1,12 +1,9 @@
 /* eslint-disable global-require, no-param-reassign */
 
-const path = require('path')
-
 const bodyParser = require('body-parser')
 const config = require('config')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const express = require('express')
 const helmet = require('helmet')
 const STATUS = require('http-status-codes')
 const morgan = require('morgan')
@@ -58,15 +55,6 @@ const configureApp = async app => {
   app.use(cors(CORSConfig))
 
   mountStatic(app)
-
-  if (config.has('uploads')) {
-    app.use(
-      '/uploads',
-      express.static(
-        path.resolve(config.has('uploads') && config.get('uploads')),
-      ),
-    )
-  }
 
   // Register passport authentication strategies
   app.use(passport.initialize())
