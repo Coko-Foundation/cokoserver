@@ -56,8 +56,12 @@ const configureApp = async app => {
   const CORSConfig = createCORSConfig()
   app.use(cors(CORSConfig))
 
-  app.use(express.static(path.resolve('.', '_build')))
-  app.use(express.static(path.resolve('.', 'static')))
+  const staticFolders =
+    (config.has('staticFolders') && config.get('staticFolders')) || []
+
+  staticFolders.forEach(p => {
+    app.use(express.static(path.resolve(p)))
+  })
 
   if (config.has('uploads')) {
     app.use(

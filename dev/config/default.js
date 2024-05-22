@@ -34,6 +34,7 @@ module.exports = {
   },
   host: 'localhost',
   useFileStorage: true,
+  staticFolders: ['./dev/static'],
   fileStorage: {
     accessKeyId: 'cokoServerUser',
     secretAccessKey: 'superSecretUserPassword',
