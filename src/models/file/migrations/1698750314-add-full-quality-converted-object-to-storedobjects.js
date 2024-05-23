@@ -3,6 +3,7 @@ const mime = require('mime-types')
 const fs = require('fs-extra')
 const path = require('path')
 const sharp = require('sharp')
+const config = require('config')
 
 const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
@@ -61,6 +62,25 @@ const sharpConversionFullFilePath = async (
 }
 
 exports.up = async () => {
+  /**
+   * If the app didn't use file storage before or after, this migration is unnecessary.
+   *
+   * If the app didn't use file storage before this migration, but started using
+   * it after, this migration is unnecessary (new files will have a full quallity version).
+   *
+   * If the app used file storage before this migration, but stopped using it
+   * before this migration, it is assumed that the files in file storage are
+   * not used any more, so this migration will be skipped.
+   *
+   * There is an edge case where the app used file storage, stopped for a while,
+   * in which period this migration ran, then started using it again, and the
+   * files are still used. In this case this migration will need to be run manually.
+   */
+
+  if (!(config.has('useFileStorage') && config.get('useFileStorage'))) {
+    return true
+  }
+
   try {
     return useTransaction(async trx => {
       await connectToFileStorage()
