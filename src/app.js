@@ -8,7 +8,6 @@ const helmet = require('helmet')
 const STATUS = require('http-status-codes')
 const morgan = require('morgan')
 const passport = require('passport')
-const wait = require('waait')
 
 const logger = require('./logger')
 const api = require('./routes/api')
@@ -141,16 +140,6 @@ const configureApp = async app => {
       /* eslint-disable-next-line import/no-dynamic-require */
       require(config.get('cron.path'))
     }
-  }
-
-  // Actions to perform when the server closes
-  app.onClose = async () => {
-    if (useJobQueue) {
-      const { stopJobQueue } = require('./jobs')
-      await stopJobQueue()
-    }
-
-    return wait(500)
   }
 
   return app

@@ -101,4 +101,18 @@ module.exports = {
   //     },
   //   },
   // ],
+  // onShutdown: [
+  //   {
+  //     label: 'shutdown test',
+  //     execute: () => {
+  //       return new Promise(resolve => {
+  //         console.log('Cleaning up...')
+  //         setTimeout(() => {
+  //           console.log('Cleanup done.')
+  //           resolve()
+  //         }, 2000)
+  //       })
+  //     },
+  //   },
+  // ],
 }

@@ -8,11 +8,6 @@ const configureApp = app => {
     // No-op
   }
 
-  // Actions to perform when the server closes
-  app.onClose = async () => {
-    // No-op
-  }
-
   return app
 }
 

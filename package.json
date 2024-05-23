@@ -82,8 +82,7 @@
     "sharp": "^0.29.3",
     "subscriptions-transport-ws": "^0.9.19",
     "umzug": "^3.8.0",
-    "uuid": "^8.3.2",
-    "waait": "^1.0.5"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@coko/lint": "^2.1.0",

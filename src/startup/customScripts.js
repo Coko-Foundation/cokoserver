@@ -3,20 +3,21 @@ const config = require('config')
 const { logTask, logTaskItem, logErrorTask } = require('../logger/internals')
 
 const STARTUP_KEY = 'onStartup'
+const SHUTDOWN_KEY = 'onShutdown'
 
-const runCustomStartupScripts = async () => {
-  logTask('Run custom startup functions')
+const runCustomScripts = async (name, configKey) => {
+  logTask(`Run custom ${name} functions`)
 
   if (
-    !config.has(STARTUP_KEY) ||
-    !Array.isArray(config.get(STARTUP_KEY)) ||
-    config.get(STARTUP_KEY).length === 0
+    !config.has(configKey) ||
+    !Array.isArray(config.get(configKey)) ||
+    config.get(configKey).length === 0
   ) {
-    logTaskItem('No custom startup functions provided')
+    logTaskItem(`No custom ${name} functions provided`)
     return
   }
 
-  const items = config.get(STARTUP_KEY)
+  const items = config.get(configKey)
 
   // Use for...of as we explicitly want to wait for each script to finish before
   // moving on to the next one
@@ -37,6 +38,13 @@ const runCustomStartupScripts = async () => {
   }
 }
 
+const runCustomStartupScripts = async () =>
+  runCustomScripts('startup', STARTUP_KEY)
+
+const runCustomShutdownScripts = async () =>
+  runCustomScripts('shutdown', SHUTDOWN_KEY)
+
 module.exports = {
   runCustomStartupScripts,
+  runCustomShutdownScripts,
 }

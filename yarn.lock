@@ -1457,7 +1457,6 @@ __metadata:
     supertest: "npm:^3.1.0"
     umzug: "npm:^3.8.0"
     uuid: "npm:^8.3.2"
-    waait: "npm:^1.0.5"
     winston: "npm:^2.3.1"
   bin:
     coko-server: ./src/cli/coko-server.js
@@ -15530,13 +15529,6 @@ __metadata:
   dependencies:
     xml-name-validator: "npm:^3.0.0"
   checksum: 10c0/92b8af34766f5bb8f37c505bc459ee1791b30af778d3a86551f7dd3b1716f79cb98c71d65d03f2bf6eba6b09861868eaf2be7e233b9202b26a9df7595f2bd290
-  languageName: node
-  linkType: hard
-
-"waait@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "waait@npm:1.0.5"
-  checksum: 10c0/e9fffd334b0696a7ea5b82bfd10339d667e9eb3ca8a9d7dbf00f2407e658f93306c6cf140ab82a6f737990232d4f3a5500f93c9a3077f47a2466989ae1216647
   languageName: node
   linkType: hard
 
