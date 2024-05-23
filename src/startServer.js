@@ -6,7 +6,8 @@ const config = require('config')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
 const configureApp = require('./app')
-const { stopJobQueue } = require('./jobs')
+const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
+const { connectToFileStorage } = require('./services/fileStorage')
 
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
@@ -19,9 +20,17 @@ const {
 
 let server
 let useJobQueue = true
+let useGraphQLServer = true
 
 if (config.has('useJobQueue') && config.get('useJobQueue') === false) {
   useJobQueue = false
+}
+
+if (
+  config.has('useGraphQLServer') &&
+  config.get('useGraphQLServer') === false
+) {
+  useGraphQLServer = false
 }
 
 const startServer = async () => {
@@ -32,6 +41,11 @@ const startServer = async () => {
   logInit('Coko server init tasks')
 
   checkConfig()
+
+  if (config.has('useFileStorage') && config.get('useFileStorage')) {
+    await connectToFileStorage()
+  }
+
   await ensureTempFolderExists()
   await migrate()
   await seedGlobalTeams()
@@ -51,7 +65,21 @@ const startServer = async () => {
   await startListening(port)
   logTaskItem(`App is listening on port ${port}`)
 
-  await configuredApp.onListen(httpServer)
+  if (useGraphQLServer) {
+    /* eslint-disable-next-line global-require */
+    const { addSubscriptions } = require('./graphql/subscriptions')
+    addSubscriptions(httpServer) // Add GraphQL subscriptions
+  }
+
+  if (useJobQueue) {
+    await startJobQueue() // Manage job queue
+    await subscribeJobsToQueue() // Subscribe job callbacks to the queue
+  }
+
+  if (config.has('cron.path')) {
+    /* eslint-disable-next-line global-require, import/no-dynamic-require */
+    require(config.get('cron.path'))
+  }
 
   server = httpServer
 

@@ -2,6 +2,7 @@ const PgBoss = require('pg-boss')
 const moment = require('moment')
 
 const logger = require('./logger')
+const { logTask, logTaskItem } = require('./logger/internals')
 const db = require('./dbManager/db')
 const pubsubManager = require('./graphql/pubsub')
 const { REFRESH_TOKEN_EXPIRED } = require('./services/jobs/jobs.identifiers')
@@ -74,7 +75,7 @@ const start = async () => {
  * preconfigured jobs to the queue.
  */
 const subscribeJobsToQueue = async jobsList => {
-  logger.info('Subscribing job callbacks to the job queue')
+  logTask('Subscribing job callbacks to the job queue')
   const jobsToSubscribe = jobsList || defaultJobs
   const existingSubscriptions = boss.manager?.subscriptions || {}
 
@@ -96,7 +97,7 @@ const subscribeJobsToQueue = async jobsList => {
         // Don't resubscribe - it creates unexpected behaviour
         if (existingSubscriptions[name] === undefined) {
           await boss.subscribe(name, subscribeOptions, callback)
-          logger.info(`Job ${name}: subscribed`)
+          logTaskItem(`Subscribed '${name}'`)
         } else {
           throw new Error('Already subscribed')
         }
