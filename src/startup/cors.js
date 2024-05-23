@@ -5,12 +5,18 @@ const { clientUrl } = require('../utils/urls')
 const createCORSConfig = () => {
   if (!clientUrl) return null
 
-  const config = {
+  return {
     origin: clientUrl,
     credentials: true,
   }
+}
 
+const corsMiddleware = () => {
+  const config = createCORSConfig()
   return cors(config)
 }
 
-module.exports = createCORSConfig
+module.exports = {
+  corsConfig: createCORSConfig,
+  cors: corsMiddleware,
+}

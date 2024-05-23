@@ -23,7 +23,7 @@ const checkConfig = require('./startup/checkConfig')
 const errorStatuses = require('./startup/errorStatuses')
 const mountStatic = require('./startup/static')
 const registerComponents = require('./startup/registerComponents')
-const cors = require('./startup/cors')
+const { cors } = require('./startup/cors')
 
 const {
   runCustomStartupScripts,
