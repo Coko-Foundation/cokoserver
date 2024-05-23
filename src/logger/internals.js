@@ -9,7 +9,7 @@ const CROSS = '\u2718'
 const HORIZONTAL_BOX = '\u2500'
 const PICKAXE = '\u26CF'
 
-const SEPARATOR = `\n${HORIZONTAL_BOX.repeat(65)}\n\n`
+const SEPARATOR = `${HORIZONTAL_BOX.repeat(80)}`
 
 const logErrorTask = str => {
   logger.error(`${chalk.red(CROSS)} ${str}`)
@@ -17,6 +17,18 @@ const logErrorTask = str => {
 
 const logInit = str => {
   logger.info(chalk.yellow(`\n${PICKAXE}   ${str}  ${PICKAXE}`))
+}
+
+const logNodemon = (str, options = { withLines: false }) => {
+  const { withLines } = options
+
+  logger.info(
+    chalk.yellow(
+      `${withLines ? `\n${SEPARATOR}\n\n` : ''}${str}${
+        withLines ? `\n\n${SEPARATOR}` : ''
+      }`,
+    ),
+  )
 }
 
 const logSuccess = str => {
@@ -30,7 +42,7 @@ const logSuccessTask = str => {
 }
 
 const logTask = str => {
-  logger.info(`${SEPARATOR}${chalk.cyan('Task:')} ${str}\n`)
+  logger.info(`\n${SEPARATOR}\n\n${chalk.cyan('Task:')} ${str}\n`)
 }
 
 const logTaskItem = str => {
@@ -40,6 +52,7 @@ const logTaskItem = str => {
 module.exports = {
   logErrorTask,
   logInit,
+  logNodemon,
   logSuccess,
   logSuccessTask,
   logTask,

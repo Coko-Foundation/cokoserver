@@ -9,27 +9,7 @@ services:
       - db
       - filehosting
       - createbucket
-    entrypoint:
-      [
-        'node_modules/.bin/wait-for-it',
-        'db:5432',
-        '--',
-        'sh',
-        'dev/scripts/setupDevServer.sh',
-      ]
-    command:
-      [
-        'node_modules/.bin/nodemon',
-        './dev/startServer.js',
-        '--watch',
-        'src',
-        '--watch',
-        'dev',
-        '--watch',
-        'authorization',
-        '--ext',
-        'js,graphql',
-      ]
+    command: ['yarn', 'coko-server', 'start-dev']
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
     environment:
