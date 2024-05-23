@@ -77,6 +77,11 @@ const startServer = async () => {
   logTaskItem(`App is listening on port ${port}`)
 
   app.use(bodyParser.json({ limit: '50mb' }))
+  app.use(bodyParser.urlencoded({ extended: false }))
+
+  app.use(cookieParser())
+  app.use(helmet())
+  app.use(cors())
 
   morgan.token('graphql', ({ body }, res, type) => {
     if (!body.operationName) return ''
@@ -101,11 +106,6 @@ const startServer = async () => {
       },
     ),
   )
-
-  app.use(bodyParser.urlencoded({ extended: false }))
-  app.use(cookieParser())
-  app.use(helmet())
-  app.use(cors())
 
   mountStatic(app)
 
