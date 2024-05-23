@@ -1,8 +1,8 @@
 const config = require('config')
 
-const logger = require('./logger')
-const { logTask, logTaskItem } = require('./logger/internals')
-const tryRequireRelative = require('./tryRequireRelative')
+const logger = require('../logger')
+const { logTask, logTaskItem } = require('../logger/internals')
+const tryRequireRelative = require('../utils/tryRequireRelative')
 
 const registerRecursively = (app, componentName) => {
   const component = tryRequireRelative(componentName)

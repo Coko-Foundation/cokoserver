@@ -17,6 +17,7 @@ const {
 const logger = require('../logger')
 const db = require('./db')
 const { migrations, meta } = require('./migrateDbHelpers')
+const tryRequireRelative = require('../utils/tryRequireRelative')
 
 const MigrateOptionIntegrityError = require('../errors/migrate/MigrateOptionIntegrityError')
 const MigrateSkipLimitError = require('../errors/migrate/MigrateSkipLimitError')
@@ -28,21 +29,6 @@ const META_ID = '1715865523-create-coko-server-meta.js'
 
 // #region umzug
 const resolveRelative = m => require.resolve(m, { paths: [process.cwd()] })
-
-const tryRequireRelative = componentPath => {
-  try {
-    /* eslint-disable-next-line import/no-dynamic-require, global-require */
-    const component = require(require.resolve(componentPath, {
-      paths: [process.cwd()],
-    }))
-
-    return component
-  } catch (e) {
-    throw new Error(
-      `Unable to load component ${componentPath} on the server. ${e}`,
-    )
-  }
-}
 
 // componentPath could be a path or the name of a node module
 const getMigrationPaths = () => {

@@ -9,7 +9,7 @@ const { makeExecutableSchema } = require('apollo-server-express')
 
 const logger = require('./logger')
 const { logTask } = require('./logger/internals')
-const tryRequireRelative = require('./tryRequireRelative')
+const tryRequireRelative = require('./utils/tryRequireRelative')
 
 const emailMiddleware = require('./middleware/email')
 

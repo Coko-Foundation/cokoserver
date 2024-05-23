@@ -2,16 +2,28 @@ const express = require('express')
 const { promisify } = require('util')
 const http = require('http')
 const config = require('config')
+const passport = require('passport')
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const helmet = require('helmet')
+const morgan = require('morgan')
 
+const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
-const configureApp = require('./app')
 const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
 const { connectToFileStorage } = require('./services/fileStorage')
+const api = require('./routes/api')
+const authentication = require('./authentication')
+const healthcheck = require('./healthcheck')
 
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
 const checkConfig = require('./startup/checkConfig')
+const errorStatuses = require('./startup/errorStatuses')
+const mountStatic = require('./startup/static')
+const registerComponents = require('./startup/registerComponents')
+const cors = require('./startup/cors')
 
 const {
   runCustomStartupScripts,
@@ -51,29 +63,83 @@ const startServer = async () => {
   await seedGlobalTeams()
 
   const app = express()
-  const configuredApp = await configureApp(app)
 
   await runCustomStartupScripts()
 
   const port = config.port || 3000
-  configuredApp.set('port', port)
-  const httpServer = http.createServer(configuredApp)
-  httpServer.app = configuredApp
+  app.set('port', port)
+  const httpServer = http.createServer(app)
+  httpServer.app = app
 
   logTask(`Starting HTTP server`)
   const startListening = promisify(httpServer.listen).bind(httpServer)
   await startListening(port)
   logTaskItem(`App is listening on port ${port}`)
 
+  app.use(bodyParser.json({ limit: '50mb' }))
+
+  morgan.token('graphql', ({ body }, res, type) => {
+    if (!body.operationName) return ''
+
+    switch (type) {
+      case 'query':
+        return body.query.replace(/\s+/g, ' ')
+      case 'variables':
+        return JSON.stringify(body.variables)
+      case 'operation':
+      default:
+        return body.operationName
+    }
+  })
+
+  app.use(
+    morgan(
+      (config.has('morganLogFormat') && config.get('morganLogFormat')) ||
+        'combined',
+      {
+        stream: logger.stream,
+      },
+    ),
+  )
+
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use(cookieParser())
+  app.use(helmet())
+  app.use(cors())
+
+  mountStatic(app)
+
+  app.use(passport.initialize())
+
+  passport.use('bearer', authentication.strategies.bearer)
+  passport.use('anonymous', authentication.strategies.anonymous)
+  passport.use('local', authentication.strategies.local)
+
+  app.locals.passport = passport
+
+  registerComponents(app)
+
+  app.use('/api', api) // REST API
+
+  app.get('/healthcheck', healthcheck) // Server health endpoint
+
+  if (useGraphQLServer) {
+    /* eslint-disable-next-line global-require */
+    const gqlApi = require('./graphqlApi')
+    gqlApi(app)
+  }
+
+  errorStatuses(app)
+
   if (useGraphQLServer) {
     /* eslint-disable-next-line global-require */
     const { addSubscriptions } = require('./graphql/subscriptions')
-    addSubscriptions(httpServer) // Add GraphQL subscriptions
+    addSubscriptions(httpServer)
   }
 
   if (useJobQueue) {
-    await startJobQueue() // Manage job queue
-    await subscribeJobsToQueue() // Subscribe job callbacks to the queue
+    await startJobQueue()
+    await subscribeJobsToQueue()
   }
 
   if (config.has('cron.path')) {

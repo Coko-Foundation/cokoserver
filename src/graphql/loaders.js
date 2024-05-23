@@ -1,7 +1,7 @@
 const config = require('config')
 const DataLoader = require('dataloader')
 
-const tryRequireRelative = require('../tryRequireRelative')
+const tryRequireRelative = require('../utils/tryRequireRelative')
 
 // Require components here so that the requires are done only once per app runtime
 let components = []
