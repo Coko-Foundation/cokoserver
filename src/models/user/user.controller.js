@@ -730,13 +730,15 @@ const resetPassword = async (token, password, options = {}) => {
           )
         }
 
-        const passwordResetTokenExpiryAmount = config.get(
-          'passwordResetTokenExpiry.amount',
-        )
+        const passwordResetTokenExpiryAmount =
+          (config.has('passwordResetTokenExpiry.amount') &&
+            config.get('passwordResetTokenExpiry.amount')) ||
+          24
 
-        const passwordResetTokenExpiryUnit = config.get(
-          'passwordResetTokenExpiry.unit',
-        )
+        const passwordResetTokenExpiryUnit =
+          (config.has('passwordResetTokenExpiry.unit') &&
+            config.get('passwordResetTokenExpiry.unit')) ||
+          'hours'
 
         if (
           moment()

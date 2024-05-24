@@ -1,4 +1,4 @@
-const { internet } = require('faker')
+const { faker } = require('@faker-js/faker')
 const { Identity } = require('../index')
 
 const { createUser } = require('./helpers/users')
@@ -19,13 +19,13 @@ describe('Identity model', () => {
 
     await Identity.insert({
       userId: user.id,
-      email: internet.email(),
+      email: faker.internet.email(),
       isVerified: false,
     })
 
     await Identity.insert({
       userId: user.id,
-      email: internet.email(),
+      email: faker.internet.email(),
       isVerified: false,
     })
 
@@ -46,7 +46,7 @@ describe('Identity model', () => {
   it('cannot create identity without a userId', async () => {
     await expect(
       Identity.insert({
-        email: internet.email(),
+        email: faker.internet.email(),
       }),
     ).rejects.toThrow()
   })
@@ -56,14 +56,14 @@ describe('Identity model', () => {
 
     await Identity.insert({
       userId: user.id,
-      email: internet.email(),
+      email: faker.internet.email(),
       isDefault: true,
     })
 
     await expect(
       Identity.insert({
         userId: user.id,
-        email: internet.email(),
+        email: faker.internet.email(),
         isDefault: true,
       }),
     ).rejects.toThrow()
@@ -74,7 +74,7 @@ describe('Identity model', () => {
 
     const identity = await Identity.insert({
       userId: user.id,
-      email: internet.email(),
+      email: faker.internet.email(),
       isDefault: true,
     })
 
