@@ -10,7 +10,6 @@ const { Upload } = require('@aws-sdk/lib-storage')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const logger = require('../logger')
-const { logTask, logTaskItem } = require('../logger/internals')
 const tempFolderPath = require('../utils/tempFolderPath')
 
 const {
@@ -61,8 +60,6 @@ const healthCheck = async () => {
 }
 
 const connectToFileStorage = async () => {
-  logTask('Connect to file storage')
-
   if (!config.has('fileStorage')) {
     throw new Error(
       'You have declared that you will use file storage but fileStorage configuration is missing',
@@ -123,7 +120,6 @@ const connectToFileStorage = async () => {
   })
 
   await healthCheck()
-  logTaskItem('Connecting to file storage successful')
 }
 
 const getURL = async (objectKey, options = {}) => {

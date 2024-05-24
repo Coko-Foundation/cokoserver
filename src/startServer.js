@@ -12,7 +12,6 @@ const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
 const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
-const { connectToFileStorage } = require('./services/fileStorage')
 const api = require('./routes/api')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
@@ -24,6 +23,7 @@ const errorStatuses = require('./startup/errorStatuses')
 const mountStatic = require('./startup/static')
 const registerComponents = require('./startup/registerComponents')
 const { cors } = require('./startup/cors')
+const { checkConnections } = require('./startup/checkConnections')
 
 const {
   runCustomStartupScripts,
@@ -54,17 +54,13 @@ const startServer = async () => {
 
   checkConfig()
 
-  if (config.has('useFileStorage') && config.get('useFileStorage')) {
-    await connectToFileStorage()
-  }
-
   await ensureTempFolderExists()
+  await checkConnections()
   await migrate()
   await seedGlobalTeams()
+  await runCustomStartupScripts()
 
   const app = express()
-
-  await runCustomStartupScripts()
 
   const port = config.port || 3000
   app.set('port', port)

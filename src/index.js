@@ -29,6 +29,7 @@ const WaxToDocxConverter = require('./services/docx/docx.service')
 
 const activityLog = require('./services/activityLog')
 const { isEnvVariableTrue } = require('./utils/env')
+const request = require('./utils/request')
 
 // Do not expose connectToFileStorage
 const fileStorage = {
@@ -71,6 +72,7 @@ module.exports = {
   migrate,
   useTransaction,
   isEnvVariableTrue,
+  request,
   tempFolderPath,
 
   cron,
