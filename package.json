@@ -75,7 +75,7 @@
     "nodemon": "^3.1.0",
     "objection": "^2.2.15",
     "ora": "^5.4.1",
-    "passport": "^0.4.1",
+    "passport": "^0.7.0",
     "passport-anonymous": "^1.0.1",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
