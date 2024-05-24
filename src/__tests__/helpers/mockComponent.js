@@ -1,9 +1,9 @@
-const STATUS = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 
 const mockComponent = {
   server: () => app => {
     app.use('/mock-component', (req, res, next) =>
-      res.status(STATUS.OK).json({ ok: '!' }),
+      res.status(StatusCodes.OK).json({ ok: '!' }),
     )
   },
   typeDefs: `extend type Query { test: String, ctxreq: String, ctxres: String }`,

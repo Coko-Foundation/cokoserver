@@ -1,4 +1,4 @@
-const STATUS = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 const path = require('path')
 const config = require('config')
 
@@ -11,7 +11,7 @@ const api = require('./helpers/api')
 describe('App startup', () => {
   it('should register components on config.components', async () => {
     const res = await api.request.get('/mock-component')
-    expect(res.status).toBe(STATUS.OK)
+    expect(res.status).toBe(StatusCodes.OK)
   })
 
   it('loads graphql types and resolvers', async () => {

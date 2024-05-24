@@ -1429,7 +1429,7 @@ __metadata:
     graphql-subscriptions: "npm:1.2.1"
     graphql-upload: "npm:^13.0.0"
     helmet: "npm:^7.1.0"
-    http-status-codes: "npm:^1.4.0"
+    http-status-codes: "npm:^2.3.0"
     image-size: "npm:^1.1.1"
     jest: "npm:^26.6.3"
     joi: "npm:^17.13.1"
@@ -8582,10 +8582,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-status-codes@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "http-status-codes@npm:1.4.0"
-  checksum: 10c0/dd1d00517c4d468869db0344f706e545a7fe91b73ac123f11c694700d569cff3f901b329d9c6486f984b96292caecf8dbe8c1fb808708adc78c957bd6a91eb6c
+"http-status-codes@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "http-status-codes@npm:2.3.0"
+  checksum: 10c0/c2412188929e8eed6623eef468c62d0c3c082919c03e9b74fd79cfd060d11783dba44603e38a3cee52d26563fe32005913eaf6120aa8ba907da1238f3eaad5fe
   languageName: node
   linkType: hard
 

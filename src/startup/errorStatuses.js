@@ -1,4 +1,4 @@
-const STATUS = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 
 const logger = require('../logger')
 
@@ -11,11 +11,11 @@ const errorStatuses = app => {
     }
 
     if (err.name === 'ValidationError') {
-      return res.status(STATUS.BAD_REQUEST).json({ message: err.message })
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message })
     }
 
     if (err.name === 'ConflictError') {
-      return res.status(STATUS.CONFLICT).json({ message: err.message })
+      return res.status(StatusCodes.CONFLICT).json({ message: err.message })
     }
 
     if (err.name === 'AuthorizationError') {
@@ -23,11 +23,11 @@ const errorStatuses = app => {
     }
 
     if (err.name === 'AuthenticationError') {
-      return res.status(STATUS.UNAUTHORIZED).json({ message: err.message })
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: err.message })
     }
 
     return res
-      .status(err.status || STATUS.INTERNAL_SERVER_ERROR)
+      .status(err.status || StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: err.message })
   })
 }
