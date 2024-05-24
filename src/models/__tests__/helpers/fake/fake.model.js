@@ -4,6 +4,7 @@ const {
   id,
   stringNullable,
   integerPositive,
+  dateNullable,
 } = require('../../../_helpers/types')
 
 class Fake extends BaseModel {
@@ -24,6 +25,7 @@ class Fake extends BaseModel {
         status: stringNullable,
         userId: id,
         index: integerPositive,
+        timestamp: dateNullable,
       },
     }
   }

@@ -9,6 +9,7 @@ exports.up = async knex => {
     table.uuid('user_id').references('users.id')
     table.text('type').notNullable()
     table.text('status')
+    table.timestamp('timestamp', { useTz: true })
   })
 }
 

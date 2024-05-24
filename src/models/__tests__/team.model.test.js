@@ -96,7 +96,7 @@ describe('Team Model', () => {
   it('ensures teams only accept valid roles', async () => {
     const createTeam = () =>
       Team.insert({
-        role: 'lorem ipsum',
+        role: 'lorem',
         displayName: 'Lorem',
       })
 
@@ -113,8 +113,8 @@ describe('Team Model', () => {
 
     const createInvalid = () =>
       Team.insert({
-        role: 'non-global-role',
-        displayName: 'Lorem',
+        role: 'reviewer',
+        displayName: 'Reviewer',
         global: true,
       })
 
@@ -134,8 +134,8 @@ describe('Team Model', () => {
 
     const createInvalid = () =>
       Team.insert({
-        role: 'global-role',
-        displayName: 'Lorem',
+        role: 'admin',
+        displayName: 'Admin',
         objectId: uuid(),
         objectType: 'unknownObject',
       })

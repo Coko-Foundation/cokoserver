@@ -1,21 +1,32 @@
-const { Model } = require('objection')
+const { Model, AjvValidator } = require('objection')
 const config = require('config')
 const merge = require('lodash/merge')
 const uuid = require('uuid')
+const addFormats = require('ajv-formats')
 
 const db = require('../dbManager/db')
 const logger = require('../logger')
 const useTransaction = require('./useTransaction')
 
+const { dateNotNullable } = require('./_helpers/types')
+
 Model.knex(db)
 
 class BaseModel extends Model {
-  static get jsonSchema() {
-    // JSON schema validation is getting proper support for inheritance in
-    // its draft 8: https://github.com/json-schema-org/json-schema-spec/issues/556
-    // Until then, we're not using additionalProperties: false, and letting the
-    // database handle this bit of the integrity checks.
+  static createValidator() {
+    return new AjvValidator({
+      onCreateAjv: ajv => {
+        addFormats(ajv)
+      },
+      options: {
+        allErrors: true,
+        validateSchema: true,
+        ownProperties: true,
+      },
+    })
+  }
 
+  static get jsonSchema() {
     let schema
 
     const mergeSchema = additionalSchema => {
@@ -47,8 +58,8 @@ class BaseModel extends Model {
       properties: {
         type: { type: 'string' },
         id: { type: 'string', format: 'uuid' },
-        created: { type: ['string', 'object'], format: 'date-time' },
-        updated: { type: ['string', 'object'], format: 'date-time' },
+        created: dateNotNullable,
+        updated: dateNotNullable,
       },
       additionalProperties: false,
     }
