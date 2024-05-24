@@ -47,7 +47,7 @@ const checkConnections = async () => {
   if (config.has('useFileStorage') && config.get('useFileStorage')) {
     try {
       await connectToFileStorage()
-      logTaskItem('Connecting to file storage successful')
+      logTaskItem('File storage connection successful')
     } catch (e) {
       logErrorTask('Could not establish connection to file storage')
       throw e
