@@ -13,7 +13,7 @@ const { createFile, deleteFiles } = require('./models/file/file.controller')
 
 const { boss, connectToJobQueue } = require('./jobs')
 const { BaseModel, useTransaction } = require('./models')
-const modelTypes = require('./models/_helpers/types')
+const modelJsonSchemaTypes = require('./models/_helpers/types')
 const tempFolderPath = require('./utils/tempFolderPath')
 
 const {
@@ -58,7 +58,7 @@ module.exports = {
   createJWT,
   verifyJWT,
   pubsubManager,
-  modelTypes,
+  modelJsonSchemaTypes,
   fileStorage,
   createFile,
   deleteFiles,
