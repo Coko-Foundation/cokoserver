@@ -1,4 +1,5 @@
 const config = require('config')
+const Joi = require('joi')
 
 const { logTask, logTaskItem } = require('../logger/internals')
 const ConfigSchemaError = require('../errors/ConfigSchemaError')
@@ -25,6 +26,15 @@ const throwRemovedError = key => {
   throw new ConfigSchemaError(`The "${key}" key has been removed.`)
 }
 
+const schema = Joi.object({
+  logger: Joi.object({
+    info: Joi.func().required(),
+    debug: Joi.func().required(),
+    error: Joi.func().required(),
+    warn: Joi.func().required(),
+  }).optional(),
+})
+
 const check = () => {
   logTask('Checking configuration')
 
@@ -42,6 +52,12 @@ const check = () => {
       )
     }
   })
+
+  const validationResult = schema.validate(config, { allowUnknown: true })
+
+  if (validationResult.error) {
+    throw new ConfigSchemaError(validationResult.error)
+  }
 
   logTaskItem('Configuration check complete')
 }

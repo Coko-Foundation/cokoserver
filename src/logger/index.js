@@ -1,7 +1,6 @@
 process.env.SUPPRESS_NO_CONFIG_WARNING = true
 
 const config = require('config')
-const validations = require('./validations')
 
 let loggerConfig
 
@@ -9,7 +8,7 @@ if (config.has('logger')) {
   loggerConfig = config.get('logger')
 }
 
-let logger = validations.validateConfig(loggerConfig)
+let logger = loggerConfig
 let configured = Boolean(logger)
 
 if (!configured) {
@@ -31,8 +30,6 @@ module.exports = {
     if (configured) {
       throw new Error('Logger has already been configured')
     }
-
-    validations.validateConfig(theirLogger)
 
     logger = theirLogger
     configured = true
