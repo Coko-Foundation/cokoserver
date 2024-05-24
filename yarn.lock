@@ -1456,7 +1456,7 @@ __metadata:
     subscriptions-transport-ws: "npm:^0.9.19"
     supertest: "npm:^3.1.0"
     umzug: "npm:^3.8.0"
-    uuid: "npm:^8.3.2"
+    uuid: "npm:^9.0.1"
     winston: "npm:^2.3.1"
   bin:
     coko-server: ./src/cli/coko-server.js
