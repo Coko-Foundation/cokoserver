@@ -1411,16 +1411,16 @@ __metadata:
     axios: "npm:^1.7.2"
     axios-retry: "npm:^4.3.0"
     bcrypt: "npm:5.1.1"
-    body-parser: "npm:^1.19.0"
+    body-parser: "npm:^1.20.2"
     chalk: "npm:^4.1.2"
     command-exists: "npm:^1.2.9"
     commander: "npm:^12.0.0"
-    config: "npm:^3.3.2"
+    config: "npm:^3.3.11"
     cookie-parser: "npm:^1.4.5"
     cors: "npm:^2.8.5"
     dataloader: "npm:^1.4.0"
-    docx: "npm:^8.2.1"
-    express: "npm:^4.17.1"
+    docx: "npm:^8.5.0"
+    express: "npm:^4.19.2"
     faker: "npm:^5.5.3"
     fs-extra: "npm:^10.0.0"
     graphql: "npm:^14.2.1"
@@ -1431,7 +1431,7 @@ __metadata:
     graphql-upload: "npm:^13.0.0"
     helmet: "npm:^3.22.1"
     http-status-codes: "npm:^1.4.0"
-    image-size: "npm:^1.0.2"
+    image-size: "npm:^1.1.1"
     jest: "npm:^26.6.3"
     jsonwebtoken: "npm:^8.4.0"
     knex: "npm:^0.21.1"
@@ -1441,7 +1441,7 @@ __metadata:
     moment: "npm:^2.29.1"
     morgan: "npm:^1.10.0"
     node-cron: "npm:^2.0.3"
-    nodemailer: "npm:^6.4.18"
+    nodemailer: "npm:^6.9.13"
     nodemon: "npm:^3.1.0"
     objection: "npm:^2.2.15"
     ora: "npm:^5.4.1"
@@ -1449,7 +1449,7 @@ __metadata:
     passport-anonymous: "npm:^1.0.1"
     passport-http-bearer: "npm:^1.0.1"
     passport-local: "npm:^1.0.0"
-    pg: "npm:^8.7.3"
+    pg: "npm:^8.11.5"
     pg-boss: "npm:^5.2.0"
     sharp: "npm:^0.29.3"
     standard-version: "npm:^7.1.0"
@@ -4428,7 +4428,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:^1.18.3, body-parser@npm:^1.19.0":
+"body-parser@npm:1.20.2, body-parser@npm:^1.18.3, body-parser@npm:^1.20.2":
   version: 1.20.2
   resolution: "body-parser@npm:1.20.2"
   dependencies:
@@ -5182,7 +5182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"config@npm:^3.3.2":
+"config@npm:^3.3.11":
   version: 3.3.11
   resolution: "config@npm:3.3.11"
   dependencies:
@@ -5491,6 +5491,13 @@ __metadata:
   version: 0.5.0
   resolution: "cookie@npm:0.5.0"
   checksum: 10c0/c01ca3ef8d7b8187bae434434582288681273b5a9ed27521d4d7f9f7928fe0c920df0decd9f9d3bbd2d14ac432b8c8cf42b98b3bdd5bfe0e6edddeebebe8b61d
+  languageName: node
+  linkType: hard
+
+"cookie@npm:0.6.0":
+  version: 0.6.0
+  resolution: "cookie@npm:0.6.0"
+  checksum: 10c0/f2318b31af7a31b4ddb4a678d024514df5e705f9be5909a192d7f116cfb6d45cbacf96a473fa733faa95050e7cff26e7832bb3ef94751592f1387b71c8956686
   languageName: node
   linkType: hard
 
@@ -6206,7 +6213,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"docx@npm:^8.2.1":
+"docx@npm:^8.5.0":
   version: 8.5.0
   resolution: "docx@npm:8.5.0"
   dependencies:
@@ -7141,6 +7148,45 @@ __metadata:
     utils-merge: "npm:1.0.1"
     vary: "npm:~1.1.2"
   checksum: 10c0/75af556306b9241bc1d7bdd40c9744b516c38ce50ae3210658efcbf96e3aed4ab83b3432f06215eae5610c123bc4136957dc06e50dfc50b7d4d775af56c4c59c
+  languageName: node
+  linkType: hard
+
+"express@npm:^4.19.2":
+  version: 4.19.2
+  resolution: "express@npm:4.19.2"
+  dependencies:
+    accepts: "npm:~1.3.8"
+    array-flatten: "npm:1.1.1"
+    body-parser: "npm:1.20.2"
+    content-disposition: "npm:0.5.4"
+    content-type: "npm:~1.0.4"
+    cookie: "npm:0.6.0"
+    cookie-signature: "npm:1.0.6"
+    debug: "npm:2.6.9"
+    depd: "npm:2.0.0"
+    encodeurl: "npm:~1.0.2"
+    escape-html: "npm:~1.0.3"
+    etag: "npm:~1.8.1"
+    finalhandler: "npm:1.2.0"
+    fresh: "npm:0.5.2"
+    http-errors: "npm:2.0.0"
+    merge-descriptors: "npm:1.0.1"
+    methods: "npm:~1.1.2"
+    on-finished: "npm:2.4.1"
+    parseurl: "npm:~1.3.3"
+    path-to-regexp: "npm:0.1.7"
+    proxy-addr: "npm:~2.0.7"
+    qs: "npm:6.11.0"
+    range-parser: "npm:~1.2.1"
+    safe-buffer: "npm:5.2.1"
+    send: "npm:0.18.0"
+    serve-static: "npm:1.15.0"
+    setprototypeof: "npm:1.2.0"
+    statuses: "npm:2.0.1"
+    type-is: "npm:~1.6.18"
+    utils-merge: "npm:1.0.1"
+    vary: "npm:~1.1.2"
+  checksum: 10c0/e82e2662ea9971c1407aea9fc3c16d6b963e55e3830cd0ef5e00b533feda8b770af4e3be630488ef8a752d7c75c4fcefb15892868eeaafe7353cb9e3e269fdcb
   languageName: node
   linkType: hard
 
@@ -8658,7 +8704,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"image-size@npm:^1.0.2":
+"image-size@npm:^1.1.1":
   version: 1.1.1
   resolution: "image-size@npm:1.1.1"
   dependencies:
@@ -11536,10 +11582,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^6.4.18":
-  version: 6.9.9
-  resolution: "nodemailer@npm:6.9.9"
-  checksum: 10c0/ba72da4ca8a003921c86f3d132d64d9bb86c1a3d79d248664b3de28f6a7a621f0476273ad7cf3ecc48d3b78a66ae4ec62b7c4c8ab6f07d9ca26d4bad4d08802e
+"nodemailer@npm:^6.9.13":
+  version: 6.9.13
+  resolution: "nodemailer@npm:6.9.13"
+  checksum: 10c0/4d6899f45abb7760a7d3b4d1046de7e08e80a471b84d1f09065a25941ded482e7f9877be248550e681e0270383cb9299f6caded507cbc0e917341bb137cc94a4
   languageName: node
   linkType: hard
 
