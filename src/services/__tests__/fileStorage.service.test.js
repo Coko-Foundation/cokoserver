@@ -1,23 +1,12 @@
 const fs = require('fs-extra')
 const path = require('path')
 
-const {
-  connectToFileStorage,
-  healthCheck,
-  upload,
-  getURL,
-  list,
-  download,
-} = require('../fileStorage')
+const FileStorage = require('../fileStorage')
 
 const { uploadOneFile, cleanBucket } = require('./helpers/helpers')
 const tempFolderPath = require('../../utils/tempFolderPath')
 
 describe('File Storage Service', () => {
-  beforeAll(async () => {
-    await connectToFileStorage()
-  })
-
   beforeEach(() => {
     cleanBucket()
   })
@@ -27,7 +16,7 @@ describe('File Storage Service', () => {
   })
 
   it('communicates with file server', async () => {
-    const fileServerHealth = await healthCheck()
+    const fileServerHealth = await FileStorage.healthCheck()
     expect(fileServerHealth).toBeDefined()
   })
 
@@ -42,7 +31,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'helloWorld.txt')
+    const storedObject = await FileStorage.upload(fileStream, 'helloWorld.txt')
     expect(storedObject).toHaveLength(1)
   })
 
@@ -57,7 +46,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'entry.njk')
+    const storedObject = await FileStorage.upload(fileStream, 'entry.njk')
     expect(storedObject).toHaveLength(1)
     expect(storedObject[0].mimetype).toBe('application/octet-stream')
   })
@@ -73,7 +62,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'test.jpg')
+    const storedObject = await FileStorage.upload(fileStream, 'test.jpg')
     expect(storedObject).toHaveLength(4)
   })
 
@@ -88,7 +77,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'test.png')
+    const storedObject = await FileStorage.upload(fileStream, 'test.png')
     expect(storedObject).toHaveLength(4)
   })
 
@@ -103,7 +92,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'test.tiff')
+    const storedObject = await FileStorage.upload(fileStream, 'test.tiff')
 
     expect(storedObject).toHaveLength(4)
 
@@ -128,7 +117,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'test.svg')
+    const storedObject = await FileStorage.upload(fileStream, 'test.svg')
     expect(storedObject).toHaveLength(4)
   })
 
@@ -143,7 +132,7 @@ describe('File Storage Service', () => {
     )
 
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await upload(fileStream, 'test.eps')
+    const storedObject = await FileStorage.upload(fileStream, 'test.eps')
 
     expect(storedObject).toHaveLength(4)
   })
@@ -151,14 +140,14 @@ describe('File Storage Service', () => {
   it('provides signed URLs for given operation and object key', async () => {
     const file = await uploadOneFile()
     const { key } = file
-    const signed = await getURL(key)
+    const signed = await FileStorage.getURL(key)
     expect(signed).toBeDefined()
   })
 
   it('provides a list of all the files of the bucket', async () => {
     const file = await uploadOneFile()
     const { key } = file
-    const files = await list()
+    const files = await FileStorage.list()
     expect(files.Contents).toHaveLength(1)
     expect(files.Contents[0].Key).toEqual(key)
   })
@@ -167,7 +156,7 @@ describe('File Storage Service', () => {
     const file = await uploadOneFile()
     const tempPath = path.join(tempFolderPath, `${file.key}`)
 
-    await download(file.key, tempPath)
+    await FileStorage.download(file.key, tempPath)
     expect(fs.existsSync(tempPath)).toBe(true)
 
     const content = await fs.readFile(tempPath, 'utf8')

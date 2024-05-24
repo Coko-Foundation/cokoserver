@@ -9,11 +9,7 @@ const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
 const tempFolderPath = require('../../../utils/tempFolderPath')
 
-const {
-  connectToFileStorage,
-  download,
-  uploadFileHandler,
-} = require('../../../services/fileStorage')
+const FileStorage = require('../../../services/fileStorage')
 
 const {
   convertFileStreamIntoBuffer,
@@ -83,7 +79,6 @@ exports.up = async () => {
 
   try {
     return useTransaction(async trx => {
-      await connectToFileStorage()
       const files = await File.query(trx)
 
       const tempDir = tempFolderPath
@@ -111,7 +106,7 @@ exports.up = async () => {
 
             const tempPath = path.join(tempFileDir, originalStoredObject.key)
 
-            await download(originalStoredObject.key, tempPath)
+            await FileStorage.download(originalStoredObject.key, tempPath)
 
             const format = originalStoredObject.extension
 
@@ -128,7 +123,7 @@ exports.up = async () => {
 
             const fullImageStream = fs.createReadStream(tempFullFilePath)
 
-            const full = await uploadFileHandler(
+            const full = await FileStorage.uploadFileHandler(
               fs.createReadStream(tempFullFilePath),
               path.basename(tempFullFilePath),
               mime.lookup(tempFullFilePath),

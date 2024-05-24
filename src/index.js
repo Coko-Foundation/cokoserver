@@ -15,31 +15,13 @@ const { boss, connectToJobQueue } = require('./jobs')
 const { BaseModel, useTransaction } = require('./models')
 const modelJsonSchemaTypes = require('./models/_helpers/types')
 const tempFolderPath = require('./utils/tempFolderPath')
-
-const {
-  healthCheck,
-  getURL,
-  upload,
-  deleteFiles: fileStorageDeleteFiles,
-  list,
-  download,
-} = require('./services/fileStorage')
+const FileStorage = require('./services/fileStorage')
 
 const WaxToDocxConverter = require('./services/docx/docx.service')
 
 const activityLog = require('./services/activityLog')
 const { isEnvVariableTrue } = require('./utils/env')
 const request = require('./utils/request')
-
-// Do not expose connectToFileStorage
-const fileStorage = {
-  healthCheck,
-  getURL,
-  upload,
-  deleteFiles: fileStorageDeleteFiles,
-  list,
-  download,
-}
 
 // const { serviceHandshake } = require('./helpers')
 
@@ -59,7 +41,7 @@ module.exports = {
   verifyJWT,
   pubsubManager,
   modelJsonSchemaTypes,
-  fileStorage,
+  FileStorage,
   createFile,
   deleteFiles,
   // serviceHandshake,

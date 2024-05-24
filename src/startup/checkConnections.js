@@ -2,7 +2,7 @@ const config = require('config')
 
 const db = require('../dbManager/db')
 const { logTask, logTaskItem, logErrorTask } = require('../logger/internals')
-const { connectToFileStorage } = require('../services/fileStorage')
+const FileStorage = require('../services/fileStorage')
 
 const sleep = ms =>
   new Promise(resolve => {
@@ -46,7 +46,7 @@ const checkConnections = async () => {
 
   if (config.has('useFileStorage') && config.get('useFileStorage')) {
     try {
-      await connectToFileStorage()
+      await FileStorage.healthCheck()
       logTaskItem('File storage connection successful')
     } catch (e) {
       logErrorTask('Could not establish connection to file storage')

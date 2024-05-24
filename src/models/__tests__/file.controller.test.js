@@ -4,14 +4,10 @@ const path = require('path')
 
 const File = require('../file/file.model')
 const { deleteFiles, createFile } = require('../file/file.controller')
-const { connectToFileStorage } = require('../../services/fileStorage')
+// const FileStorage = require('../../services/fileStorage')
 const clearDb = require('./_clearDb')
 
 describe('File Controller', () => {
-  beforeAll(() => {
-    connectToFileStorage()
-  })
-
   beforeEach(() => clearDb())
 
   afterAll(() => {
