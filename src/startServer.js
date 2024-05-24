@@ -12,7 +12,6 @@ const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
 const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
-const api = require('./routes/api')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
 
@@ -114,8 +113,6 @@ const startServer = async () => {
   app.locals.passport = passport
 
   registerComponents(app)
-
-  app.use('/api', api) // REST API
 
   app.get('/healthcheck', healthcheck) // Server health endpoint
 
