@@ -1441,7 +1441,6 @@ __metadata:
     moment: "npm:^2.29.1"
     morgan: "npm:^1.10.0"
     node-cron: "npm:^2.0.3"
-    node-wait-for-it: "npm:^0.2.0"
     nodemailer: "npm:^6.4.18"
     nodemon: "npm:^3.1.0"
     objection: "npm:^2.2.15"
@@ -11534,15 +11533,6 @@ __metadata:
   dependencies:
     "@babel/parser": "npm:^7.21.8"
   checksum: 10c0/199875bf108750693c55c30b13085ab2956059593c7a5c10c3a30ea3c16b7448e7514d63767dbd825c71ab40be76f66c4d98f17794e3232a645867a99a82fb19
-  languageName: node
-  linkType: hard
-
-"node-wait-for-it@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "node-wait-for-it@npm:0.2.0"
-  bin:
-    wait-for-it: ./bin/wait-for-it
-  checksum: 10c0/6f5568c0fa955589f8189063aa39cad19b0ef2d41b891f85d3ae91c4a044360b14a8afbb6b2ac9096546a914a69673f53925de0ad62434e9bdae5bb50c891292
   languageName: node
   linkType: hard
 
