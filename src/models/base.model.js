@@ -18,11 +18,6 @@ class BaseModel extends Model {
       onCreateAjv: ajv => {
         addFormats(ajv)
       },
-      options: {
-        allErrors: true,
-        validateSchema: true,
-        ownProperties: true,
-      },
     })
   }
 
