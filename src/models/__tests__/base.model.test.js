@@ -198,37 +198,6 @@ describe('Base model', () => {
     await expect(Fake.findOne(1)).rejects.toThrow()
   })
 
-  it('throws when disabled methods are called', async () => {
-    const newEntity = await Fake.insert({})
-    expect(() => {
-      newEntity.save()
-    }).toThrow()
-    expect(() => {
-      newEntity.saveGraph()
-    }).toThrow()
-    //  eslint-disable-next-line
-    await expect(newEntity._save()).rejects.toThrow()
-    expect(() => {
-      //  eslint-disable-next-line
-      newEntity._updateProperties()
-    }).toThrow()
-
-    expect(() => {
-      newEntity.updateProperties()
-    }).toThrow()
-
-    expect(() => {
-      newEntity.setOwners()
-    }).toThrow()
-
-    expect(() => {
-      Fake.findByField()
-    }).toThrow()
-    await expect(Fake.findOneByField()).rejects.toThrow()
-    await expect(Fake.all()).rejects.toThrow()
-    await expect(newEntity.delete()).rejects.toThrow()
-  })
-
   it('patches entity with provided data', async () => {
     const newEntity = await Fake.insert({})
     const affectedRows = await newEntity.patch({ status: 'test' })

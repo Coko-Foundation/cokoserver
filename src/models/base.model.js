@@ -1,9 +1,75 @@
-const logger = require('../logger')
+const { Model } = require('objection')
+const config = require('config')
+const merge = require('lodash/merge')
+const uuid = require('uuid')
 
-const PubsweetBaseModel = require('./pubsweetBase.model')
+const db = require('../dbManager/db')
+const logger = require('../logger')
 const useTransaction = require('./useTransaction')
 
-class BaseModel extends PubsweetBaseModel {
+Model.knex(db)
+
+class BaseModel extends Model {
+  static get jsonSchema() {
+    // JSON schema validation is getting proper support for inheritance in
+    // its draft 8: https://github.com/json-schema-org/json-schema-spec/issues/556
+    // Until then, we're not using additionalProperties: false, and letting the
+    // database handle this bit of the integrity checks.
+
+    let schema
+
+    const mergeSchema = additionalSchema => {
+      if (additionalSchema) {
+        schema = merge(schema, additionalSchema)
+      }
+    }
+
+    // Crawls up the prototype chain to collect schema
+    // information from models and extended models
+    const getSchemasRecursively = object => {
+      mergeSchema(object.schema)
+
+      if (config.has('schema')) {
+        mergeSchema(config.schema[object.name])
+      }
+
+      const proto = Object.getPrototypeOf(object)
+
+      if (proto.name !== 'BaseModel') {
+        getSchemasRecursively(proto)
+      }
+    }
+
+    getSchemasRecursively(this)
+
+    const baseSchema = {
+      type: 'object',
+      properties: {
+        type: { type: 'string' },
+        id: { type: 'string', format: 'uuid' },
+        created: { type: ['string', 'object'], format: 'date-time' },
+        updated: { type: ['string', 'object'], format: 'date-time' },
+      },
+      additionalProperties: false,
+    }
+
+    if (schema) {
+      return merge(baseSchema, schema)
+    }
+
+    return baseSchema
+  }
+
+  $beforeInsert() {
+    this.id = this.id || uuid.v4()
+    this.created = new Date().toISOString()
+    this.updated = this.created
+  }
+
+  $beforeUpdate() {
+    this.updated = new Date().toISOString()
+  }
+
   static async find(data, options = {}) {
     try {
       const { trx, related, orderBy, page, pageSize } = options
@@ -311,51 +377,8 @@ class BaseModel extends PubsweetBaseModel {
       throw new Error(e)
     }
   }
-
-  // #region legacy
-  /* eslint-disable class-methods-use-this */
-  save() {
-    throw new Error('Base model: save method has been disabled')
-  }
-
-  saveGraph(opts = {}) {
-    throw new Error('Base model: saveGraph method has been disabled')
-  }
-
-  /* eslint-disable-next-line no-underscore-dangle */
-  async _save(insertAndFetch, updateAndFetch, trx) {
-    throw new Error('Base model: _save method has been disabled')
-  }
-
-  /* eslint-disable-next-line no-underscore-dangle */
-  _updateProperties(properties) {
-    throw new Error('Base model: _updateProperties method has been disabled')
-  }
-
-  updateProperties(properties) {
-    throw new Error('Base model: updateProperties method has been disabled')
-  }
-
-  setOwners(owners) {
-    throw new Error('Base model: setOwners method has been disabled')
-  }
-
-  async delete() {
-    throw new Error('Base model: delete method has been disabled')
-  }
-  /* eslint-enable class-methods-use-this */
-
-  static findByField(field, value) {
-    throw new Error('Base model: findByField method has been disabled')
-  }
-
-  static async findOneByField(field, value) {
-    throw new Error('Base model: findOneByField method has been disabled')
-  }
-
-  static async all() {
-    throw new Error('Base model: all method has been disabled')
-  }
-  // #endregion legacy
 }
+
+BaseModel.pickJsonSchemaProperties = false
+
 module.exports = BaseModel
