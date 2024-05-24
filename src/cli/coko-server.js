@@ -12,6 +12,42 @@ const pkg = require('../../package.json')
 const logger = require('../logger')
 const { logNodemon } = require('../logger/internals')
 const { migrate, rollback, pending, executed } = require('../dbManager/migrate')
+const startServer = require('../startServer')
+
+program
+  .command('start')
+  .description('Start server')
+  .showHelpAfterError()
+  .action(() => {
+    startServer()
+  })
+
+program
+  .command('start-dev')
+  .description('Start development server')
+  .showHelpAfterError()
+  .action(() => {
+    const scriptPath = path.join(__dirname, '..', 'init')
+
+    nodemon({
+      script: scriptPath,
+      ignore: './tmp/*',
+    })
+
+    nodemon
+      .on('start', () => {
+        logNodemon('\nStarting dev server...')
+      })
+      .on('quit', () => {
+        logNodemon('\nStopping dev server...\n')
+        process.exit()
+      })
+      .on('restart', files => {
+        logNodemon(`Retarting dev server due to files ${files}...`, {
+          withLines: true,
+        })
+      })
+  })
 
 const migrateCommand = program
   .command('migrate')
@@ -104,7 +140,7 @@ migrateCommand
 
 program
   .command('circular')
-  .description('Run or roll back migrations')
+  .description('Display circular dependencies')
   .showHelpAfterError()
   .action(async () => {
     const res = await madge(process.cwd())
@@ -122,33 +158,6 @@ program
       json: program.json,
       printCount: program.count,
     })
-  })
-
-program
-  .command('start-dev')
-  .description('Start a development server')
-  .showHelpAfterError()
-  .action(() => {
-    const scriptPath = path.join(__dirname, '..', 'init')
-
-    nodemon({
-      script: scriptPath,
-      ignore: './tmp/*',
-    })
-
-    nodemon
-      .on('start', () => {
-        logNodemon('\nStarting dev server...')
-      })
-      .on('quit', () => {
-        logNodemon('\nStopping dev server...\n')
-        process.exit()
-      })
-      .on('restart', files => {
-        logNodemon(`Retarting dev server due to files ${files}...`, {
-          withLines: true,
-        })
-      })
   })
 
 program
