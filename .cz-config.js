@@ -3,7 +3,15 @@ const { commitizen } = require('@coko/lint')
 const modified = {
   ...commitizen,
   skipQuestions: ['body', 'footer'], // do NOT skip 'breaking'
-  scopes: ['server', 'middleware', 'models', 'db manager', 'cli', '*'],
+  scopes: [
+    'cli',
+    'db manager',
+    'fileStorage',
+    'middleware',
+    'models',
+    'server',
+    '*',
+  ],
   askForBreakingChangeFirst: true,
 }
 

@@ -77,6 +77,15 @@ class FileStorage {
     }
   }
 
+  async #getFileInfo(key) {
+    const params = {
+      Bucket: this.bucket,
+      Key: key,
+    }
+
+    return this.s3.getObject(params)
+  }
+
   // object keys is an array
   async delete(objectKeys) {
     if (!objectKeys || (Array.isArray(objectKeys) && objectKeys.length === 0)) {
@@ -138,23 +147,6 @@ class FileStorage {
     } catch (e) {
       throw new Error(`Error writing item ${key} to disk. ${e.message}`)
     }
-  }
-
-  async getFileInfo(key) {
-    const params = {
-      Bucket: this.bucket,
-      Key: key,
-    }
-
-    return new Promise((resolve, reject) => {
-      this.s3.getObject(params, (err, data) => {
-        if (err) {
-          reject(err)
-        }
-
-        resolve(data)
-      })
-    })
   }
 
   async getURL(objectKey, options = {}) {
@@ -442,7 +434,7 @@ class FileStorage {
           mimetype,
         )
 
-        const { ContentLength } = await this.getFileInfo(storedObject.key)
+        const { ContentLength } = await this.#getFileInfo(storedObject.key)
         storedObject.type = 'original'
         storedObject.size = ContentLength
         storedObject.extension = `${getFileExtension(filename)}`

@@ -191,4 +191,11 @@ describe('File Storage Service', () => {
       'No keys provided. Nothing to delete.',
     )
   })
+
+  it('hides private methods', async () => {
+    // sanity checl that it returns true on non-private methods
+    expect('upload' in FileStorageConstructor.prototype).toBe(true)
+
+    expect('getFileInfo' in FileStorageConstructor.prototype).toBe(false)
+  })
 })
