@@ -17,6 +17,7 @@
   },
   "scripts": {
     "cz": "./node_modules/.bin/git-cz",
+    "lint": "yarn coko-lint run --skip-stylelint",
     "prepare": "husky install",
     "release": "standard-version",
     "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=1 yarn jest --verbose"

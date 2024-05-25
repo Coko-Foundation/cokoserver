@@ -17,7 +17,7 @@ const {
   labels: { IDENTITY_CONTROLLER },
 } = require('./constants')
 
-const { emptyUndefinedOrNull } = require('../../helpers')
+const envUtils = require('../../utils/env')
 
 const getUserIdentities = async userId => {
   try {
@@ -153,7 +153,7 @@ const authorizeOAuth = async (provider, sessionState, code) => {
     throw new Error('Missing access_token from response!')
   }
 
-  if (emptyUndefinedOrNull(expires_in)) {
+  if (envUtils.isValidPositiveIntegerOrZero(expires_in)) {
     throw new Error('Missing expires_in from response!')
   }
 
@@ -161,7 +161,7 @@ const authorizeOAuth = async (provider, sessionState, code) => {
     throw new Error('Missing refresh_token from response!')
   }
 
-  if (emptyUndefinedOrNull(refresh_expires_in)) {
+  if (envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
     throw new Error('Missing refresh_expires_in from response!')
   }
 

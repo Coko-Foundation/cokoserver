@@ -20,7 +20,7 @@ const {
   invalidateProviderTokens,
 } = require('../models/identity/identity.controller')
 
-const { emptyUndefinedOrNull } = require('../helpers')
+const envUtils = require('./env')
 
 const getAuthTokens = async (userId, providerLabel) => {
   return requestTokensFromProvider(userId, providerLabel, {
@@ -129,7 +129,7 @@ const requestTokensFromProvider = async (
     throw new Error('Missing access_token from response!')
   }
 
-  if (emptyUndefinedOrNull(expires_in)) {
+  if (envUtils.isValidPositiveIntegerOrZero(expires_in)) {
     throw new Error('Missing expires_in from response!')
   }
 
@@ -137,7 +137,7 @@ const requestTokensFromProvider = async (
     throw new Error('Missing refresh_token from response!')
   }
 
-  if (emptyUndefinedOrNull(refresh_expires_in)) {
+  if (envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
     throw new Error('Missing refresh_expires_in from response!')
   }
 

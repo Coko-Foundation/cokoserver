@@ -10,9 +10,8 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const tempFolderPath = require('../utils/tempFolderPath')
 const { writeFileToTemp } = require('../utils/filesystem')
+const envUtils = require('../utils/env')
 const Image = require('./Image')
-
-const { emptyUndefinedOrNull } = require('../helpers')
 
 class FileStorage {
   constructor(properties) {
@@ -31,10 +30,7 @@ class FileStorage {
     } = config.get('fileStorage')
 
     const fileStorageUrl = `${protocol}://${host}${port ? `:${port}` : ''}`
-
-    const forcePathStyle = !emptyUndefinedOrNull(s3ForcePathStyle)
-      ? JSON.parse(s3ForcePathStyle)
-      : true
+    const forcePathStyle = envUtils.isTrue(s3ForcePathStyle)
 
     this.s3 = new S3({
       credentials: {
@@ -47,17 +43,12 @@ class FileStorage {
     })
 
     this.bucket = bucket
-    this.s3SeparateDeleteOperations = s3SeparateDeleteOperations
+
+    this.separateDeleteOperations = envUtils.isTrue(s3SeparateDeleteOperations)
 
     this.imageConversionToSupportedFormatMapper = {
       eps: 'svg',
     }
-
-    this.separateDeleteOperations = !emptyUndefinedOrNull(
-      this.s3SeparateDeleteOperations,
-    )
-      ? JSON.parse(this.s3SeparateDeleteOperations)
-      : false
 
     /**
      * Override some values only for testing purposes.
