@@ -23,8 +23,8 @@ module.exports = {
     minioConsolePort: 'MINIO_CONSOLE_PORT',
     maximumWidthForSmallImages: 'MAXIMUM_WIDTH_FOR_SMALL_IMAGES',
     maximumWidthForMediumImages: 'MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES',
-    s3SeparateDeleteOperations: 'S3_SEPARATE_DELETE_OPERATIONS',
-    s3ForcePathStyle: 'S3_FORCE_PATH_STYLE',
+    // s3SeparateDeleteOperations: 'S3_SEPARATE_DELETE_OPERATIONS',
+    // s3ForcePathStyle: 'S3_FORCE_PATH_STYLE',
   },
   passwordReset: {
     path: 'PASSWORD_RESET_PATH',

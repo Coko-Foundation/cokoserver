@@ -30,7 +30,7 @@ class FileStorage {
     } = config.get('fileStorage')
 
     const fileStorageUrl = `${protocol}://${host}${port ? `:${port}` : ''}`
-    const forcePathStyle = envUtils.isTrue(s3ForcePathStyle)
+    const forcePathStyle = envUtils.isTrue(s3ForcePathStyle) || true
 
     this.s3 = new S3({
       credentials: {
@@ -86,7 +86,7 @@ class FileStorage {
 
     const storedObjects = await Promise.all(
       dataToUpload.map(async item => {
-        const uploaded = await this.uploadFileHandler(
+        const uploaded = await this.#uploadFileHandler(
           fs.createReadStream(item.path),
           item.filename,
           item.mimetype,
@@ -109,6 +109,29 @@ class FileStorage {
 
     await fs.remove(tempDir)
     return storedObjects
+  }
+
+  async #uploadFileHandler(fileStream, filename, mimetype) {
+    const params = {
+      Bucket: this.bucket,
+      Key: filename, // file name you want to save as
+      Body: fileStream,
+      ContentType: mimetype,
+    }
+
+    const upload = new Upload({
+      client: this.s3,
+      params,
+    })
+
+    // upload.on('httpUploadProgress', progress => {
+    //   console.log(progress)
+    // })
+
+    const data = await upload.done()
+
+    const { Key } = data
+    return { key: Key }
   }
 
   // object keys is an array
@@ -215,7 +238,7 @@ class FileStorage {
 
     if (isImage) return this.#handleImageUpload(fileStream, hashedFilename)
 
-    const storedObject = await this.uploadFileHandler(
+    const storedObject = await this.#uploadFileHandler(
       fileStream,
       hashedFilename,
       mimetype,
@@ -227,30 +250,6 @@ class FileStorage {
     storedObject.extension = extension
     storedObject.mimetype = mimetype
     return [storedObject]
-  }
-
-  // TO DO -- make private? migration is using it
-  async uploadFileHandler(fileStream, filename, mimetype) {
-    const params = {
-      Bucket: this.bucket,
-      Key: filename, // file name you want to save as
-      Body: fileStream,
-      ContentType: mimetype,
-    }
-
-    const upload = new Upload({
-      client: this.s3,
-      params,
-    })
-
-    // upload.on('httpUploadProgress', progress => {
-    //   console.log(progress)
-    // })
-
-    const data = await upload.done()
-
-    const { Key } = data
-    return { key: Key }
   }
 }
 

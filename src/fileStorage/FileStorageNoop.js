@@ -36,10 +36,6 @@ class FileStorageNoop {
   upload() {
     this.error()
   }
-
-  uploadFileHandler() {
-    this.error()
-  }
 }
 
 module.exports = FileStorageNoop

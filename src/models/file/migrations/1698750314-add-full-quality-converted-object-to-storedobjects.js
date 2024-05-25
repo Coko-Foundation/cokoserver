@@ -1,10 +1,17 @@
 const { buffer } = require('stream/consumers')
 
+/**
+ * Some light duplication of code in this file, in order to keep it from being
+ * a blocker for refactoring or other changes.
+ * (eg. we made uploadFileHandler a private method, so it wouldn't be available here)
+ */
+
 const mime = require('mime-types')
 const fs = require('fs-extra')
 const path = require('path')
 const sharp = require('sharp')
 const config = require('config')
+const { Upload } = require('@aws-sdk/lib-storage')
 
 const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
@@ -60,6 +67,29 @@ const sharpConversionFullFilePath = async (
   await sharp(bufferData).toFile(tempFullFilePath)
 
   return tempFullFilePath
+}
+
+const uploadFileHandler = async (fileStream, filename, mimetype) => {
+  const params = {
+    Bucket: FileStorage.bucket,
+    Key: filename, // file name you want to save as
+    Body: fileStream,
+    ContentType: mimetype,
+  }
+
+  const upload = new Upload({
+    client: FileStorage.s3,
+    params,
+  })
+
+  // upload.on('httpUploadProgress', progress => {
+  //   console.log(progress)
+  // })
+
+  const data = await upload.done()
+
+  const { Key } = data
+  return { key: Key }
 }
 
 exports.up = async () => {
@@ -128,7 +158,7 @@ exports.up = async () => {
 
             const fullImageStream = fs.createReadStream(tempFullFilePath)
 
-            const full = await FileStorage.uploadFileHandler(
+            const full = await uploadFileHandler(
               fs.createReadStream(tempFullFilePath),
               path.basename(tempFullFilePath),
               mime.lookup(tempFullFilePath),
