@@ -1,10 +1,33 @@
 const fs = require('fs-extra')
 const path = require('path')
 
-const FileStorage = require('../fileStorage')
-
-const { uploadOneFile, cleanBucket } = require('./helpers/helpers')
+const FileStorage = require('../index')
+const FileStorageConstructor = require('../FileStorage')
 const tempFolderPath = require('../../utils/tempFolderPath')
+
+const testFilePath = path.join(__dirname, 'files')
+
+const uploadOneFile = async () => {
+  const filePath = path.join(testFilePath, 'helloWorld.txt')
+  const fileStream = fs.createReadStream(filePath)
+  const file = await FileStorage.upload(fileStream, 'helloWorld.txt')
+  return file[0]
+}
+
+const cleanBucket = async () => {
+  const list = await FileStorage.list()
+  const { Contents } = list
+
+  if (!Contents) return true // bucket is empty already
+
+  const fileKeys = Contents.map(file => file.Key)
+
+  if (fileKeys.length > 0) {
+    return FileStorage.delete(fileKeys)
+  }
+
+  return true
+}
 
 describe('File Storage Service', () => {
   beforeEach(() => {
@@ -21,30 +44,14 @@ describe('File Storage Service', () => {
   })
 
   it('uploads a file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'helloWorld.txt',
-    )
-
+    const filePath = path.join(testFilePath, 'helloWorld.txt')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'helloWorld.txt')
     expect(storedObject).toHaveLength(1)
   })
 
   it('uploads a not common extension file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'entry.njk',
-    )
-
+    const filePath = path.join(testFilePath, 'entry.njk')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'entry.njk')
     expect(storedObject).toHaveLength(1)
@@ -52,45 +59,21 @@ describe('File Storage Service', () => {
   })
 
   it('uploads an jpg image file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.jpg',
-    )
-
+    const filePath = path.join(testFilePath, 'test.jpg')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'test.jpg')
     expect(storedObject).toHaveLength(4)
   })
 
   it('uploads a png image file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.png',
-    )
-
+    const filePath = path.join(testFilePath, 'test.png')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'test.png')
     expect(storedObject).toHaveLength(4)
   })
 
   it('uploads a tiff image file and checks the original and converted file types', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.tiff',
-    )
-
+    const filePath = path.join(testFilePath, 'test.tiff')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'test.tiff')
 
@@ -107,30 +90,14 @@ describe('File Storage Service', () => {
   })
 
   it('uploads an svg image file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.svg',
-    )
-
+    const filePath = path.join(testFilePath, 'test.svg')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'test.svg')
     expect(storedObject).toHaveLength(4)
   })
 
   it('uploads an eps image file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.eps',
-    )
-
+    const filePath = path.join(testFilePath, 'test.eps')
     const fileStream = fs.createReadStream(filePath)
     const storedObject = await FileStorage.upload(fileStream, 'test.eps')
 
@@ -161,5 +128,67 @@ describe('File Storage Service', () => {
 
     const content = await fs.readFile(tempPath, 'utf8')
     expect(content).toBe('This is a dummy text file')
+  })
+
+  it('deletes a single file', async () => {
+    const file = await uploadOneFile()
+
+    const list = await FileStorage.list()
+    expect(list.Contents.length).toBe(1)
+
+    await FileStorage.delete(file.key)
+
+    const updatedList = await FileStorage.list()
+    expect(updatedList.Contents).not.toBeDefined()
+  })
+
+  it('deletes multiple files', async () => {
+    const files = await Promise.all(
+      Array.from(Array(2)).map(async () => {
+        return uploadOneFile()
+      }),
+    )
+
+    const list = await FileStorage.list()
+    expect(list.Contents.length).toBe(2)
+
+    const keys = files.map(f => f.key)
+    await FileStorage.delete(keys)
+
+    const updatedList = await FileStorage.list()
+    expect(updatedList.Contents).not.toBeDefined()
+  })
+
+  it('deletes files when separateDeleteOperations is true', async () => {
+    const ModifiedFS = new FileStorageConstructor({
+      separateDeleteOperations: true,
+    })
+
+    const files = await Promise.all(
+      Array.from(Array(2)).map(async () => {
+        return uploadOneFile()
+      }),
+    )
+
+    const list = await ModifiedFS.list()
+    expect(list.Contents.length).toBe(2)
+
+    const keys = files.map(f => f.key)
+    await ModifiedFS.delete(keys)
+
+    const updatedList = await ModifiedFS.list()
+    expect(updatedList.Contents).not.toBeDefined()
+  })
+
+  it('throws if delete is called with no arguments', async () => {
+    await expect(FileStorage.delete()).rejects.toThrow(
+      'No keys provided. Nothing to delete.',
+    )
+  })
+
+  it('throws if array of keys is empty', async () => {
+    await expect(FileStorage.delete([])).rejects.toThrow(
+      'No keys provided. Nothing to delete.',
+    )
   })
 })

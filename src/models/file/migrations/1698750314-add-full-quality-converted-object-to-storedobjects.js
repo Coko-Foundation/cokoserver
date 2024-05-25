@@ -9,7 +9,7 @@ const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
 const tempFolderPath = require('../../../utils/tempFolderPath')
 
-const FileStorage = require('../../../services/fileStorage')
+const FileStorage = require('../../../fileStorage')
 
 const {
   convertFileStreamIntoBuffer,

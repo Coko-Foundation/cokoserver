@@ -3,7 +3,7 @@ const logger = require('../../logger')
 const File = require('./file.model')
 const useTransaction = require('../useTransaction')
 
-const FileStorage = require('../../services/fileStorage')
+const FileStorage = require('../../fileStorage')
 
 const {
   labels: { FILE_CONTROLLER },
@@ -70,7 +70,7 @@ const deleteFiles = async (ids, removeFromFileServer = true, options = {}) => {
               const keys = []
               storedObjects.forEach(storedObject => keys.push(storedObject.key))
 
-              await FileStorage.deleteFiles(keys)
+              await FileStorage.delete(keys)
             }),
           )
         }

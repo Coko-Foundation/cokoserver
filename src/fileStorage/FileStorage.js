@@ -1,8 +1,5 @@
-/* eslint-disable max-classes-per-file */
-
 const fs = require('fs-extra')
 const config = require('config')
-const forEach = require('lodash/forEach')
 const crypto = require('crypto')
 const path = require('path')
 const mime = require('mime-types')
@@ -25,7 +22,7 @@ const {
 } = require('../helpers')
 
 class FileStorage {
-  constructor() {
+  constructor(properties) {
     const DEFAULT_REGION = 'us-east-1'
 
     const {
@@ -58,63 +55,59 @@ class FileStorage {
 
     this.bucket = bucket
     this.s3SeparateDeleteOperations = s3SeparateDeleteOperations
+
     this.imageConversionToSupportedFormatMapper = {
       eps: 'svg',
     }
-  }
 
-  // Accepts an array of object keys
-  async deleteFiles(objectKeys) {
-    if (objectKeys.length === 0) {
-      throw new Error('the provided array of keys if empty')
-    }
-
-    const separateDeleteOperations = !emptyUndefinedOrNull(
+    this.separateDeleteOperations = !emptyUndefinedOrNull(
       this.s3SeparateDeleteOperations,
     )
       ? JSON.parse(this.s3SeparateDeleteOperations)
       : false
 
-    if (separateDeleteOperations) {
+    /**
+     * Override some values only for testing purposes.
+     * This is fine, as we're not exporting the contructor from the lib.
+     */
+    if (properties) {
+      Object.keys(properties).forEach(key => {
+        this[key] = properties[key]
+      })
+    }
+  }
+
+  // object keys is an array
+  async delete(objectKeys) {
+    if (!objectKeys || (Array.isArray(objectKeys) && objectKeys.length === 0)) {
+      throw new Error('No keys provided. Nothing to delete.')
+    }
+
+    // delete a single key
+    if (!Array.isArray(objectKeys)) {
+      const params = { Bucket: this.bucket, Key: objectKeys }
+      return this.s3.deleteObject(params)
+    }
+
+    // gcp compatibility - does not support batch delete
+    if (this.separateDeleteOperations) {
       return Promise.all(
-        objectKeys.map(
-          async objectKey =>
-            new Promise((resolve, reject) => {
-              const params = { Bucket: this.bucket, Key: objectKey }
-
-              this.s3.deleteObject(params, (err, data) => {
-                if (err) {
-                  reject(err)
-                }
-
-                resolve(data)
-              })
-            }),
-        ),
+        objectKeys.map(async objectKey => {
+          const params = { Bucket: this.bucket, Key: objectKey }
+          return this.s3.deleteObject(params)
+        }),
       )
     }
 
     const params = {
       Bucket: this.bucket,
       Delete: {
-        Objects: [],
+        Objects: objectKeys.map(k => ({ Key: k })),
         Quiet: false,
       },
     }
 
-    forEach(objectKeys, objectKey => {
-      params.Delete.Objects.push({ Key: objectKey })
-    })
-
-    return new Promise((resolve, reject) => {
-      this.s3.deleteObjects(params, (err, data) => {
-        if (err) {
-          reject(err)
-        }
-
-        resolve(data)
-      })
-    })
+    return this.s3.deleteObjects(params)
   }
 
   async download(key, localPath) {
@@ -497,66 +490,4 @@ class FileStorage {
   }
 }
 
-class FileStorageNoop {
-  static error() {
-    throw new Error(
-      'Cannot use the FileStorage class when useFileStorage is false in the config',
-    )
-  }
-
-  deleteFiles() {
-    this.error()
-  }
-
-  download() {
-    this.error()
-  }
-
-  getFileInfo() {
-    this.error()
-  }
-
-  getUrl() {
-    this.error()
-  }
-
-  handleImageUpload() {
-    this.error()
-  }
-
-  healthCheck() {
-    this.error()
-  }
-
-  list() {
-    this.error()
-  }
-
-  upload() {
-    this.error()
-  }
-
-  uploadFileHandler() {
-    this.error()
-  }
-}
-
-/**
- * PREVIOUSLY EXPORTED FUNCTIONS
- */
-
-// const fileStorage = {
-//   healthCheck,
-//   getURL,
-//   upload,
-//   deleteFiles: fileStorageDeleteFiles,
-//   list,
-//   download,
-// }
-
-const exportedClass =
-  config.has('useFileStorage') && config.get('useFileStorage')
-    ? new FileStorage()
-    : new FileStorageNoop()
-
-module.exports = exportedClass
+module.exports = FileStorage

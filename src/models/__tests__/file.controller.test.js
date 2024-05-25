@@ -7,6 +7,15 @@ const { deleteFiles, createFile } = require('../file/file.controller')
 // const FileStorage = require('../../services/fileStorage')
 const clearDb = require('./_clearDb')
 
+const testFilePath = path.join(
+  __dirname,
+  '..',
+  '..',
+  'fileStorage',
+  '__tests__',
+  'files',
+)
+
 describe('File Controller', () => {
   beforeEach(() => clearDb())
 
@@ -16,15 +25,7 @@ describe('File Controller', () => {
   })
 
   it('creates a file', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.jpg',
-    )
-
+    const filePath = path.join(testFilePath, 'test.jpg')
     const fileStream = fs.createReadStream(filePath)
     const newFile = await createFile(fileStream, 'test.jpg')
 
@@ -34,15 +35,7 @@ describe('File Controller', () => {
   })
 
   it('creates a file and forces specific object key', async () => {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'services',
-      '__tests__',
-      'files',
-      'test.jpg',
-    )
-
+    const filePath = path.join(testFilePath, 'test.jpg')
     const fileStream = fs.createReadStream(filePath)
 
     const newFile = await createFile(
