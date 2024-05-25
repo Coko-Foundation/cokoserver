@@ -9,7 +9,7 @@ const { Upload } = require('@aws-sdk/lib-storage')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const tempFolderPath = require('../utils/tempFolderPath')
-const { writeFileFromStream } = require('../utils/filesystem')
+const { writeFileToTemp } = require('../utils/filesystem')
 const Image = require('./Image')
 
 const { emptyUndefinedOrNull } = require('../helpers')
@@ -83,8 +83,8 @@ class FileStorage {
     const randomHash = crypto.randomBytes(6).toString('hex')
     const tempDir = path.join(tempFolderPath, randomHash)
     await fs.ensureDir(tempDir)
-    const originalFilePath = path.join(tempDir, hashedFilename)
-    await writeFileFromStream(fileStream, originalFilePath)
+    const originalFilePath = path.join(randomHash, hashedFilename)
+    await writeFileToTemp(fileStream, originalFilePath)
 
     const image = new Image({
       filename: hashedFilename,

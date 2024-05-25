@@ -1,40 +1,17 @@
+const path = require('path')
+const { buffer } = require('stream/consumers')
+
 const fs = require('fs-extra')
 
-// const tempFolderPath = require('../utils/tempFolderPath')
+const tempFolderPath = require('./tempFolderPath')
 
-const writeFileFromStream = async (inputStream, filePath) => {
-  return new Promise((resolve, reject) => {
-    const outputStream = fs.createWriteStream(filePath)
-
-    inputStream.pipe(outputStream)
-
-    outputStream.on('error', error => {
-      reject(error.message)
-    })
-
-    outputStream.on('finish', () => {
-      resolve()
-    })
-  })
+const writeFileToTemp = async (readStream, filePath) => {
+  const outputPath = path.join(tempFolderPath, filePath)
+  await fs.ensureFile(outputPath)
+  const dataBuffer = await buffer(readStream)
+  await fs.outputFile(outputPath, dataBuffer)
 }
 
-// const writeFileToTemp = async (readStream, filePath) => {
-//   return new Promise((resolve, reject) => {
-
-//     const outputStream = fs.createWriteStream(filePath)
-
-//     readStream.pipe(outputStream)
-
-//     outputStream.on('error', error => {
-//       reject(error.message)
-//     })
-
-//     outputStream.on('finish', () => {
-//       resolve()
-//     })
-//   })
-// }
-
 module.exports = {
-  writeFileFromStream,
+  writeFileToTemp,
 }
