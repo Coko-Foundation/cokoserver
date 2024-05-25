@@ -8,16 +8,12 @@ const { S3, GetObjectCommand } = require('@aws-sdk/client-s3')
 const { Upload } = require('@aws-sdk/lib-storage')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
-const logger = require('../logger')
 const tempFolderPath = require('../utils/tempFolderPath')
+const Image = require('./Image')
 
 const {
   getFileExtension,
   writeFileFromStream,
-  handleUnsupportedImageFormats,
-  handleImageVersionsCreation,
-  convertFileStreamIntoBuffer,
-  getImageFileMetadata,
   emptyUndefinedOrNull,
 } = require('../helpers')
 
@@ -84,6 +80,47 @@ class FileStorage {
     }
 
     return this.s3.getObject(params)
+  }
+
+  async #handleImageUpload(fileStream, hashedFilename) {
+    const randomHash = crypto.randomBytes(6).toString('hex')
+    const tempDir = path.join(tempFolderPath, randomHash)
+    await fs.ensureDir(tempDir)
+    const originalFilePath = path.join(tempDir, hashedFilename)
+    await writeFileFromStream(fileStream, originalFilePath)
+
+    const image = new Image({
+      filename: hashedFilename,
+      dir: tempDir,
+    })
+
+    const dataToUpload = await image.generateVersions()
+
+    const storedObjects = await Promise.all(
+      dataToUpload.map(async item => {
+        const uploaded = await this.uploadFileHandler(
+          fs.createReadStream(item.path),
+          item.filename,
+          item.mimetype,
+        )
+
+        uploaded.imageMetadata = {
+          density: item.density,
+          height: item.height,
+          space: item.space,
+          width: item.width,
+        }
+        uploaded.size = item.size
+        uploaded.extension = item.extension
+        uploaded.type = item.type
+        uploaded.mimetype = item.mimetype
+
+        return uploaded
+      }),
+    )
+
+    await fs.remove(tempDir)
+    return storedObjects
   }
 
   // object keys is an array
@@ -166,294 +203,61 @@ class FileStorage {
     return getSignedUrl(this.s3, command, s3Params)
   }
 
-  // TO DO -- also private? maybe only expose upload
-  async handleImageUpload(fileStream, hashedFilename) {
-    try {
-      const storedObjects = []
-      const randomHash = crypto.randomBytes(6).toString('hex')
-      const tempDirRoot = tempFolderPath
-      const tempDir = path.join(tempDirRoot, randomHash)
-      let tempSmallFilePath
-      let tempMediumFilePath
-      let tempFullFilePath
-
-      await fs.ensureDir(tempDir)
-      const originalFilePath = path.join(tempDir, hashedFilename)
-
-      await writeFileFromStream(fileStream, originalFilePath)
-
-      /* eslint-disable no-prototype-builtins */
-      if (
-        this.imageConversionToSupportedFormatMapper.hasOwnProperty(
-          getFileExtension(hashedFilename),
-        )
-      ) {
-        await handleUnsupportedImageFormats(hashedFilename, tempDir)
-
-        const {
-          tempSmallFile,
-          tempMediumFile,
-          tempFullFile,
-          tempOriginalFilePath,
-        } = await handleImageVersionsCreation(hashedFilename, tempDir, true)
-
-        tempSmallFilePath = tempSmallFile
-        tempMediumFilePath = tempMediumFile
-        tempFullFilePath = tempFullFile
-
-        const originalImageStream = fs.createReadStream(tempOriginalFilePath)
-
-        const originalFileBuffer = await convertFileStreamIntoBuffer(
-          originalImageStream,
-        )
-
-        const { width, height, space, density, size } =
-          await getImageFileMetadata(originalFileBuffer)
-
-        const original = await this.uploadFileHandler(
-          fs.createReadStream(originalFilePath),
-          hashedFilename,
-          mime.lookup(hashedFilename),
-        )
-
-        original.imageMetadata = {
-          density,
-          height,
-          space,
-          width,
-        }
-        original.size = size
-        original.extension = `${getFileExtension(hashedFilename)}`
-        original.type = 'original'
-        original.mimetype = mime.lookup(hashedFilename)
-        storedObjects.push(original)
-      } else {
-        const { tempSmallFile, tempMediumFile, tempFullFile } =
-          await handleImageVersionsCreation(hashedFilename, tempDir)
-
-        tempSmallFilePath = tempSmallFile
-        tempMediumFilePath = tempMediumFile
-        tempFullFilePath = tempFullFile
-        const originalImageStream = fs.createReadStream(originalFilePath)
-
-        const originalFileBuffer = await convertFileStreamIntoBuffer(
-          originalImageStream,
-        )
-
-        const { width, height, space, density, size } =
-          await getImageFileMetadata(originalFileBuffer)
-
-        const original = await this.uploadFileHandler(
-          fs.createReadStream(originalFilePath),
-          hashedFilename,
-          mime.lookup(hashedFilename),
-        )
-
-        original.imageMetadata = {
-          density,
-          height,
-          space,
-          width,
-        }
-        original.size = size
-        original.extension = `${getFileExtension(hashedFilename)}`
-        original.type = 'original'
-        original.mimetype = mime.lookup(hashedFilename)
-        storedObjects.push(original)
-      }
-      /* eslint-enable no-prototype-builtins */
-
-      const fullImageStream = fs.createReadStream(tempFullFilePath)
-
-      const full = await this.uploadFileHandler(
-        fs.createReadStream(tempFullFilePath),
-        path.basename(tempFullFilePath),
-        mime.lookup(tempFullFilePath),
-      )
-
-      const fullFileBuffer = await convertFileStreamIntoBuffer(fullImageStream)
-
-      const {
-        width: fWidth,
-        height: fHeight,
-        space: fSpace,
-        density: fDensity,
-        size: fSize,
-      } = await getImageFileMetadata(fullFileBuffer)
-
-      full.imageMetadata = {
-        density: fDensity,
-        height: fHeight,
-        space: fSpace,
-        width: fWidth,
-      }
-      full.size = fSize
-      full.extension = `${getFileExtension(tempFullFilePath)}`
-      full.type = 'full'
-      full.mimetype = mime.lookup(tempFullFilePath)
-
-      storedObjects.push(full)
-
-      const mediumImageStream = fs.createReadStream(tempMediumFilePath)
-
-      const medium = await this.uploadFileHandler(
-        fs.createReadStream(tempMediumFilePath),
-        path.basename(tempMediumFilePath),
-        mime.lookup(tempMediumFilePath),
-      )
-
-      const mediumFileBuffer = await convertFileStreamIntoBuffer(
-        mediumImageStream,
-      )
-
-      const {
-        width: mWidth,
-        height: mHeight,
-        space: mSpace,
-        density: mDensity,
-        size: mSize,
-      } = await getImageFileMetadata(mediumFileBuffer)
-
-      medium.imageMetadata = {
-        density: mDensity,
-        height: mHeight,
-        space: mSpace,
-        width: mWidth,
-      }
-      medium.size = mSize
-      medium.extension = `${getFileExtension(tempMediumFilePath)}`
-      medium.type = 'medium'
-      medium.mimetype = mime.lookup(tempMediumFilePath)
-
-      storedObjects.push(medium)
-      const smallImageStream = fs.createReadStream(tempSmallFilePath)
-
-      const small = await this.uploadFileHandler(
-        fs.createReadStream(tempSmallFilePath),
-        path.basename(tempSmallFilePath),
-        mime.lookup(tempSmallFilePath),
-      )
-
-      const smallFileBuffer = await convertFileStreamIntoBuffer(
-        smallImageStream,
-      )
-
-      const {
-        width: sWidth,
-        height: sHeight,
-        space: sSpace,
-        density: sDensity,
-        size: sSize,
-      } = await getImageFileMetadata(smallFileBuffer)
-
-      small.imageMetadata = {
-        density: sDensity,
-        height: sHeight,
-        space: sSpace,
-        width: sWidth,
-      }
-      small.size = sSize
-      small.extension = `${getFileExtension(tempSmallFilePath)}`
-      small.type = 'small'
-      small.mimetype = mime.lookup(tempSmallFilePath)
-
-      storedObjects.push(small)
-
-      await fs.remove(tempDir)
-
-      return storedObjects
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
-
   async healthCheck() {
-    try {
-      return new Promise((resolve, reject) => {
-        this.s3.headBucket({ Bucket: this.bucket }, (err, data) => {
-          if (err) {
-            logger.error(
-              'File Storage Healthcheck: Communication to remote file service unsuccessful',
-            )
-            return reject(err)
-          }
-
-          // logger.info('File Storage Healthcheck: OK')
-          return resolve(data)
-        })
-      })
-    } catch (e) {
-      throw new Error(e)
-    }
+    return this.s3.headBucket({ Bucket: this.bucket })
   }
 
   async list() {
-    const params = {
-      Bucket: this.bucket,
-    }
-
-    return new Promise((resolve, reject) => {
-      this.s3.listObjects(params, (err, data) => {
-        if (err) {
-          reject(err)
-        }
-
-        resolve(data)
-      })
-    })
+    return this.s3.listObjects({ Bucket: this.bucket })
   }
 
   async upload(fileStream, filename, options = {}) {
-    try {
-      if (!filename) {
-        throw new Error('filename is required')
-      }
+    if (!filename) {
+      throw new Error('filename is required')
+    }
 
-      const { forceObjectKeyValue } = options
+    const { forceObjectKeyValue } = options
 
-      const mimetype = mime.lookup(filename) || 'application/octet-stream'
-      let storedObjects = []
+    const mimetype = mime.lookup(filename) || 'application/octet-stream'
+    let storedObjects = []
 
-      const hashedFilename =
-        forceObjectKeyValue ||
-        `${crypto.randomBytes(6).toString('hex')}${getFileExtension(
-          filename,
-          true,
-        )}`
+    const hashedFilename =
+      forceObjectKeyValue ||
+      `${crypto.randomBytes(6).toString('hex')}${getFileExtension(
+        filename,
+        true,
+      )}`
 
-      /* eslint-disable no-prototype-builtins */
-      if (
-        !mimetype.match(/^image\//) &&
-        !this.imageConversionToSupportedFormatMapper.hasOwnProperty(
-          getFileExtension(filename),
-        )
-      ) {
-        const storedObject = await this.uploadFileHandler(
-          fileStream,
-          hashedFilename,
-          mimetype,
-        )
-
-        const { ContentLength } = await this.#getFileInfo(storedObject.key)
-        storedObject.type = 'original'
-        storedObject.size = ContentLength
-        storedObject.extension = `${getFileExtension(filename)}`
-        storedObject.mimetype = mimetype
-        storedObjects.push(storedObject)
-        return storedObjects
-      }
-      /* eslint-enable no-prototype-builtins */
-
-      storedObjects = await this.handleImageUpload(
+    /* eslint-disable no-prototype-builtins */
+    if (
+      !mimetype.match(/^image\//) &&
+      !this.imageConversionToSupportedFormatMapper.hasOwnProperty(
+        getFileExtension(filename),
+      )
+    ) {
+      const storedObject = await this.uploadFileHandler(
         fileStream,
         hashedFilename,
         mimetype,
       )
 
+      const { ContentLength } = await this.#getFileInfo(storedObject.key)
+      storedObject.type = 'original'
+      storedObject.size = ContentLength
+      storedObject.extension = `${getFileExtension(filename)}`
+      storedObject.mimetype = mimetype
+      storedObjects.push(storedObject)
       return storedObjects
-    } catch (e) {
-      throw new Error(e)
     }
+    /* eslint-enable no-prototype-builtins */
+
+    storedObjects = await this.#handleImageUpload(
+      fileStream,
+      hashedFilename,
+      mimetype,
+    )
+
+    return storedObjects
   }
 
   // TO DO -- make private? migration is using it
@@ -476,7 +280,6 @@ class FileStorage {
 
     const data = await upload.done()
 
-    // do we need etag?
     const { Key } = data
     return { key: Key }
   }

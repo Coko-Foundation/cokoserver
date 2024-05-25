@@ -12,9 +12,9 @@ const FileStorageNoop = require('./FileStorageNoop')
 // const fileStorage = {
 //   deleteFiles: fileStorageDeleteFiles,
 //   download,
-
 //   healthCheck,
 //   getURL,
+
 //   upload,
 //   list,
 // }
