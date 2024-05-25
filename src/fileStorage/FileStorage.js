@@ -9,13 +9,10 @@ const { Upload } = require('@aws-sdk/lib-storage')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const tempFolderPath = require('../utils/tempFolderPath')
+const { writeFileFromStream } = require('../utils/filesystem')
 const Image = require('./Image')
 
-const {
-  getFileExtension,
-  writeFileFromStream,
-  emptyUndefinedOrNull,
-} = require('../helpers')
+const { emptyUndefinedOrNull } = require('../helpers')
 
 class FileStorage {
   constructor(properties) {
@@ -212,52 +209,33 @@ class FileStorage {
   }
 
   async upload(fileStream, filename, options = {}) {
-    if (!filename) {
-      throw new Error('filename is required')
-    }
-
-    const { forceObjectKeyValue } = options
+    if (!filename) throw new Error('filename is required')
 
     const mimetype = mime.lookup(filename) || 'application/octet-stream'
-    let storedObjects = []
+    const { forceObjectKeyValue } = options
+    const hash = crypto.randomBytes(6).toString('hex')
+    const extension = path.extname(filename).slice(1)
+    const hashedFilename = forceObjectKeyValue || `${hash}.${extension}`
 
-    const hashedFilename =
-      forceObjectKeyValue ||
-      `${crypto.randomBytes(6).toString('hex')}${getFileExtension(
-        filename,
-        true,
-      )}`
+    const shouldConvert =
+      !!this.imageConversionToSupportedFormatMapper[extension]
 
-    /* eslint-disable no-prototype-builtins */
-    if (
-      !mimetype.match(/^image\//) &&
-      !this.imageConversionToSupportedFormatMapper.hasOwnProperty(
-        getFileExtension(filename),
-      )
-    ) {
-      const storedObject = await this.uploadFileHandler(
-        fileStream,
-        hashedFilename,
-        mimetype,
-      )
+    const isImage = mimetype.match(/^image\//) || shouldConvert
 
-      const { ContentLength } = await this.#getFileInfo(storedObject.key)
-      storedObject.type = 'original'
-      storedObject.size = ContentLength
-      storedObject.extension = `${getFileExtension(filename)}`
-      storedObject.mimetype = mimetype
-      storedObjects.push(storedObject)
-      return storedObjects
-    }
-    /* eslint-enable no-prototype-builtins */
+    if (isImage) return this.#handleImageUpload(fileStream, hashedFilename)
 
-    storedObjects = await this.#handleImageUpload(
+    const storedObject = await this.uploadFileHandler(
       fileStream,
       hashedFilename,
       mimetype,
     )
 
-    return storedObjects
+    const { ContentLength } = await this.#getFileInfo(storedObject.key)
+    storedObject.type = 'original'
+    storedObject.size = ContentLength
+    storedObject.extension = extension
+    storedObject.mimetype = mimetype
+    return [storedObject]
   }
 
   // TO DO -- make private? migration is using it

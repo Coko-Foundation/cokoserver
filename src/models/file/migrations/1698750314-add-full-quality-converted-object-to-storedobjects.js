@@ -1,4 +1,5 @@
-/* eslint-disable import/no-unresolved */
+const { buffer } = require('stream/consumers')
+
 const mime = require('mime-types')
 const fs = require('fs-extra')
 const path = require('path')
@@ -10,12 +11,6 @@ const File = require('../file.model')
 const tempFolderPath = require('../../../utils/tempFolderPath')
 
 const FileStorage = require('../../../fileStorage')
-
-const {
-  convertFileStreamIntoBuffer,
-  getFileExtension,
-  getImageFileMetadata,
-} = require('../../../helpers')
 
 const imageSizeConversionMapper = {
   tiff: {
@@ -35,8 +30,18 @@ const imageSizeConversionMapper = {
   },
 }
 
+const getMetadata = async fileBuffer => {
+  try {
+    const originalImage = sharp(fileBuffer, { limitInputPixels: false })
+    const imageMetadata = await originalImage.metadata()
+    return imageMetadata
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
 const sharpConversionFullFilePath = async (
-  buffer,
+  bufferData,
   tempFileDir,
   filenameWithoutExtension,
   format,
@@ -52,7 +57,7 @@ const sharpConversionFullFilePath = async (
     }`,
   )
 
-  await sharp(buffer).toFile(tempFullFilePath)
+  await sharp(bufferData).toFile(tempFullFilePath)
 
   return tempFullFilePath
 }
@@ -110,10 +115,10 @@ exports.up = async () => {
 
             const format = originalStoredObject.extension
 
-            const buffer = fs.readFileSync(tempPath)
+            const bufferData = fs.readFileSync(tempPath)
 
             const tempFullFilePath = await sharpConversionFullFilePath(
-              buffer,
+              bufferData,
               tempFileDir,
               filenameWithoutExtension,
               format,
@@ -129,9 +134,7 @@ exports.up = async () => {
               mime.lookup(tempFullFilePath),
             )
 
-            const fullFileBuffer = await convertFileStreamIntoBuffer(
-              fullImageStream,
-            )
+            const fullFileBuffer = await buffer(fullImageStream)
 
             const {
               width: fWidth,
@@ -139,7 +142,7 @@ exports.up = async () => {
               space: fSpace,
               density: fDensity,
               size: fSize,
-            } = await getImageFileMetadata(fullFileBuffer)
+            } = await getMetadata(fullFileBuffer)
 
             full.imageMetadata = {
               density: fDensity,
@@ -148,7 +151,7 @@ exports.up = async () => {
               width: fWidth,
             }
             full.size = fSize
-            full.extension = `${getFileExtension(tempFullFilePath)}`
+            full.extension = path.extname(tempFullFilePath).slice(1)
             full.type = 'full'
             full.mimetype = mime.lookup(tempFullFilePath)
 

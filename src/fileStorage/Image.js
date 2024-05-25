@@ -1,6 +1,6 @@
 const path = require('path')
 const { exec } = require('child_process')
-const { Readable } = require('stream')
+const { buffer } = require('stream/consumers')
 
 const mime = require('mime-types')
 const sharp = require('sharp')
@@ -11,47 +11,8 @@ const config = require('config')
 const logger = require('../logger')
 
 // #region helpers
-const convertFileStreamIntoBuffer = async fileStream => {
-  return new Promise((resolve, reject) => {
-    const chunks = [] // Store file data chunks
-
-    fileStream.on('error', err => {
-      reject(err)
-    })
-
-    // File is done being read
-    fileStream.on('end', () => {
-      // create the final data Buffer from data chunks;
-      resolve(Buffer.concat(chunks))
-    })
-
-    // Data is flushed from fileStream in chunks,
-    // this callback will be executed for each chunk
-    fileStream.on('data', chunk => {
-      chunks.push(chunk) // push data chunk to array
-    })
-  })
-}
-
-const writeFileFromStream = async (inputStream, filePath) => {
-  return new Promise((resolve, reject) => {
-    const outputStream = fs.createWriteStream(filePath)
-
-    inputStream.pipe(outputStream)
-    outputStream.on('error', error => {
-      reject(error.message)
-    })
-
-    outputStream.on('finish', () => {
-      resolve()
-    })
-  })
-}
-
 const getMetadata = async fileBuffer => {
-  const originalImage = sharp(fileBuffer, { limitInputPixels: false })
-  const imageMetadata = await originalImage.metadata()
-  return imageMetadata
+  return sharp(fileBuffer, { limitInputPixels: false }).metadata()
 }
 
 const imageSizeConversionMapper = {
@@ -138,9 +99,8 @@ class Image {
     let filePath = this.path
     if (this.shouldConvert) filePath = await this.#createConvertedFile()
 
-    const fileBuffer = await convertFileStreamIntoBuffer(
-      fs.createReadStream(filePath),
-    )
+    const fileReadStream = fs.createReadStream(filePath)
+    const fileBuffer = await buffer(fileReadStream)
 
     const metadata = getMetadata(fileBuffer)
     const originalImageWidth = metadata.width
@@ -159,9 +119,9 @@ class Image {
     })
 
     if (this.outputExtension === 'svg') {
-      await writeFileFromStream(Readable.from(fileBuffer), smallPath)
-      await writeFileFromStream(Readable.from(fileBuffer), mediumPath)
-      await writeFileFromStream(Readable.from(fileBuffer), fullPath)
+      await sharp(fileBuffer).toFile(smallPath)
+      await sharp(fileBuffer).toFile(mediumPath)
+      await sharp(fileBuffer).toFile(fullPath)
     } else {
       await sharp(fileBuffer)
         .resize({ width: this.maxWidth.small })
@@ -198,7 +158,7 @@ class Image {
     const sizesData = await Promise.all(
       [smallPath, mediumPath, fullPath].map(async (p, i) => {
         const pReadStream = fs.createReadStream(p)
-        const pBuffer = await convertFileStreamIntoBuffer(pReadStream)
+        const pBuffer = await buffer(pReadStream)
 
         const {
           width: pWidth,
