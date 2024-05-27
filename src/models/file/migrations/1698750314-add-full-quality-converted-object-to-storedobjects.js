@@ -16,8 +16,7 @@ const { Upload } = require('@aws-sdk/lib-storage')
 const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
 const tempFolderPath = require('../../../utils/tempFolderPath')
-
-const FileStorage = require('../../../fileStorage')
+const fileStorage = require('../../../fileStorage')
 
 const imageSizeConversionMapper = {
   tiff: {
@@ -71,14 +70,14 @@ const sharpConversionFullFilePath = async (
 
 const uploadFileHandler = async (fileStream, filename, mimetype) => {
   const params = {
-    Bucket: FileStorage.bucket,
+    Bucket: fileStorage.bucket,
     Key: filename, // file name you want to save as
     Body: fileStream,
     ContentType: mimetype,
   }
 
   const upload = new Upload({
-    client: FileStorage.s3,
+    client: fileStorage.s3,
     params,
   })
 
@@ -141,7 +140,7 @@ exports.up = async () => {
 
             const tempPath = path.join(tempFileDir, originalStoredObject.key)
 
-            await FileStorage.download(originalStoredObject.key, tempPath)
+            await fileStorage.download(originalStoredObject.key, tempPath)
 
             const format = originalStoredObject.extension
 

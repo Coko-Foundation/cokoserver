@@ -1,7 +1,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 
-const FileStorage = require('../index')
+const fileStorage = require('../index')
 const FileStorageConstructor = require('../FileStorage')
 const tempFolderPath = require('../../utils/tempFolderPath')
 
@@ -10,12 +10,12 @@ const testFilePath = path.join(__dirname, 'files')
 const uploadOneFile = async () => {
   const filePath = path.join(testFilePath, 'helloWorld.txt')
   const fileStream = fs.createReadStream(filePath)
-  const file = await FileStorage.upload(fileStream, 'helloWorld.txt')
+  const file = await fileStorage.upload(fileStream, 'helloWorld.txt')
   return file[0]
 }
 
 const cleanBucket = async () => {
-  const list = await FileStorage.list()
+  const list = await fileStorage.list()
   const { Contents } = list
 
   if (!Contents) return true // bucket is empty already
@@ -23,7 +23,7 @@ const cleanBucket = async () => {
   const fileKeys = Contents.map(file => file.Key)
 
   if (fileKeys.length > 0) {
-    return FileStorage.delete(fileKeys)
+    return fileStorage.delete(fileKeys)
   }
 
   return true
@@ -39,21 +39,21 @@ describe('File Storage Service', () => {
   })
 
   it('communicates with file server', async () => {
-    const fileServerHealth = await FileStorage.healthCheck()
+    const fileServerHealth = await fileStorage.healthCheck()
     expect(fileServerHealth).toBeDefined()
   })
 
   it('uploads a file', async () => {
     const filePath = path.join(testFilePath, 'helloWorld.txt')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'helloWorld.txt')
+    const storedObject = await fileStorage.upload(fileStream, 'helloWorld.txt')
     expect(storedObject).toHaveLength(1)
   })
 
   it('uploads a not common extension file', async () => {
     const filePath = path.join(testFilePath, 'entry.njk')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'entry.njk')
+    const storedObject = await fileStorage.upload(fileStream, 'entry.njk')
     expect(storedObject).toHaveLength(1)
     expect(storedObject[0].mimetype).toBe('application/octet-stream')
   })
@@ -61,21 +61,21 @@ describe('File Storage Service', () => {
   it('uploads an jpg image file', async () => {
     const filePath = path.join(testFilePath, 'test.jpg')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'test.jpg')
+    const storedObject = await fileStorage.upload(fileStream, 'test.jpg')
     expect(storedObject).toHaveLength(4)
   })
 
   it('uploads a png image file', async () => {
     const filePath = path.join(testFilePath, 'test.png')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'test.png')
+    const storedObject = await fileStorage.upload(fileStream, 'test.png')
     expect(storedObject).toHaveLength(4)
   })
 
   it('uploads a tiff image file and checks the original and converted file types', async () => {
     const filePath = path.join(testFilePath, 'test.tiff')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'test.tiff')
+    const storedObject = await fileStorage.upload(fileStream, 'test.tiff')
 
     expect(storedObject).toHaveLength(4)
 
@@ -92,14 +92,14 @@ describe('File Storage Service', () => {
   it('uploads an svg image file', async () => {
     const filePath = path.join(testFilePath, 'test.svg')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'test.svg')
+    const storedObject = await fileStorage.upload(fileStream, 'test.svg')
     expect(storedObject).toHaveLength(4)
   })
 
   it('uploads an eps image file', async () => {
     const filePath = path.join(testFilePath, 'test.eps')
     const fileStream = fs.createReadStream(filePath)
-    const storedObject = await FileStorage.upload(fileStream, 'test.eps')
+    const storedObject = await fileStorage.upload(fileStream, 'test.eps')
 
     expect(storedObject).toHaveLength(4)
   })
@@ -107,14 +107,14 @@ describe('File Storage Service', () => {
   it('provides signed URLs for given operation and object key', async () => {
     const file = await uploadOneFile()
     const { key } = file
-    const signed = await FileStorage.getURL(key)
+    const signed = await fileStorage.getURL(key)
     expect(signed).toBeDefined()
   })
 
   it('provides a list of all the files of the bucket', async () => {
     const file = await uploadOneFile()
     const { key } = file
-    const files = await FileStorage.list()
+    const files = await fileStorage.list()
     expect(files.Contents).toHaveLength(1)
     expect(files.Contents[0].Key).toEqual(key)
   })
@@ -123,7 +123,7 @@ describe('File Storage Service', () => {
     const file = await uploadOneFile()
     const tempPath = path.join(tempFolderPath, `${file.key}`)
 
-    await FileStorage.download(file.key, tempPath)
+    await fileStorage.download(file.key, tempPath)
     expect(fs.existsSync(tempPath)).toBe(true)
 
     const content = await fs.readFile(tempPath, 'utf8')
@@ -133,12 +133,12 @@ describe('File Storage Service', () => {
   it('deletes a single file', async () => {
     const file = await uploadOneFile()
 
-    const list = await FileStorage.list()
+    const list = await fileStorage.list()
     expect(list.Contents.length).toBe(1)
 
-    await FileStorage.delete(file.key)
+    await fileStorage.delete(file.key)
 
-    const updatedList = await FileStorage.list()
+    const updatedList = await fileStorage.list()
     expect(updatedList.Contents).not.toBeDefined()
   })
 
@@ -149,13 +149,13 @@ describe('File Storage Service', () => {
       }),
     )
 
-    const list = await FileStorage.list()
+    const list = await fileStorage.list()
     expect(list.Contents.length).toBe(2)
 
     const keys = files.map(f => f.key)
-    await FileStorage.delete(keys)
+    await fileStorage.delete(keys)
 
-    const updatedList = await FileStorage.list()
+    const updatedList = await fileStorage.list()
     expect(updatedList.Contents).not.toBeDefined()
   })
 
@@ -181,13 +181,13 @@ describe('File Storage Service', () => {
   })
 
   it('throws if delete is called with no arguments', async () => {
-    await expect(FileStorage.delete()).rejects.toThrow(
+    await expect(fileStorage.delete()).rejects.toThrow(
       'No keys provided. Nothing to delete.',
     )
   })
 
   it('throws if array of keys is empty', async () => {
-    await expect(FileStorage.delete([])).rejects.toThrow(
+    await expect(fileStorage.delete([])).rejects.toThrow(
       'No keys provided. Nothing to delete.',
     )
   })

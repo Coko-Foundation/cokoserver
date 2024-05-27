@@ -15,7 +15,7 @@ const { boss, connectToJobQueue } = require('./jobs')
 const { BaseModel, useTransaction } = require('./models')
 const modelJsonSchemaTypes = require('./models/_helpers/types')
 const tempFolderPath = require('./utils/tempFolderPath')
-const FileStorage = require('./fileStorage')
+const fileStorage = require('./fileStorage')
 
 const WaxToDocxConverter = require('./services/docx/docx.service')
 
@@ -41,7 +41,7 @@ module.exports = {
   verifyJWT,
   pubsubManager,
   modelJsonSchemaTypes,
-  FileStorage,
+  fileStorage,
   createFile,
   deleteFiles,
   // serviceHandshake,
