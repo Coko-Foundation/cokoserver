@@ -4,7 +4,8 @@ const merge = require('lodash/merge')
 
 const { applyMiddleware } = require('graphql-middleware')
 const { shield } = require('graphql-shield')
-const { GraphQLUpload } = require('graphql-upload')
+/* eslint-disable-next-line import/extensions */
+const GraphQLUpload = require('graphql-upload/GraphQLUpload.js')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
 
 const logger = require('./logger')

@@ -1,5 +1,6 @@
 const { expressMiddleware } = require('@apollo/server/express4')
-const { graphqlUploadExpress } = require('graphql-upload')
+/* eslint-disable-next-line import/extensions */
+const graphqlUploadExpress = require('graphql-upload/graphqlUploadExpress.js')
 
 const createGraphQLServer = require('./graphqlServer')
 const loaders = require('./graphql/loaders')
