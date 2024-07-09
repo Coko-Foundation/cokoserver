@@ -11,12 +11,7 @@ const createCORSConfig = () => {
   }
 }
 
-const corsMiddleware = () => {
-  const config = createCORSConfig()
-  return cors(config)
-}
+const config = createCORSConfig()
+const middleware = cors(config)
 
-module.exports = {
-  corsConfig: createCORSConfig,
-  cors: corsMiddleware,
-}
+module.exports = middleware

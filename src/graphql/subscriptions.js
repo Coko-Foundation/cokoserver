@@ -10,12 +10,14 @@ const graphqlSchema = require('../graphqlSchema')
 const { token } = require('../authentication')
 
 module.exports = {
-  addSubscriptions: server => {
+  addSubscriptions: httpServer => {
     SubscriptionServer.create(
       {
         schema: graphqlSchema,
         execute,
         subscribe,
+        // // Ensures the same graphql validation rules are applied to both the Subscription Server and the ApolloServer
+        // validationRules: server.requestOptions.validationRules, // where server is apollo server
         onConnect: (connectionParams, webSocket, context) => {
           if (!connectionParams.authToken) {
             throw new Error('Missing auth token')
@@ -34,8 +36,9 @@ module.exports = {
         },
       },
       {
-        server,
+        server: httpServer,
         path: '/subscriptions',
+        // path: server.graphqlPath, // where server is apollo server
       },
     )
   },

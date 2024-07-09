@@ -3,7 +3,6 @@ const { promisify } = require('util')
 const http = require('http')
 const config = require('config')
 const passport = require('passport')
-const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const morgan = require('morgan')
@@ -21,7 +20,7 @@ const checkConfig = require('./startup/checkConfig')
 const errorStatuses = require('./startup/errorStatuses')
 const mountStatic = require('./startup/static')
 const registerComponents = require('./startup/registerComponents')
-const { cors } = require('./startup/cors')
+const cors = require('./startup/cors')
 const { checkConnections } = require('./startup/checkConnections')
 
 const {
@@ -71,12 +70,11 @@ const startServer = async () => {
   await startListening(port)
   logTaskItem(`App is listening on port ${port}`)
 
-  app.use(bodyParser.json({ limit: '50mb' }))
-  app.use(bodyParser.urlencoded({ extended: false }))
-
+  app.use(express.json({ limit: '50mb' }))
+  app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
   app.use(helmet())
-  app.use(cors())
+  app.use(cors)
 
   morgan.token('graphql', ({ body }, res, type) => {
     if (!body.operationName) return ''

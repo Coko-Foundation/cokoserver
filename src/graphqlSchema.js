@@ -5,7 +5,7 @@ const merge = require('lodash/merge')
 const { applyMiddleware } = require('graphql-middleware')
 const { shield } = require('graphql-shield')
 const { GraphQLUpload } = require('graphql-upload')
-const { makeExecutableSchema } = require('apollo-server-express')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
 
 const logger = require('./logger')
 const { logTask } = require('./logger/internals')

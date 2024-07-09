@@ -1,22 +1,34 @@
+const { expressMiddleware } = require('@apollo/server/express4')
 const { graphqlUploadExpress } = require('graphql-upload')
 
 const createGraphQLServer = require('./graphqlServer')
-const { corsConfig } = require('./startup/cors')
+const loaders = require('./graphql/loaders')
 
-const api = app => {
+const api = async app => {
+  const apolloServer = createGraphQLServer()
+  await apolloServer.start()
+
+  const createdLoaders = loaders()
+
   app.use(
     '/graphql',
     app.locals.passport.authenticate(['bearer', 'anonymous'], {
       session: false,
     }),
+    expressMiddleware(apolloServer, {
+      context: ({ req, res }) => {
+        return {
+          // user: testUserContext || req.user,
+          user: req.user,
+          loaders: createdLoaders,
+          req,
+          res,
+        }
+      },
+    }),
   )
 
   app.use(graphqlUploadExpress())
-
-  const server = createGraphQLServer()
-  const CORSConfig = corsConfig()
-
-  server.applyMiddleware({ app, cors: CORSConfig })
 }
 
 module.exports = api
