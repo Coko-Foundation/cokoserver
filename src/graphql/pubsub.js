@@ -1,10 +1,7 @@
-/**
- * PubSub related stuff used in GraphQL subscriptions
- */
-const { PostgresPubSub } = require('graphql-postgres-subscriptions')
 const config = require('config')
 const pg = require('pg')
 
+const { PostgresPubSub } = require('./PostgresPubSub')
 const connectionConfig = require('../dbManager/connectionConfig')
 
 const ignoreTerminatedError =
