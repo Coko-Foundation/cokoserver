@@ -1804,6 +1804,7 @@ __metadata:
     graphql-shield: "npm:^7.6.5"
     graphql-subscriptions: "npm:1.2.1"
     graphql-upload: "npm:^13.0.0"
+    graphql-ws: "npm:^5.16.0"
     helmet: "npm:^7.1.0"
     http-status-codes: "npm:^2.3.0"
     image-size: "npm:^1.1.1"
@@ -1829,11 +1830,11 @@ __metadata:
     pg-boss: "npm:^5.2.0"
     sharp: "npm:^0.32.6"
     standard-version: "npm:^7.1.0"
-    subscriptions-transport-ws: "npm:^0.9.19"
     supertest: "npm:^7.0.0"
     umzug: "npm:^3.8.0"
     uuid: "npm:^9.0.1"
     winston: "npm:^2.3.1"
+    ws: "npm:^8.18.0"
   bin:
     coko-server: ./src/cli/coko-server.js
   languageName: unknown
@@ -4556,13 +4557,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"backo2@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "backo2@npm:1.0.2"
-  checksum: 10c0/a9e825a6a38a6d1c4a94476eabc13d6127dfaafb0967baf104affbb67806ae26abbb58dab8d572d2cd21ef06634ff57c3ad48dff14b904e18de1474cc2f22bf3
-  languageName: node
-  linkType: hard
-
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -7126,13 +7120,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter3@npm:^3.1.0":
-  version: 3.1.2
-  resolution: "eventemitter3@npm:3.1.2"
-  checksum: 10c0/c67262eccbf85848b7cc6d4abb6c6e34155e15686db2a01c57669fd0d44441a574a19d44d25948b442929e065774cbe5003d8e77eed47674fbf876ac77887793
-  languageName: node
-  linkType: hard
-
 "events@npm:3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
@@ -8193,6 +8180,15 @@ __metadata:
   peerDependencies:
     graphql: 0.13.1 - 16
   checksum: 10c0/487936b1cbeead5e630b057355b408e4852e5d605bf452dd21bc1a1cf29923d4c3ee567257c4469bcd18989f983bdb608b8c9319d3fa738e43fff318ea6f96e8
+  languageName: node
+  linkType: hard
+
+"graphql-ws@npm:^5.16.0":
+  version: 5.16.0
+  resolution: "graphql-ws@npm:5.16.0"
+  peerDependencies:
+    graphql: ">=0.11 <=16"
+  checksum: 10c0/5e538c3460ca997a1634bd0f64236d8d7aa6ac75c58aba549b49953faf0dd2497f4fa43eedb0bc82cfff50426c7ce47682a670d2571fd7f3af5dcf00911c9e1b
   languageName: node
   linkType: hard
 
@@ -13785,21 +13781,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"subscriptions-transport-ws@npm:^0.9.19":
-  version: 0.9.19
-  resolution: "subscriptions-transport-ws@npm:0.9.19"
-  dependencies:
-    backo2: "npm:^1.0.2"
-    eventemitter3: "npm:^3.1.0"
-    iterall: "npm:^1.2.1"
-    symbol-observable: "npm:^1.0.4"
-    ws: "npm:^5.2.0 || ^6.0.0 || ^7.0.0"
-  peerDependencies:
-    graphql: ">=0.10.0"
-  checksum: 10c0/6f2ade56865f0ba291d3ff82c79781b051c2374873bac853286fedfdbc05001b8c4018ab7cba44af667ead7f573e48d18892d58a8f9ca8d90dfb4bff5c125045
-  languageName: node
-  linkType: hard
-
 "superagent@npm:^9.0.1":
   version: 9.0.2
   resolution: "superagent@npm:9.0.2"
@@ -13882,13 +13863,6 @@ __metadata:
   version: 1.0.0
   resolution: "svg-tags@npm:1.0.0"
   checksum: 10c0/5867e29e8f431bf7aecf5a244d1af5725f80a1086187dbc78f26d8433b5e96b8fe9361aeb10d1699ff483b9afec785a10916b9312fe9d734d1a7afd48226c954
-  languageName: node
-  linkType: hard
-
-"symbol-observable@npm:^1.0.4":
-  version: 1.2.0
-  resolution: "symbol-observable@npm:1.2.0"
-  checksum: 10c0/009fee50798ef80ed4b8195048288f108b03de162db07493f2e1fd993b33fafa72d659e832b584da5a2427daa78e5a738fb2a9ab027ee9454252e0bedbcd1fdc
   languageName: node
   linkType: hard
 
@@ -14941,18 +14915,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^5.2.0 || ^6.0.0 || ^7.0.0":
-  version: 7.5.9
-  resolution: "ws@npm:7.5.9"
+"ws@npm:^8.18.0":
+  version: 8.18.0
+  resolution: "ws@npm:8.18.0"
   peerDependencies:
     bufferutil: ^4.0.1
-    utf-8-validate: ^5.0.2
+    utf-8-validate: ">=5.0.2"
   peerDependenciesMeta:
     bufferutil:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10c0/aec4ef4eb65821a7dde7b44790f8699cfafb7978c9b080f6d7a98a7f8fc0ce674c027073a78574c94786ba7112cc90fa2cc94fc224ceba4d4b1030cff9662494
+  checksum: 10c0/25eb33aff17edcb90721ed6b0eb250976328533ad3cd1a28a274bd263682e7296a6591ff1436d6cbc50fa67463158b062f9d1122013b361cec99a05f84680e06
   languageName: node
   linkType: hard
 

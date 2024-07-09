@@ -101,7 +101,7 @@ const addTeamMemberResolver = async (_, { teamId, userId }, ctx) => {
 
     await broadcastUserUpdated(userId)
 
-    return updatedTeam(teamId, userId)
+    return updatedTeam
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} addTeamMember: ${e.message}`)
     throw new Error(e)
