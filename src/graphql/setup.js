@@ -4,13 +4,14 @@ const { useServer } = require('graphql-ws/lib/use/ws')
 const { WebSocketServer } = require('ws')
 const { expressMiddleware } = require('@apollo/server/express4')
 const { ApolloServer } = require('@apollo/server')
+const config = require('config')
+const jwt = require('jsonwebtoken')
 
 const {
   ApolloServerPluginDrainHttpServer,
 } = require('@apollo/server/plugin/drainHttpServer')
 
-const { token } = require('../authentication')
-const logger = require('../logger')
+const AuthenticationError = require('../errors/AuthenticationError')
 
 const schema = require('./schema')
 const loaders = require('./loaders')
@@ -24,18 +25,24 @@ const setup = async (httpServer, app, passport) => {
   })
 
   const getDynamicContext = async (ctx, msg, args) => {
-    if (!ctx.connectionParams.authToken) throw new Error('Missing auth token')
+    const context = { user: null }
 
-    return new Promise((resolve, reject) => {
-      token.verify(ctx.connectionParams.authToken, (_, id) => {
-        if (!id) {
-          logger.info('Bad auth token')
-          reject(new Error('Bad auth token'))
-        }
+    if (ctx.connectionParams.authToken) {
+      try {
+        const decodedToken = jwt.verify(
+          ctx.connectionParams.authToken,
+          config.get('secret'),
+        )
 
-        resolve({ user: id })
-      })
-    })
+        context.user = decodedToken.id
+      } catch (e) {
+        throw new AuthenticationError(
+          'Subscription authentication token invalid',
+        )
+      }
+    }
+
+    return context
   }
 
   // store it in a variable so it can be cleaned up on shutdown
