@@ -8,11 +8,11 @@ const { shield } = require('graphql-shield')
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
 
-const logger = require('./logger')
-const { logTask } = require('./logger/internals')
-const tryRequireRelative = require('./utils/tryRequireRelative')
+const logger = require('../logger')
+const { logTask } = require('../logger/internals')
+const tryRequireRelative = require('../utils/tryRequireRelative')
 
-const emailMiddleware = require('./middleware/email')
+const emailMiddleware = require('../middleware/email')
 
 // #region BUILD-SCHEMA
 // load base types and resolvers

@@ -1,4 +1,4 @@
-const createTestServer = require('./helpers/createTestServer')
+const gqlServer = require('../../utils/graphqlTestServer')
 const { Team, TeamMember, User } = require('..')
 const db = require('../../dbManager/db')
 const clearDb = require('./_clearDb')
@@ -43,13 +43,11 @@ describe('Team API', () => {
       }
     `
 
-    const testServer = await createTestServer()
-
-    const result = await testServer.executeOperation({
+    const result = await gqlServer.executeOperation({
       query: GET_GLOBAL_TEAMS,
     })
 
-    const data = result.data.getGlobalTeams
+    const data = result.body.singleResult.data.getGlobalTeams
 
     expect(data.totalCount).toBe(1)
     expect(data.result).toHaveLength(1)
@@ -114,13 +112,18 @@ describe('Team API', () => {
       }
     `
 
-    const testServer = await createTestServer(user.id)
+    const result = await gqlServer.executeOperation(
+      {
+        query: GET_GLOBAL_TEAMS,
+      },
+      {
+        contextValue: {
+          user: user.id,
+        },
+      },
+    )
 
-    const result = await testServer.executeOperation({
-      query: GET_GLOBAL_TEAMS,
-    })
-
-    const foundTeam = result.data.getGlobalTeams.result.find(
+    const foundTeam = result.body.singleResult.data.getGlobalTeams.result.find(
       t => t.role === 'editor',
     )
 

@@ -1,4 +1,4 @@
-const createTestServer = require('./helpers/createTestServer')
+const gqlServer = require('../../utils/graphqlTestServer')
 const { User, Identity } = require('..')
 
 const clearDb = require('./_clearDb')
@@ -40,13 +40,11 @@ describe('Team API', () => {
       }
     `
 
-    const testServer = await createTestServer()
-
-    const response = await testServer.executeOperation({
+    const response = await gqlServer.executeOperation({
       query: GET_USER_IDENTITIES,
     })
 
-    const responseIdentities = response.data.user.identities
+    const responseIdentities = response.body.singleResult.data.user.identities
 
     expect(responseIdentities[0].id).toBe(identities[0].id)
     expect(responseIdentities[1].id).toBe(identities[1].id)
@@ -59,11 +57,12 @@ describe('Team API', () => {
       { isVerified: true },
     )
 
-    const newResponse = await testServer.executeOperation({
+    const newResponse = await gqlServer.executeOperation({
       query: GET_USER_IDENTITIES,
     })
 
-    const newResponseIdentities = newResponse.data.user.identities
+    const newResponseIdentities =
+      newResponse.body.singleResult.data.user.identities
 
     const changedIdentity = newResponseIdentities.find(
       i => i.id === verifiedIdentity.id,
@@ -101,13 +100,11 @@ describe('Team API', () => {
       }
     `
 
-    const testServer = await createTestServer()
-
-    const response = await testServer.executeOperation({
+    const response = await gqlServer.executeOperation({
       query: GET_USER_IDENTITIES,
     })
 
-    const { defaultIdentity } = response.data.user
+    const { defaultIdentity } = response.body.singleResult.data.user
 
     expect(defaultIdentity.id).toBe(identities[0].id)
   })

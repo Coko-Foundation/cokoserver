@@ -13,6 +13,7 @@ const { migrate } = require('./dbManager/migrate')
 const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
+const setupGraphqlServer = require('./graphql/setup')
 
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
@@ -64,7 +65,6 @@ const startServer = async () => {
   app.set('port', port)
   const httpServer = http.createServer(app)
   httpServer.app = app
-
   logTask(`Starting HTTP server`)
   const startListening = promisify(httpServer.listen).bind(httpServer)
   await startListening(port)
@@ -103,30 +103,17 @@ const startServer = async () => {
   mountStatic(app)
 
   app.use(passport.initialize())
-
   passport.use('bearer', authentication.strategies.bearer)
   passport.use('anonymous', authentication.strategies.anonymous)
   passport.use('local', authentication.strategies.local)
 
-  app.locals.passport = passport
-
   registerComponents(app)
 
-  app.get('/healthcheck', healthcheck) // Server health endpoint
+  app.get('/healthcheck', healthcheck)
 
-  if (useGraphQLServer) {
-    /* eslint-disable-next-line global-require */
-    const gqlApi = require('./graphqlApi')
-    gqlApi(app)
-  }
+  if (useGraphQLServer) await setupGraphqlServer(httpServer, app, passport)
 
   errorStatuses(app)
-
-  if (useGraphQLServer) {
-    /* eslint-disable-next-line global-require */
-    const { addSubscriptions } = require('./graphql/subscriptions')
-    addSubscriptions(httpServer)
-  }
 
   if (useJobQueue) {
     await startJobQueue()

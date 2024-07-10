@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-disabled-tests */
 
+const gqlServer = require('../../utils/graphqlTestServer')
 const chatGPT = require('../chatGPT/chatGPT.controllers')
-const createTestServer = require('../../models/__tests__/helpers/createTestServer')
 
 describe('ChatGPT', () => {
   /**
@@ -23,18 +23,14 @@ describe('ChatGPT', () => {
       }
     `
 
-    const server = await createTestServer()
-
-    const result = await server.executeOperation({
+    const result = await gqlServer.executeOperation({
       query: CHAT_GPT,
       variables: {
         input: 'what is the coko foundation',
       },
     })
 
-    console.log(result.data.chatGPT) // eslint-disable-line no-console
-    expect(result.data.chatGPT).toBeTruthy()
-
-    expect(true).toBeTruthy()
+    const data = result.body.singleResponse.data.chatGPT
+    expect(data).toBeTruthy()
   }, 20000)
 })
