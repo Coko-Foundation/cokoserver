@@ -1,3 +1,5 @@
+const permissions = require('./permissions')
+
 module.exports = {
   components: [
     './src/models/__tests__/helpers/fake',
@@ -71,6 +73,7 @@ module.exports = {
   mailer: {
     from: '',
   },
+  permissions,
   // onStartup: [
   //   {
   //     label: 'do it 1',

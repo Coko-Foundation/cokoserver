@@ -43,7 +43,7 @@ services:
     volumes:
       - ./dev:/home/node/app/dev
       - ./src:/home/node/app/src
-      - ./authorization:/home/node/app/authorization
+      - ./authorization.js:/home/node/app/authorization.js
     tty: true
 
   db:

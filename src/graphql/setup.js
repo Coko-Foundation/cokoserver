@@ -13,10 +13,12 @@ const {
 
 const AuthenticationError = require('../errors/AuthenticationError')
 
-const schema = require('./schema')
 const loaders = require('./loaders')
+const generateSchema = require('./generateSchema')
 
 const setup = async (httpServer, app, passport) => {
+  const schema = generateSchema()
+
   /* SUBSCRIPTION SERVER */
 
   const wsServer = new WebSocketServer({
@@ -24,7 +26,7 @@ const setup = async (httpServer, app, passport) => {
     path: '/subscriptions',
   })
 
-  const getDynamicContext = async (ctx, msg, args) => {
+  const getDynamicContext = (ctx, msg, args) => {
     const context = { user: null }
 
     if (ctx.connectionParams.authToken) {

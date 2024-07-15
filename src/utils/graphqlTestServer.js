@@ -1,7 +1,7 @@
 const { ApolloServer } = require('@apollo/server')
 
-const schema = require('../graphql/schema')
+const generateSchema = require('../graphql/generateSchema')
 
-const server = new ApolloServer({ schema })
+const server = new ApolloServer({ schema: generateSchema() })
 
 module.exports = server
