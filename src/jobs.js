@@ -4,7 +4,7 @@ const moment = require('moment')
 const logger = require('./logger')
 const { logTask, logTaskItem } = require('./logger/internals')
 const db = require('./dbManager/db')
-const pubsubManager = require('./graphql/pubsub')
+const subscriptionManager = require('./graphql/pubsub')
 const { REFRESH_TOKEN_EXPIRED } = require('./services/jobs/jobs.identifiers')
 
 const {
@@ -157,7 +157,6 @@ const defaultJobs = [
     name: REFRESH_TOKEN_EXPIRED,
     callback: async job => {
       try {
-        const pubsub = await pubsubManager.getPubsub()
         const { userId, providerLabel } = job.data
 
         const updatedUser = await getUser(userId)
@@ -180,7 +179,7 @@ const defaultJobs = [
           oauthRefreshTokenExpiration.getTime() < UTCNowTimestamp
 
         if (refreshTokenExpired) {
-          pubsub.publish(USER_UPDATED, {
+          subscriptionManager.publish(USER_UPDATED, {
             userUpdated: updatedUser,
           })
         }

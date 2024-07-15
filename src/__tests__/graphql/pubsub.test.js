@@ -1,20 +1,19 @@
-const { getPubsub, destroy } = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 
 describe('pubsub manager', () => {
-  afterEach(() => destroy())
+  afterEach(() => subscriptionManager.client.end())
 
   it('can call destroy before connect', () =>
-    expect(destroy()).resolves.toBeUndefined())
+    expect(subscriptionManager.client.end()).resolves.toBeUndefined())
 
   it('waits for client to drain before closing', async () => {
-    const pubsub = await getPubsub()
     const cb = jest.fn()
-    pubsub.subscribe('test_channel', cb)
-    pubsub.publish('test_channel', { test: 'content' })
-    const destroyPromise = destroy({ drain: true })
+    subscriptionManager.subscribe('test_channel', cb)
+    subscriptionManager.publish('test_channel', { test: 'content' })
 
     expect(cb).not.toHaveBeenCalled()
-    await destroyPromise
+
+    await subscriptionManager.client.end()
     expect(cb).toHaveBeenCalledWith({ test: 'content' })
   })
 })

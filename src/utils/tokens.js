@@ -3,7 +3,7 @@ const config = require('config')
 const axios = require('axios')
 const moment = require('moment')
 
-const pubsubManager = require('../graphql/pubsub')
+const subscriptionManager = require('../graphql/pubsub')
 
 const { getExpirationTime, foreverDate } = require('./time')
 
@@ -34,7 +34,6 @@ const requestTokensFromProvider = async (
   providerLabel,
   options = {},
 ) => {
-  const pubsub = await pubsubManager.getPubsub()
   const { checkAccessToken, returnAccessToken } = options
 
   const providerUserIdentity = await Identity.findOne({
@@ -70,7 +69,7 @@ const requestTokensFromProvider = async (
   if (refreshTokenExpired) {
     const updatedUser = await getUser(userId)
 
-    pubsub.publish(USER_UPDATED, {
+    subscriptionManager.publish(USER_UPDATED, {
       userUpdated: updatedUser,
     })
     // logger.error(

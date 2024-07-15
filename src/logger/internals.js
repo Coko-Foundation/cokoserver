@@ -3,8 +3,8 @@ const chalk = require('chalk')
 const logger = require('./index')
 
 const BULLET = '\u25cf'
-// const CHECK = '\u2713'
-const CHECK_BG = '\u2705'
+const CHECK = '\u2713'
+// const CHECK_BG = '\u2705'
 const CROSS = '\u2718'
 const HORIZONTAL_BOX = '\u2500'
 const PICKAXE = '\u26CF'
@@ -37,7 +37,7 @@ const logSuccess = str => {
 
 const logSuccessTask = str => {
   logger.info(
-    `${chalk.cyan(BULLET)} ${chalk.green(str)} ${chalk.green(CHECK_BG)}`,
+    `${chalk.cyan(BULLET)} ${chalk.green(str)}  ${chalk.green(CHECK)}`,
   )
 }
 

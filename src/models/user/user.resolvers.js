@@ -1,7 +1,7 @@
 const { withFilter } = require('graphql-subscriptions')
 
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 
 const {
   labels: { USER_RESOLVER },
@@ -303,11 +303,9 @@ module.exports = {
   Subscription: {
     userUpdated: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
-
         return withFilter(
           () => {
-            return pubsub.asyncIterator(USER_UPDATED)
+            return subscriptionManager.asyncIterator(USER_UPDATED)
           },
           (payload, variables) => {
             const { userId } = variables

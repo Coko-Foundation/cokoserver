@@ -6,7 +6,7 @@ const { send: sendEmail } = require('./services/sendEmail')
 const logger = require('./logger')
 const db = require('./dbManager/db')
 const { migrate } = require('./dbManager/migrate')
-const pubsubManager = require('./graphql/pubsub')
+const subscriptionManager = require('./graphql/pubsub')
 const authentication = require('./authentication')
 const { File } = require('./models')
 const { createFile, deleteFiles } = require('./models/file/file.controller')
@@ -39,7 +39,7 @@ const verifyJWT = authentication.token.verify
 module.exports = {
   createJWT,
   verifyJWT,
-  pubsubManager,
+  subscriptionManager,
   modelJsonSchemaTypes,
   fileStorage,
   createFile,

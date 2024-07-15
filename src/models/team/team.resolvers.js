@@ -1,5 +1,5 @@
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 
 const {
   labels: { TEAM_RESOLVER },
@@ -26,11 +26,9 @@ const TeamMember = require('../teamMember/teamMember.model')
 
 const broadcastUserUpdated = async userId => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
-
     const updatedUser = await getUser(userId)
 
-    return pubsub.publish(USER_UPDATED, {
+    return subscriptionManager.publish(USER_UPDATED, {
       userUpdated: updatedUser,
     })
   } catch (e) {

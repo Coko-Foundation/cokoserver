@@ -14,6 +14,7 @@ const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
 const setupGraphqlServer = require('./graphql/setup')
+const subscriptionManager = require('./graphql/pubsub')
 
 const seedGlobalTeams = require('./startup/seedGlobalTeams')
 const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
@@ -151,6 +152,10 @@ const shutdown = async signal => {
     logTask('Shut down job queue')
     await stopJobQueue()
     logTaskItem('Successfully shut down job queue')
+  }
+
+  if (useGraphQLServer) {
+    await subscriptionManager.client.end()
   }
 
   const endTime = performance.now()

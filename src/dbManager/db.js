@@ -1,7 +1,9 @@
 const knex = require('knex')
 const config = require('config')
 const { knexSnakeCaseMappers } = require('objection')
-const connection = require('./connectionConfig')
+const getDbConnectionConfig = require('./connectionConfig')
+
+const connectionConfig = getDbConnectionConfig()
 
 const pool = config.has('pool') && config.get('pool')
 
@@ -12,7 +14,7 @@ const acquireConnectionTimeout =
 
 const db = knex({
   client: 'pg',
-  connection,
+  connection: connectionConfig,
   pool,
   ...knexSnakeCaseMappers(),
   acquireConnectionTimeout,

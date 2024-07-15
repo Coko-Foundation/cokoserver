@@ -68,4 +68,4 @@ class PostgresPubSub extends PubSub {
   }
 }
 
-module.exports = { PostgresPubSub }
+module.exports = PostgresPubSub

@@ -1,5 +1,5 @@
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 
 const {
   createOAuthIdentity,
@@ -32,10 +32,9 @@ const createOAuthIdentityResolver = async (
       code,
     )
 
-    const pubsub = await pubsubManager.getPubsub()
     const user = await getUser(userId)
 
-    pubsub.publish(USER_UPDATED, {
+    subscriptionManager.publish(USER_UPDATED, {
       userUpdated: user,
     })
 

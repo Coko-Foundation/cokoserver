@@ -3,7 +3,7 @@ const config = require('config')
 const moment = require('moment')
 
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 const { getExpirationTime, foreverDate } = require('../../utils/time')
 const { jobs } = require('../../services')
 const { getUser } = require('../user/user.controller')
@@ -194,8 +194,6 @@ const invalidateProviderAccessToken = async (userId, providerLabel) => {
 }
 
 const invalidateProviderTokens = async (userId, providerLabel) => {
-  const pubsub = await pubsubManager.getPubsub()
-
   const updatedUser = await getUser(userId)
 
   const providerUserIdentity = await Identity.findOne({
@@ -208,7 +206,7 @@ const invalidateProviderTokens = async (userId, providerLabel) => {
     oauthRefreshTokenExpiration: moment().utc().toDate(),
   })
 
-  pubsub.publish(USER_UPDATED, {
+  subscriptionManager.publish(USER_UPDATED, {
     userUpdated: updatedUser,
   })
 
