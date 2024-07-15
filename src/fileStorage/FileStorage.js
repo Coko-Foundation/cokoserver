@@ -93,10 +93,10 @@ class FileStorage {
         )
 
         uploaded.imageMetadata = {
-          density: item.density,
-          height: item.height,
-          space: item.space,
-          width: item.width,
+          density: item.imageMetadata.density,
+          height: item.imageMetadata.height,
+          space: item.imageMetadata.space,
+          width: item.imageMetadata.width,
         }
         uploaded.size = item.size
         uploaded.extension = item.extension

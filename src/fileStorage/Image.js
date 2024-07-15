@@ -102,7 +102,7 @@ class Image {
     const fileReadStream = fs.createReadStream(filePath)
     const fileBuffer = await buffer(fileReadStream)
 
-    const metadata = getMetadata(fileBuffer)
+    const metadata = await getMetadata(fileBuffer)
     const originalImageWidth = metadata.width
 
     const sizes = ['small', 'medium', 'full']
