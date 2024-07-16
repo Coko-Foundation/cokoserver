@@ -12,6 +12,17 @@ const writeFileToTemp = async (readStream, filePath) => {
   await fs.outputFile(outputPath, dataBuffer)
 }
 
+const deleteFileFromTemp = async filePath => {
+  const deletePath = path.join(tempFolderPath, filePath)
+  await fs.remove(deletePath)
+}
+
+const emptyTemp = async () => {
+  await fs.emptyDir(tempFolderPath)
+}
+
 module.exports = {
+  deleteFileFromTemp,
+  emptyTemp,
   writeFileToTemp,
 }

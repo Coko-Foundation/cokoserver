@@ -31,6 +31,12 @@ const {
   authenticatedCall: makeOAuthCall,
 } = require('./utils/authenticatedCall')
 
+const {
+  deleteFileFromTemp,
+  emptyTemp,
+  writeFileToTemp,
+} = require('./utils/filesystem')
+
 const { clientUrl, serverUrl } = require('./utils/urls')
 const graphqlTestServer = require('./utils/graphqlTestServer')
 
@@ -71,4 +77,8 @@ module.exports = {
   clientUrl,
   serverUrl,
   graphqlTestServer,
+
+  deleteFileFromTemp,
+  emptyTemp,
+  writeFileToTemp,
 }
