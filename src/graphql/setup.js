@@ -27,7 +27,7 @@ const setup = async (httpServer, app, passport) => {
   })
 
   const getDynamicContext = (ctx, msg, args) => {
-    const context = { user: null }
+    const context = { userId: null }
 
     if (ctx.connectionParams.authToken) {
       try {
@@ -36,7 +36,7 @@ const setup = async (httpServer, app, passport) => {
           config.get('secret'),
         )
 
-        context.user = decodedToken.id
+        context.userId = decodedToken.id
       } catch (e) {
         throw new AuthenticationError(
           'Subscription authentication token invalid',
@@ -93,7 +93,7 @@ const setup = async (httpServer, app, passport) => {
     expressMiddleware(apolloServer, {
       context: ({ req, res }) => {
         return {
-          user: req.user,
+          userId: req.user, // req.user is set by passport
           loaders: createdLoaders,
           req,
           res,

@@ -23,7 +23,7 @@ const createOAuthIdentityResolver = async (
 ) => {
   try {
     logger.info(`${IDENTITY_RESOLVER} createOAuthIdentity`)
-    const userId = ctx.user
+    const { userId } = ctx
 
     const identity = await createOAuthIdentity(
       userId,

@@ -118,7 +118,7 @@ describe('Team API', () => {
       },
       {
         contextValue: {
-          user: user.id,
+          userId: user.id,
         },
       },
     )
