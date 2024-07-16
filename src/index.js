@@ -32,6 +32,7 @@ const {
 } = require('./utils/authenticatedCall')
 
 const { clientUrl, serverUrl } = require('./utils/urls')
+const graphqlTestServer = require('./utils/graphqlTestServer')
 
 const createJWT = authentication.token.create
 const verifyJWT = authentication.token.verify
@@ -69,4 +70,5 @@ module.exports = {
 
   clientUrl,
   serverUrl,
+  graphqlTestServer,
 }
