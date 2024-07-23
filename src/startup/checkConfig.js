@@ -15,6 +15,7 @@ const removedKeys = [
   'password-reset.token-length',
   'pubsweet-client',
   'publicKeys',
+  'useJobQueue',
 ]
 
 const renameMap = {
