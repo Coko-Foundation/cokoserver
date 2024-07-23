@@ -7,7 +7,7 @@ const modified = {
     'cli',
     'db manager',
     'fileStorage',
-    'middleware',
+    'job manager',
     'models',
     'server',
     '*',
