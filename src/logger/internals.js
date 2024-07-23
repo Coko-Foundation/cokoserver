@@ -36,9 +36,7 @@ const logSuccess = str => {
 }
 
 const logSuccessTask = str => {
-  logger.info(
-    `${chalk.cyan(BULLET)} ${chalk.green(str)}  ${chalk.green(CHECK)}`,
-  )
+  logger.info(`${chalk.cyan(BULLET)} ${chalk.green(str)} ${chalk.green(CHECK)}`)
 }
 
 const logTask = str => {
@@ -49,6 +47,10 @@ const logTaskItem = str => {
   logger.info(`${chalk.cyan(BULLET)} ${str}`)
 }
 
+const logTaskSubItem = str => {
+  logger.info(`  ${chalk.cyan(CHECK)} ${str}`)
+}
+
 module.exports = {
   logErrorTask,
   logInit,
@@ -57,4 +59,5 @@ module.exports = {
   logSuccessTask,
   logTask,
   logTaskItem,
+  logTaskSubItem,
 }

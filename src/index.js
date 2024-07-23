@@ -1,4 +1,3 @@
-const cron = require('node-cron')
 const { v4: uuid } = require('uuid')
 
 const { send: sendEmail } = require('./services/sendEmail')
@@ -11,13 +10,14 @@ const authentication = require('./authentication')
 const { File } = require('./models')
 const { createFile, deleteFiles } = require('./models/file/file.controller')
 
-const { boss, connectToJobQueue } = require('./jobs')
 const { BaseModel, useTransaction } = require('./models')
 const modelJsonSchemaTypes = require('./models/_helpers/types')
 const tempFolderPath = require('./utils/tempFolderPath')
 const fileStorage = require('./fileStorage')
 
 const WaxToDocxConverter = require('./services/docx/docx.service')
+
+const { jobManager } = require('./jobManager')
 
 const activityLog = require('./services/activityLog')
 const { isEnvVariableTrue } = require('./utils/env')
@@ -64,11 +64,8 @@ module.exports = {
   request,
   tempFolderPath,
 
-  cron,
   uuid,
-
-  boss,
-  connectToJobQueue,
+  jobManager,
 
   callMicroservice,
   makeOAuthCall,

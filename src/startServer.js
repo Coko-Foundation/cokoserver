@@ -10,7 +10,7 @@ const morgan = require('morgan')
 const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
 const { migrate } = require('./dbManager/migrate')
-const { startJobQueue, subscribeJobsToQueue, stopJobQueue } = require('./jobs')
+const { startJobManager, stopJobManager } = require('./jobManager')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
 const setupGraphqlServer = require('./graphql/setup')
@@ -31,12 +31,7 @@ const {
 } = require('./startup/customScripts')
 
 let server
-let useJobQueue = true
 let useGraphQLServer = true
-
-if (config.has('useJobQueue') && config.get('useJobQueue') === false) {
-  useJobQueue = false
-}
 
 if (
   config.has('useGraphQLServer') &&
@@ -101,30 +96,20 @@ const startServer = async () => {
     ),
   )
 
-  mountStatic(app)
-
   app.use(passport.initialize())
   passport.use('bearer', authentication.strategies.bearer)
   passport.use('anonymous', authentication.strategies.anonymous)
   passport.use('local', authentication.strategies.local)
 
-  registerComponents(app)
-
   app.get('/healthcheck', healthcheck)
+
+  mountStatic(app)
+  registerComponents(app)
+  errorStatuses(app)
 
   if (useGraphQLServer) await setupGraphqlServer(httpServer, app, passport)
 
-  errorStatuses(app)
-
-  if (useJobQueue) {
-    await startJobQueue()
-    await subscribeJobsToQueue()
-  }
-
-  if (config.has('cron.path')) {
-    /* eslint-disable-next-line global-require, import/no-dynamic-require */
-    require(config.get('cron.path'))
-  }
+  await startJobManager()
 
   server = httpServer
 
@@ -148,11 +133,7 @@ const shutdown = async signal => {
   await server.close()
   logTaskItem('Http server successfully shut down')
 
-  if (useJobQueue) {
-    logTask('Shut down job queue')
-    await stopJobQueue()
-    logTaskItem('Successfully shut down job queue')
-  }
+  await stopJobManager()
 
   if (useGraphQLServer) {
     await subscriptionManager.client.end()

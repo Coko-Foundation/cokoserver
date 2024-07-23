@@ -4,8 +4,6 @@ const { URLSearchParams: UnpackedParams } = require('url')
 const find = require('lodash/find')
 const flattenDeep = require('lodash/flattenDeep')
 
-const { createUser } = require('./helpers/users')
-
 const {
   createOAuthIdentity,
   invalidateProviderAccessToken,
@@ -13,31 +11,30 @@ const {
 } = require('../identity/identity.controller')
 
 const { User, Identity } = require('../index')
-
-const clearDb = require('./_clearDb')
-
-const { jobs } = require('../../services')
-
+const { jobManager } = require('../../jobManager')
 const { foreverDate } = require('../../utils/time')
 
-// Mock "refresh token expired job"
-jest.mock('../../services', () => {
-  const { jobs: jobs_, ...originalModule } =
-    jest.requireActual('../../services')
+const { createUser } = require('./helpers/users')
+const clearDb = require('./_clearDb')
 
-  return {
-    __esModule: true,
-    ...originalModule,
-    jobs: {
-      ...jobs_,
-      defer: jest.fn(async (name, startAfter, data) => [
-        name,
-        startAfter,
-        data,
-      ]),
-    },
-  }
-})
+// Mock "refresh token expired job"
+// jest.mock('../../services', () => {
+//   const { jobs: jobs_, ...originalModule } =
+//     jest.requireActual('../../services')
+
+//   return {
+//     __esModule: true,
+//     ...originalModule,
+//     jobs: {
+//       ...jobs_,
+//       defer: jest.fn(async (name, startAfter, data) => [
+//         name,
+//         startAfter,
+//         data,
+//       ]),
+//     },
+//   }
+// })
 
 const fakeAccessToken =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJkZWZhdWx0QHRlc3QuY29tIiwiZmFtaWx5X25hbWUiOiJXYWx0b24iLCJnaXZlbl9uYW1lIjoiSm9obiJ9.8Qn2H6FAJVUn6T1U7bnbjnuguIFlY5EW_XaII1IJdE4'
@@ -160,8 +157,11 @@ describe('Identity Controller', () => {
       timeLeft(newProvider.oauthRefreshTokenExpiration) >= 359995000,
     ).toBeTruthy()
     // Expect renewal job to have been "scheduled"
-    const lastCallIndex = jobs.defer.mock.calls.length - 1
-    const [name, renewAfter, data] = jobs.defer.mock.calls[lastCallIndex]
+    const lastCallIndex = jobManager.sendToQueue.mock.calls.length - 1
+
+    const [name, renewAfter, data] =
+      jobManager.sendToQueue.mock.calls[lastCallIndex]
+
     expect(name).toEqual('refresh-token-expired')
     expect({ seconds: Math.round(renewAfter.seconds) }).toEqual({
       seconds: 360000,
@@ -241,7 +241,7 @@ describe('Identity Controller', () => {
 
     expect(oauthRefreshTokenExpiration).toEqual(foreverDate)
     expect(
-      find(flattenDeep(jobs.defer.mock.calls), { userId: user.id }),
+      find(flattenDeep(jobManager.sendToQueue.mock.calls), { userId: user.id }),
     ).toBeUndefined()
   })
 })

@@ -5,7 +5,7 @@ const moment = require('moment')
 const logger = require('../../logger')
 const subscriptionManager = require('../../graphql/pubsub')
 const { getExpirationTime, foreverDate } = require('../../utils/time')
-const { jobs } = require('../../services')
+const { jobManager, defaultJobQueueNames } = require('../../jobManager')
 const { getUser } = require('../user/user.controller')
 const Identity = require('./identity.model')
 
@@ -95,10 +95,10 @@ const createOAuthIdentity = async (userId, provider, sessionState, code) => {
     if (oauthRefreshTokenExpiration.getTime() !== foreverDate.getTime()) {
       const expiresIn = (oauthRefreshTokenExpiration - moment().utc()) / 1000
 
-      await jobs.defer(
-        jobs.REFRESH_TOKEN_EXPIRED,
-        { seconds: expiresIn },
+      await jobManager.sendToQueue(
+        defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
         { userId, providerLabel: provider },
+        { startAfter: expiresIn },
       )
     }
 

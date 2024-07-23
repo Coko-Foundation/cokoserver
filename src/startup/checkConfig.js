@@ -1,8 +1,13 @@
 const config = require('config')
-const Joi = require('joi')
+const BaseJoi = require('joi')
 
 const { logTask, logTaskItem } = require('../logger/internals')
 const ConfigSchemaError = require('../errors/ConfigSchemaError')
+const JoiCron = require('../utils/joiCron')
+const JoiTimezone = require('../utils/joiTimeZone')
+const { defaultJobQueues } = require('../jobManager/defaultJobQueues')
+
+const Joi = BaseJoi.extend(JoiCron).extend(JoiTimezone)
 
 const removedKeys = [
   'apollo',
@@ -38,6 +43,10 @@ const fileStorageRequired = errors => {
   return errors
 }
 
+const defaultJobQueueNames = defaultJobQueues.map(q => q.name)
+// reserving email, as it will be implemented
+const predefined = [...defaultJobQueueNames, 'email']
+
 const schema = Joi.object({
   fileStorage: Joi.when('useFileStorage', {
     is: true,
@@ -72,6 +81,31 @@ const schema = Joi.object({
     }),
   }),
 
+  jobQueues: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string()
+          .invalid(...predefined)
+          .required()
+          .messages({
+            'any.invalid':
+              '{{#label}} is not allowed to be "{{#value}}", as it is a reserved queue name',
+          }),
+        handler: Joi.function().required(),
+        teamSize: Joi.number().integer().positive().optional(),
+        teamConcurrency: Joi.number().integer().positive().optional(),
+        schedule: Joi.cron().optional(),
+        scheduleTimezone: Joi.when('schedule', {
+          is: Joi.exist(),
+          then: Joi.timezone().optional(),
+          otherwise: Joi.forbidden().messages({
+            '*': '{{#label}} is not allowed when "schedule" is not defined',
+          }),
+        }),
+      }).unknown(false),
+    )
+    .unique('name'),
+
   logger: Joi.object({
     info: Joi.func().required(),
     debug: Joi.func().required(),
@@ -80,8 +114,7 @@ const schema = Joi.object({
   }).optional(),
 
   useFileStorage: Joi.boolean().optional(),
-  useJobQueue: Joi.boolean().optional(),
-})
+}).unknown(true)
 
 const check = () => {
   logTask('Checking configuration')
@@ -101,7 +134,7 @@ const check = () => {
     }
   })
 
-  const validationResult = schema.validate(config, { allowUnknown: true })
+  const validationResult = schema.validate(config)
 
   if (validationResult.error) {
     throw new ConfigSchemaError(validationResult.error)

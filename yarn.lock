@@ -1613,6 +1613,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.10.5":
+  version: 7.24.8
+  resolution: "@babel/runtime@npm:7.24.8"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10c0/f24b30af6b3ecae19165b3b032f9bc37b2d1769677bd63b69a6f81061967cfc847aa822518402ea6616b1d301d7eb46986b99c9f69cdb5880834fca2e6b34881
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:^7.15.4":
   version: 7.23.9
   resolution: "@babel/runtime@npm:7.23.9"
@@ -1794,6 +1803,8 @@ __metadata:
     config: "npm:^3.3.11"
     cookie-parser: "npm:^1.4.5"
     cors: "npm:^2.8.5"
+    cron-validate: "npm:^1.4.5"
+    cronstrue: "npm:^2.50.0"
     dataloader: "npm:^1.4.0"
     docx: "npm:^8.5.0"
     express: "npm:^4.19.2"
@@ -1813,11 +1824,11 @@ __metadata:
     jsonwebtoken: "npm:^9.0.2"
     knex: "npm:^3.1.0"
     lodash: "npm:^4.17.20"
+    luxon: "npm:^3.4.4"
     madge: "npm:^7.0.0"
     mime-types: "npm:^2.1.34"
     moment: "npm:^2.29.1"
     morgan: "npm:^1.10.0"
-    node-cron: "npm:^2.0.3"
     nodemailer: "npm:^6.9.13"
     nodemon: "npm:^3.1.0"
     objection: "npm:^3.1.4"
@@ -1827,7 +1838,7 @@ __metadata:
     passport-http-bearer: "npm:^1.0.1"
     passport-local: "npm:^1.0.0"
     pg: "npm:^8.11.5"
-    pg-boss: "npm:^5.2.0"
+    pg-boss: "npm:^9.0.3"
     pg-ipc: "npm:^1.0.5"
     sharp: "npm:^0.32.6"
     standard-version: "npm:^7.1.0"
@@ -3732,6 +3743,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash@npm:^4.14.165":
+  version: 4.17.7
+  resolution: "@types/lodash@npm:4.17.7"
+  checksum: 10c0/40c965b5ffdcf7ff5c9105307ee08b782da228c01b5c0529122c554c64f6b7168fc8f11dc79aa7bae4e67e17efafaba685dc3a47e294dbf52a65ed2b67100561
+  languageName: node
+  linkType: hard
+
 "@types/lodash@npm:^4.14.175":
   version: 4.14.202
   resolution: "@types/lodash@npm:4.14.202"
@@ -4876,7 +4894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"call-bind@npm:^1.0.0, call-bind@npm:^1.0.2, call-bind@npm:^1.0.5, call-bind@npm:^1.0.6, call-bind@npm:^1.0.7":
+"call-bind@npm:^1.0.2, call-bind@npm:^1.0.5, call-bind@npm:^1.0.6, call-bind@npm:^1.0.7":
   version: 1.0.7
   resolution: "call-bind@npm:1.0.7"
   dependencies:
@@ -5777,13 +5795,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron-parser@npm:^3.3.0":
-  version: 3.5.0
-  resolution: "cron-parser@npm:3.5.0"
+"cron-parser@npm:^4.0.0":
+  version: 4.9.0
+  resolution: "cron-parser@npm:4.9.0"
   dependencies:
-    is-nan: "npm:^1.3.2"
-    luxon: "npm:^1.26.0"
-  checksum: 10c0/00a7b0d7856ff4b97db620a780c2419a47b08bdbd774505a90bb872b2c7b65655ddd73c95743bcb5c885da1ae6b36a7921429a0279b87bee335047cafbe9cd7a
+    luxon: "npm:^3.2.1"
+  checksum: 10c0/348622bdcd1a15695b61fc33af8a60133e5913a85cf99f6344367579e7002896514ba3b0a9d6bb569b02667d6b06836722bf2295fcd101b3de378f71d37bed0b
+  languageName: node
+  linkType: hard
+
+"cron-validate@npm:^1.4.5":
+  version: 1.4.5
+  resolution: "cron-validate@npm:1.4.5"
+  dependencies:
+    yup: "npm:0.32.9"
+  checksum: 10c0/4c210bea21832269fd8e18e4c9e9d750b314da04bc475b8b58414a6421a4c86804a6f1a8b9eda6d357af4c43f627fa3ee372f6fbb99b849d2a9b2aef2917bddf
+  languageName: node
+  linkType: hard
+
+"cronstrue@npm:^2.50.0":
+  version: 2.50.0
+  resolution: "cronstrue@npm:2.50.0"
+  bin:
+    cronstrue: bin/cli.js
+  checksum: 10c0/9fec217cfc83a53842c04cab1103ffb077a33837ea0f03f8a0968fe548509134b6667303ee7188d00b555fb53ad82fef5b6cd0c1886f3ec34b74625b61c6c3d7
   languageName: node
   linkType: hard
 
@@ -8839,16 +8874,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-nan@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "is-nan@npm:1.3.2"
-  dependencies:
-    call-bind: "npm:^1.0.0"
-    define-properties: "npm:^1.1.3"
-  checksum: 10c0/8bfb286f85763f9c2e28ea32e9127702fe980ffd15fa5d63ade3be7786559e6e21355d3625dd364c769c033c5aedf0a2ed3d4025d336abf1b9241e3d9eddc5b0
-  languageName: node
-  linkType: hard
-
 "is-negative-zero@npm:^2.0.2":
   version: 2.0.2
   resolution: "is-negative-zero@npm:2.0.2"
@@ -10105,7 +10130,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.21":
+"lodash-es@npm:^4.17.15, lodash-es@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
   checksum: 10c0/fb407355f7e6cd523a9383e76e6b455321f0f153a6c9625e21a8827d10c54c2a2341bd2ae8d034358b60e07325e1330c14c224ff582d04612a46a4f0479ff2f2
@@ -10116,6 +10141,13 @@ __metadata:
   version: 3.0.0
   resolution: "lodash._reinterpolate@npm:3.0.0"
   checksum: 10c0/cdf592374b5e9eb6d6290a9a07c7d90f6e632cca4949da2a26ae9897ab13f138f3294fd5e81de3e5d997717f6e26c06747a9ad3413c043fd36c0d87504d97da6
+  languageName: node
+  linkType: hard
+
+"lodash.debounce@npm:^4.0.8":
+  version: 4.0.8
+  resolution: "lodash.debounce@npm:4.0.8"
+  checksum: 10c0/762998a63e095412b6099b8290903e0a8ddcb353ac6e2e0f2d7e7d03abd4275fe3c689d88960eb90b0dde4f177554d51a690f22a343932ecbc50a5d111849987
   languageName: node
   linkType: hard
 
@@ -10353,10 +10385,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^1.26.0":
-  version: 1.28.1
-  resolution: "luxon@npm:1.28.1"
-  checksum: 10c0/5c561ce4364bb2301ca5811c74d11a9e087f82164109c7997dc8f0959e64d51259d8e630914dca2edc6702525ce5ab066a4b85caa19d04be71f10e79ffe2bc84
+"luxon@npm:^3.2.1, luxon@npm:^3.4.4":
+  version: 3.4.4
+  resolution: "luxon@npm:3.4.4"
+  checksum: 10c0/02e26a0b039c11fd5b75e1d734c8f0332c95510f6a514a9a0991023e43fb233884da02d7f966823ffb230632a733fc86d4a4b1e63c3fbe00058b8ee0f8c728af
   languageName: node
   linkType: hard
 
@@ -11006,16 +11038,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-cron@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "node-cron@npm:2.0.3"
-  dependencies:
-    opencollective-postinstall: "npm:^2.0.0"
-    tz-offset: "npm:0.0.1"
-  checksum: 10c0/71bcd3776d80c8d5168ee4c13398b927696bec5c9a5f4db5f5d00255bef56977cee80896b87415d89cf8d98991c838280ead961d64cd2bb798bac0695c6b2338
-  languageName: node
-  linkType: hard
-
 "node-fetch@npm:^2.6.7":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
@@ -11367,15 +11389,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"opencollective-postinstall@npm:^2.0.0":
-  version: 2.0.3
-  resolution: "opencollective-postinstall@npm:2.0.3"
-  bin:
-    opencollective-postinstall: index.js
-  checksum: 10c0/8a0104a218bc1afaae943f0af378461eeb2836f9848bad872bbd067ec5d1d9791636f307454ab77d0746f10341366f295384656a340ebdb87a2585058e8567e5
-  languageName: node
-  linkType: hard
-
 "optionator@npm:^0.9.3":
   version: 0.9.4
   resolution: "optionator@npm:0.9.4"
@@ -11693,16 +11706,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-boss@npm:^5.2.0":
-  version: 5.2.3
-  resolution: "pg-boss@npm:5.2.3"
+"pg-boss@npm:^9.0.3":
+  version: 9.0.3
+  resolution: "pg-boss@npm:9.0.3"
   dependencies:
-    cron-parser: "npm:^3.3.0"
+    cron-parser: "npm:^4.0.0"
     delay: "npm:^5.0.0"
+    lodash.debounce: "npm:^4.0.8"
     p-map: "npm:^4.0.0"
     pg: "npm:^8.5.1"
-    uuid: "npm:^8.3.2"
-  checksum: 10c0/564684df8585ef746eb8ce7dd70a2eec44fb400cfd893686950e42d972d8c222812433098d9eab295b36ad298c409130c6bb6d27f7cd3deb20cd989f22e064dd
+    serialize-error: "npm:^8.1.0"
+    uuid: "npm:^9.0.0"
+  checksum: 10c0/7021733e75c59ddcccc0effeceb745e689b3b975dea817910696c0b1b0e986cb32ddd886418b9db8b4cfa0fceaf826754bd9c1a3438095893a39cccf1149d793
   languageName: node
   linkType: hard
 
@@ -12872,6 +12887,15 @@ __metadata:
     range-parser: "npm:~1.2.1"
     statuses: "npm:2.0.1"
   checksum: 10c0/0eb134d6a51fc13bbcb976a1f4214ea1e33f242fae046efc311e80aff66c7a43603e26a79d9d06670283a13000e51be6e0a2cb80ff0942eaf9f1cd30b7ae736a
+  languageName: node
+  linkType: hard
+
+"serialize-error@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "serialize-error@npm:8.1.0"
+  dependencies:
+    type-fest: "npm:^0.20.2"
+  checksum: 10c0/8cfd89f43ca93e283c5f1d16178a536bdfac9bc6029f4a9df988610cc399bc4f2478d1f10ce40b9dff66b863a5158a19b438fbec929045c96d92174f6bca1e88
   languageName: node
   linkType: hard
 
@@ -14425,13 +14449,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tz-offset@npm:0.0.1":
-  version: 0.0.1
-  resolution: "tz-offset@npm:0.0.1"
-  checksum: 10c0/b1923342c1142b3fe30f349e7212dea6c4cd20413b9c765b3bd97e9455336009effd99f270b805ffacda2f7d754812340378bd529e85f76f8dcf3e2266a5e0fc
-  languageName: node
-  linkType: hard
-
 "uglify-js@npm:^3.1.4":
   version: 3.17.4
   resolution: "uglify-js@npm:3.17.4"
@@ -14562,15 +14579,6 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: 10c0/02ba649de1b7ca8854bfe20a82f1dfbdda3fb57a22ab4a8972a63a34553cf7aa51bc9081cf7e001b035b88186d23689d69e71b510e610a09a4c66f68aa95b672
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^8.3.2":
-  version: 8.3.2
-  resolution: "uuid@npm:8.3.2"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 10c0/bcbb807a917d374a49f475fae2e87fdca7da5e5530820ef53f65ba1d12131bd81a92ecf259cc7ce317cbe0f289e7d79fdfebcef9bfa3087c8c8a2fa304c9be54
   languageName: node
   linkType: hard
 
@@ -15061,6 +15069,21 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10c0/dceb44c28578b31641e13695d200d34ec4ab3966a5729814d5445b194933c096b7ced71494ce53a0e8820685d1d010df8b2422e5bf2cdea7e469d97ffbea306f
+  languageName: node
+  linkType: hard
+
+"yup@npm:0.32.9":
+  version: 0.32.9
+  resolution: "yup@npm:0.32.9"
+  dependencies:
+    "@babel/runtime": "npm:^7.10.5"
+    "@types/lodash": "npm:^4.14.165"
+    lodash: "npm:^4.17.20"
+    lodash-es: "npm:^4.17.15"
+    nanoclone: "npm:^0.2.1"
+    property-expr: "npm:^2.0.4"
+    toposort: "npm:^2.0.2"
+  checksum: 10c0/b2adff31f4be85aaad338e6db12a26715b9e11270c587afe051d42c423f7f24de2d184f646047cb5c3b8c65163c37611f8309f2ef4eb6bb7a66688158a081d66
   languageName: node
   linkType: hard
 
