@@ -1,4 +1,4 @@
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
 
 const dbCleaner = async () => {
   const query = await db.raw(

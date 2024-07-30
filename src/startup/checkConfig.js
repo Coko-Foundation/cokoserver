@@ -1,11 +1,10 @@
-const config = require('config')
 const BaseJoi = require('joi')
 
 const { logTask, logTaskItem } = require('../logger/internals')
 const ConfigSchemaError = require('../errors/ConfigSchemaError')
 const JoiCron = require('../utils/joiCron')
 const JoiTimezone = require('../utils/joiTimeZone')
-const { defaultJobQueues } = require('../jobManager/defaultJobQueues')
+const defaultJobQueueNames = require('../jobManager/defaultJobQueueNames')
 
 const Joi = BaseJoi.extend(JoiCron).extend(JoiTimezone)
 
@@ -44,9 +43,13 @@ const fileStorageRequired = errors => {
   return errors
 }
 
-const defaultJobQueueNames = defaultJobQueues.map(q => q.name)
+// const defaultJobQueueNames = defaultJobQueues.map(q => q.name)
+const reservedQueueNames = Object.keys(defaultJobQueueNames).map(
+  key => defaultJobQueueNames[key],
+)
+
 // reserving email, as it will be implemented
-const predefined = [...defaultJobQueueNames, 'email']
+const predefined = [...reservedQueueNames, 'email']
 
 const schema = Joi.object({
   fileStorage: Joi.when('useFileStorage', {
@@ -105,6 +108,7 @@ const schema = Joi.object({
         }),
       }).unknown(false),
     )
+    .optional()
     .unique('name'),
 
   logger: Joi.object({
@@ -117,18 +121,18 @@ const schema = Joi.object({
   useFileStorage: Joi.boolean().optional(),
 }).unknown(true)
 
-const check = () => {
+const check = config => {
   logTask('Checking configuration')
 
-  if (config.has('pubsweet')) throwPubsweetKeyError('pubsweet')
-  if (config.has('pubsweet-server')) throwPubsweetKeyError('pubsweet=server')
+  if (config.pubsweet) throwPubsweetKeyError('pubsweet')
+  if (config['pubsweet-server']) throwPubsweetKeyError('pubsweet-server')
 
   removedKeys.forEach(key => {
-    if (config.has(key)) throwRemovedError(key)
+    if (config[key]) throwRemovedError(key)
   })
 
   Object.keys(renameMap).forEach(key => {
-    if (config.has(key)) {
+    if (config[key]) {
       throw new ConfigSchemaError(
         `Key ${key} has been renamed to ${renameMap[key]}`,
       )

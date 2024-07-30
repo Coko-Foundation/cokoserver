@@ -57,4 +57,4 @@ const meta = {
     }),
 }
 
-module.exports = { migrations, meta }
+module.exports = { migrations, meta, MIGRATIONS_TABLE, META_TABLE }

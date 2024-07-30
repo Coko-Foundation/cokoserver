@@ -1,13 +1,14 @@
 const Joi = require('joi')
 
+const { boss } = require('./boss')
 const JobManagerOptionsError = require('./JobManagerOptionsError')
 
 class JobManager {
   #boss
   #validationSchemas
 
-  constructor(boss) {
-    this.#boss = boss
+  constructor(passedBoss) {
+    this.#boss = passedBoss
 
     this.#validationSchemas = {
       send: Joi.object({
@@ -30,4 +31,4 @@ class JobManager {
   }
 }
 
-module.exports = JobManager
+module.exports = { JobManager, jobManager: new JobManager(boss) }

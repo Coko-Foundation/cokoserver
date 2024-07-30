@@ -1,10 +1,8 @@
 const config = require('config')
 
-const { boss, start, stop } = require('./boss')
-const JobManager = require('./JobManager')
-const { defaultJobQueueNames } = require('./defaultJobQueues')
-
-const jobManager = new JobManager(boss)
+const { start, stop } = require('./boss')
+const { jobManager } = require('./JobManager')
+const defaultJobQueueNames = require('./defaultJobQueueNames')
 
 const startJobManager = async () => start(config)
 

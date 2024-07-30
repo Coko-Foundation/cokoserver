@@ -11,7 +11,7 @@ const nodemon = require('nodemon')
 const pkg = require('../../package.json')
 const logger = require('../logger')
 const { logNodemon } = require('../logger/internals')
-const { migrate, rollback, pending, executed } = require('../dbManager/migrate')
+const { migrationManager } = require('../db')
 const startServer = require('../startServer')
 
 program
@@ -75,7 +75,7 @@ migrateCommand
         optionsToPass.step = parseInt(options.step, 10)
       }
 
-      await migrate(optionsToPass)
+      await migrationManager.migrate(optionsToPass)
       process.exit(0)
     } catch (e) {
       logger.error(e)
@@ -104,7 +104,7 @@ migrateCommand
     }
 
     try {
-      await rollback(optionsToPass)
+      await migrationManager.rollback(optionsToPass)
       process.exit(0)
     } catch (e) {
       logger.error(e)
@@ -117,7 +117,7 @@ migrateCommand
   .description('Display pending migrations')
   .action(async () => {
     try {
-      await pending()
+      await migrationManager.pending()
       process.exit(0)
     } catch (e) {
       logger.error(e)
@@ -130,7 +130,7 @@ migrateCommand
   .description('Display executed migrations')
   .action(async () => {
     try {
-      await executed()
+      await migrationManager.executed()
       process.exit(0)
     } catch (e) {
       logger.error(e)

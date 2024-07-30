@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { migrate } = require('../dbManager/migrate')
+const { migrationManager } = require('../db')
 const { User } = require('../models')
 
 const api = require('./helpers/api')
@@ -23,7 +23,7 @@ describe('File upload/download', () => {
   let token
 
   beforeAll(async () => {
-    await migrate()
+    await migrationManager.migrate()
   })
 
   beforeEach(async () => {

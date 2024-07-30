@@ -1,14 +1,14 @@
 const PgBoss = require('pg-boss')
 const cronstrue = require('cronstrue')
 
-const getConnectionConfig = require('../dbManager/connectionConfig')
+const { getDbConnectionConfig } = require('../db')
 const logger = require('../logger')
 const { logTask, logTaskItem, logTaskSubItem } = require('../logger/internals')
 const wait = require('../utils/wait')
 
 const { defaultJobQueues } = require('./defaultJobQueues')
 
-const connectionConfig = getConnectionConfig()
+const connectionConfig = getDbConnectionConfig()
 
 const boss = new PgBoss(connectionConfig)
 boss.on('error', error => logger.error(error))
@@ -95,9 +95,9 @@ const start = async config => {
   if (!orphanFound) logTaskSubItem('No orphaned schedules found')
 }
 
-const stop = async () => {
+const stop = async options => {
   logTask('Shut down job manager')
-  await boss.stop()
+  await boss.stop(options)
 
   /**
    * await boss.stop() doesn't wait until boss is in a stopped state,

@@ -9,7 +9,7 @@ const morgan = require('morgan')
 
 const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
-const { migrate } = require('./dbManager/migrate')
+const { migrationManager } = require('./db')
 const { startJobManager, stopJobManager } = require('./jobManager')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
@@ -47,11 +47,11 @@ const startServer = async () => {
 
   logInit('Coko server init tasks')
 
-  checkConfig()
+  checkConfig(config)
 
   await ensureTempFolderExists()
   await checkConnections()
-  await migrate()
+  await migrationManager.migrate()
   await seedGlobalTeams()
   await runCustomStartupScripts()
 

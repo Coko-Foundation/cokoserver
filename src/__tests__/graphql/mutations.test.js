@@ -4,7 +4,7 @@ const api = require('../helpers/api')
 const authentication = require('../../authentication')
 const { User } = require('../../models')
 const clearDb = require('../../models/__tests__/_clearDb')
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
 
 describe('GraphQL core mutations', () => {
   let token

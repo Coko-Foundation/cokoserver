@@ -19,11 +19,11 @@ const db = require('./db')
 const { migrations, meta } = require('./migrateDbHelpers')
 const tryRequireRelative = require('../utils/tryRequireRelative')
 
-const MigrateOptionIntegrityError = require('../errors/migrate/MigrateOptionIntegrityError')
-const MigrateSkipLimitError = require('../errors/migrate/MigrateSkipLimitError')
-const MigrationResolverRulesError = require('../errors/migrate/MigrationResolverRulesError')
-const RollbackLimitError = require('../errors/migrate/RollbackLimitError')
-const RollbackUnavailableError = require('../errors/migrate/RollbackUnavailableError')
+const MigrateOptionIntegrityError = require('./errors/MigrateOptionIntegrityError')
+const MigrateSkipLimitError = require('./errors/MigrateSkipLimitError')
+const MigrationResolverRulesError = require('./errors/MigrationResolverRulesError')
+const RollbackLimitError = require('./errors/RollbackLimitError')
+const RollbackUnavailableError = require('./errors/RollbackUnavailableError')
 
 const META_ID = '1715865523-create-coko-server-meta.js'
 
@@ -31,7 +31,7 @@ const META_ID = '1715865523-create-coko-server-meta.js'
 const resolveRelative = m => require.resolve(m, { paths: [process.cwd()] })
 
 // componentPath could be a path or the name of a node module
-const getMigrationPaths = () => {
+const getMigrationPaths = passedConfig => {
   const migrationPaths = []
 
   const getPathsRecursively = componentPath => {
@@ -51,8 +51,8 @@ const getMigrationPaths = () => {
     }
   }
 
-  if (config.has('components')) {
-    config.get('components').forEach(componentPath => {
+  if (passedConfig.has('components')) {
+    passedConfig.get('components').forEach(componentPath => {
       getPathsRecursively(componentPath)
     })
   }
@@ -62,8 +62,8 @@ const getMigrationPaths = () => {
   return migrationPaths
 }
 
-const getGlobPattern = () => {
-  const migrationPaths = getMigrationPaths()
+const getGlobPattern = passedConfig => {
+  const migrationPaths = getMigrationPaths(passedConfig)
 
   const pattern = migrationPaths
     .map(migrationPath => `${migrationPath}/*.{js,sql}`)
@@ -160,8 +160,8 @@ const customResolver = (params, threshold) => {
   }
 }
 
-const getUmzug = threshold => {
-  const globPattern = getGlobPattern()
+const getUmzug = (passedConfig, threshold) => {
+  const globPattern = getGlobPattern(passedConfig)
 
   const parent = new Umzug({
     migrations: {
@@ -244,15 +244,18 @@ const updateCheckpoint = async () => {
  * apply (the creation of the meta table, ie. from the moment they upgraded to
  * coko server v4).
  */
-const migrate = async (options = {}) => {
+const migrate = async (passedConfig, options = {}) => {
   logTask(`Run migrations`)
 
   const threshold = await getMetaCreatedAsUnixTimestamp()
-  const umzug = getUmzug(threshold)
+  const umzug = getUmzug(passedConfig, threshold)
 
   const { skipLast, ...otherOptions } = options
 
-  if (skipLast || Number.isNaN(skipLast)) {
+  const isSkipLastDefined =
+    typeof skipLast !== 'undefined' && !Number.isNaN(skipLast)
+
+  if (isSkipLastDefined) {
     if (!Number.isInteger(skipLast) || skipLast <= 0) {
       throw new MigrateOptionIntegrityError(
         'Skip value must be a positive integer.',
@@ -288,7 +291,7 @@ const migrate = async (options = {}) => {
   await updateCheckpoint()
 }
 
-const rollback = async options => {
+const rollback = async (passedConfig, options = {}) => {
   if (!(await meta.exists())) throw new RollbackUnavailableError()
 
   const migrationRows = await migrations.getRows()
@@ -351,7 +354,7 @@ const rollback = async options => {
   await meta.clearCheckpoint()
 
   try {
-    const umzug = getUmzug()
+    const umzug = getUmzug(passedConfig)
     await umzug.down(downOptions)
     logger.info('Migrate: Migration rollback successful!')
   } catch (e) {
@@ -366,8 +369,8 @@ const rollback = async options => {
   await updateCheckpoint()
 }
 
-const pending = async () => {
-  const umzug = getUmzug()
+const pending = async passedConfig => {
+  const umzug = getUmzug(passedConfig)
   const pendingMigrations = await umzug.pending()
 
   if (pendingMigrations.length === 0) {
@@ -376,10 +379,12 @@ const pending = async () => {
     logger.info(`Migrate: Pending migrations:`)
     logger.info(pendingMigrations)
   }
+
+  return pendingMigrations
 }
 
-const executed = async () => {
-  const umzug = getUmzug()
+const executed = async passedConfig => {
+  const umzug = getUmzug(passedConfig)
   const executedMigrations = await umzug.executed()
 
   if (executedMigrations.length === 0) {
@@ -388,7 +393,16 @@ const executed = async () => {
     logger.info(`Migrate: Executed migrations:`)
     logger.info(executedMigrations)
   }
+
+  return executedMigrations
 }
 // #endregion commmands
 
-module.exports = { migrate, rollback, pending, executed }
+const migrationManager = {
+  migrate: async options => migrate(config, options),
+  rollback: async options => rollback(config, options),
+  pending: async () => pending(config),
+  executed: async () => executed(config),
+}
+
+module.exports = { migrate, rollback, pending, executed, migrationManager }

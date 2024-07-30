@@ -7,10 +7,7 @@ const subscriptionManager = require('../graphql/pubsub')
 
 const { USER_UPDATED } = userConstants.subscriptions
 
-const defaultJobQueueNames = {
-  // RENEW_AUTH_TOKENS_JOB: 'renew-auth-tokens',
-  REFRESH_TOKEN_EXPIRED: 'refresh-token-expired',
-}
+const defaultJobQueueNames = require('./defaultJobQueueNames')
 
 const defaultJobQueues = [
   // {
@@ -81,4 +78,4 @@ const defaultJobQueues = [
   },
 ]
 
-module.exports = { defaultJobQueueNames, defaultJobQueues }
+module.exports = { defaultJobQueues }

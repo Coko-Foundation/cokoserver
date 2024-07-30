@@ -2,7 +2,7 @@ const { Team, TeamMember, User } = require('../../models')
 const clearDb = require('../../models/__tests__/_clearDb')
 const api = require('../helpers/api')
 const authentication = require('../../authentication')
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
 
 describe('GraphQL core queries', () => {
   let token

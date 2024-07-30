@@ -1,6 +1,6 @@
 const config = require('config')
 
-const db = require('../dbManager/db')
+const db = require('../db/db')
 const { logTask, logTaskItem, logErrorTask } = require('../logger/internals')
 const fileStorage = require('../fileStorage')
 

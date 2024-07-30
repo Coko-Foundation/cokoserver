@@ -4,7 +4,7 @@ const merge = require('lodash/merge')
 const uuid = require('uuid')
 const addFormats = require('ajv-formats')
 
-const db = require('../dbManager/db')
+const { db } = require('../db')
 const logger = require('../logger')
 const useTransaction = require('./useTransaction')
 

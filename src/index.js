@@ -3,8 +3,7 @@ const { v4: uuid } = require('uuid')
 const { send: sendEmail } = require('./services/sendEmail')
 
 const logger = require('./logger')
-const db = require('./dbManager/db')
-const { migrate } = require('./dbManager/migrate')
+const { db, migrationManager } = require('./db')
 const subscriptionManager = require('./graphql/pubsub')
 const authentication = require('./authentication')
 const { File } = require('./models')
@@ -58,7 +57,7 @@ module.exports = {
   File,
   logger,
   db,
-  migrate,
+  migrationManager,
   useTransaction,
   isEnvVariableTrue,
   request,

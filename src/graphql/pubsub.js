@@ -2,7 +2,7 @@ const config = require('config')
 
 const PostgresPubSub = require('./PostgresPubSub')
 const PostgresPubSubNoop = require('./PostgresPubSubNoop')
-const getDbConnectionConfig = require('../dbManager/connectionConfig')
+const { getDbConnectionConfig } = require('../db')
 
 const connectionConfig = getDbConnectionConfig()
 

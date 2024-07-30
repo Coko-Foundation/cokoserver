@@ -1,6 +1,6 @@
 const gqlServer = require('../../utils/graphqlTestServer')
 const { Team, TeamMember, User } = require('..')
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
 const clearDb = require('./_clearDb')
 
 describe('Team API', () => {

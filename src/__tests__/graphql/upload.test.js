@@ -2,7 +2,7 @@ const api = require('../helpers/api')
 const authentication = require('../../authentication')
 const clearDb = require('../../models/__tests__/_clearDb')
 const { User } = require('../../models')
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
 
 describe('GraphQL uploads', () => {
   let token

@@ -4,14 +4,14 @@ const clone = require('lodash/clone')
 const {
   createUserAndDefaultIdentity,
   createUserAndIdentities,
-} = require('./helpers/users')
+} = require('../../__tests__/helpers/users')
 
 const {
   createGlobalTeamWithUsers,
   createLocalTeamWithUsers,
-} = require('./helpers/teams')
+} = require('../../__tests__/helpers/teams')
 
-const clearDb = require('./_clearDb')
+const clearDb = require('../../__tests__/_clearDb')
 
 const {
   user,
@@ -19,10 +19,10 @@ const {
   userWithInvalidPassword,
   userWithFullName,
   userWithoutName,
-} = require('./fixtures/users')
+} = require('../../__tests__/fixtures/users')
 
-const { User } = require('../index')
-const Team = require('../team/team.model')
+const { User } = require('../../index')
+const Team = require('../../team/team.model')
 
 describe('User model', () => {
   beforeEach(() => clearDb())
