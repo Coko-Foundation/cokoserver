@@ -313,6 +313,9 @@ describe('Base model', () => {
     })
 
     await expect(Fake.deleteByIds([entity1.id, uuid()])).rejects.toThrow()
+
+    const fakes = await Fake.find({})
+    expect(fakes.totalCount).toBe(1)
   })
 
   it('has updated set when created', async () => {

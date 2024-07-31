@@ -1,6 +1,8 @@
 const find = require('lodash/find')
 const clone = require('lodash/clone')
 
+const { db, migrationManager } = require('../../../db')
+
 const {
   createUserAndDefaultIdentity,
   createUserAndIdentities,
@@ -21,15 +23,20 @@ const {
   userWithoutName,
 } = require('../../__tests__/fixtures/users')
 
-const { User } = require('../../index')
+const User = require('../user.model')
+const Identity = require('../../identity/identity.model')
 const Team = require('../../team/team.model')
+const TeamMember = require('../../teamMember/teamMember.model')
 
 describe('User model', () => {
+  beforeAll(async () => {
+    await migrationManager.migrate()
+  })
+
   beforeEach(() => clearDb())
 
-  afterAll(() => {
-    const knex = User.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
   })
 
   it('validates password correctly after saving to db', async () => {
@@ -325,5 +332,48 @@ describe('User model', () => {
     const instanceTeams = await myUser.getTeams()
     expect(instanceTeams.length).toBe(1)
     expect(instanceTeams[0].id).toEqual(team.id)
+  })
+
+  it('deletes user identities and team memberships along with the user', async () => {
+    const usr = await User.insert({})
+
+    await Identity.insert({
+      userId: usr.id,
+      email: 'user@example.com',
+    })
+
+    await Identity.insert({
+      userId: usr.id,
+      email: 'user@fake.com',
+    })
+
+    const team = await Team.insert({
+      global: true,
+      role: 'editor',
+      displayName: 'Editor',
+    })
+
+    const anotherTeam = await Team.insert({
+      global: true,
+      role: 'admin',
+      displayName: 'Admin',
+    })
+
+    await Team.addMember(team.id, usr.id)
+    await Team.addMember(anotherTeam.id, usr.id)
+
+    let members = await TeamMember.find({})
+    expect(members.totalCount).toBe(2)
+
+    let identities = await Identity.find({})
+    expect(identities.totalCount).toBe(2)
+
+    await User.deleteById(usr.id)
+
+    members = await TeamMember.find({})
+    expect(members.totalCount).toBe(0)
+
+    identities = await Identity.find({})
+    expect(identities.totalCount).toBe(0)
   })
 })

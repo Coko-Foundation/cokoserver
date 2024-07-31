@@ -339,47 +339,33 @@ class BaseModel extends Model {
 
   static async deleteById(id, options = {}) {
     try {
-      const { trx } = options
-      return useTransaction(
-        async tr => this.query(tr).deleteById(id).throwIfNotFound(),
-        {
-          trx,
-          passedTrxOnly: true,
-        },
-      )
+      return this.query(options.trx).deleteById(id).throwIfNotFound()
     } catch (e) {
-      logger.error('Base model: deleteById failed', e)
-      throw new Error(e)
+      logger.error(`${this.name} model: deleteById failed.`, e)
+      throw e
     }
   }
 
   static async deleteByIds(ids, options = {}) {
     try {
-      const { trx } = options
-      return useTransaction(
-        async tr => {
-          const result = await this.query(tr)
-            .delete()
-            .whereIn('id', ids)
-            .returning('id')
+      const rows = await this.query(options.trx).findByIds(ids)
 
-          if (result.length < ids.length) {
-            const delta = ids.filter(
-              id => !result.map(res => res.id).includes(id),
-            )
+      if (rows.length < ids.length) {
+        const diff = ids.filter(id => !rows.map(res => res.id).includes(id))
 
-            throw new Error(`id ${delta} not found`)
-          }
+        throw new Error(
+          `id${diff.length > 1 ? 's' : ''} ${diff.join(', ')} not found`,
+        )
+      }
 
-          return result.map(u => u.id)
-        },
-        {
-          trx,
-          passedTrxOnly: true,
-        },
-      )
+      const result = await this.query(options.trx)
+        .delete()
+        .whereIn('id', ids)
+        .returning('id')
+
+      return result.map(u => u.id)
     } catch (e) {
-      logger.error('Base model: deleteByIds failed', e)
+      logger.error(`${this.name} model: deleteByIds failed`, e)
       throw new Error(e)
     }
   }

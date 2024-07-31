@@ -84,7 +84,7 @@ describe('User Controller', () => {
     expect(fetchedUser.isActive).toEqual(false)
   })
 
-  it('can deactivate  multiple users', async () => {
+  it('can deactivate multiple users', async () => {
     const user1 = await createUser()
     const user2 = await createUser()
     await activateUsers([user1.id, user2.id])
@@ -97,40 +97,23 @@ describe('User Controller', () => {
   it('can delete an existing user', async () => {
     const { user } = await createUserAndDefaultIdentity()
     await deleteUser(user.id)
-    const { result: fetchedUsers } = await getUsers()
-    expect(fetchedUsers).toHaveLength(0)
+
+    const users = await User.find({})
+    expect(users.totalCount).toBe(0)
+    const identities = await Identity.find({})
+    expect(identities.totalCount).toBe(0)
   })
 
-  it('can delete  multiple users', async () => {
+  it('can delete multiple users', async () => {
     const { user: user1 } = await createUserAndDefaultIdentity()
     const { user: user2 } = await createUserAndDefaultIdentity()
-    await deleteUsers([user1.id, user2.id])
-    const { result: fetchedUsers } = await getUsers()
-    expect(fetchedUsers).toHaveLength(0)
-  })
 
-  it('can delete user identities when deleting a user', async () => {
-    const { user } = await createUserAndDefaultIdentity()
-    await deleteUser(user.id)
-    const { result: userIdentities } = await Identity.find({ userId: user.id })
-    expect(userIdentities).toHaveLength(0)
-  })
-
-  it("can delete users' identities when deleting multiple users", async () => {
-    const { user: user1 } = await createUserAndDefaultIdentity()
-    const { user: user2 } = await createUserAndDefaultIdentity()
     await deleteUsers([user1.id, user2.id])
 
-    const { result: identitiesUser1 } = await Identity.find({
-      userId: user1.id,
-    })
-
-    const { result: identitiesUser2 } = await Identity.find({
-      userId: user2.id,
-    })
-
-    expect(identitiesUser1).toHaveLength(0)
-    expect(identitiesUser2).toHaveLength(0)
+    const users = await User.find({})
+    expect(users.totalCount).toBe(0)
+    const identities = await Identity.find({})
+    expect(identities.totalCount).toBe(0)
   })
 
   it('can update user current password', async () => {
