@@ -303,7 +303,7 @@ describe('Base model', () => {
     const newEntity2 = await Fake.insert({})
     const affectedRows = await Fake.deleteByIds([newEntity1.id, newEntity2.id])
     const { result } = await Fake.find({})
-    expect(affectedRows).toEqual([newEntity1.id, newEntity2.id])
+    expect(affectedRows).toEqual(2)
     expect(result).toHaveLength(0)
   })
 

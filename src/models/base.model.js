@@ -363,7 +363,7 @@ class BaseModel extends Model {
         .whereIn('id', ids)
         .returning('id')
 
-      return result.map(u => u.id)
+      return result.length
     } catch (e) {
       logger.error(`${this.name} model: deleteByIds failed`, e)
       throw new Error(e)
