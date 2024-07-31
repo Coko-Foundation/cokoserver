@@ -50,9 +50,8 @@ input LoginInput {
   password: String!
 }
 
-input UpdateInput {
+input UpdateUserInput {
   email: String
-  identityId: ID
   username: String
   surname: String
   givenNames: String
@@ -84,7 +83,7 @@ extend type Mutation {
   deleteUsers(ids: [ID!]!): [ID!]!
   deactivateUser(id: ID!): User!
   deactivateUsers(ids: [ID!]!): [User!]!
-  updateUser(id: ID, input: UpdateInput!): User!
+  updateUser(id: ID, input: UpdateUserInput!): User!
   login(input: LoginInput!): LoginResult!
   signUp(input: SignUpInput!): ID!
   setDefaultIdentity(userId: ID!, identityId: ID!): User!

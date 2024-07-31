@@ -50,7 +50,7 @@ describe('GraphQL core mutations', () => {
 
     it('can update a user', async () => {
       const { body } = await api.graphql.query(
-        `mutation($id: ID, $input: UpdateInput!) {
+        `mutation($id: ID, $input: UpdateUserInput!) {
           updateUser(id: $id, input: $input) { username }
         }`,
         {
