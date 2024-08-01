@@ -2,14 +2,14 @@ const BaseModel = require('../base.model')
 
 const { id } = require('../_helpers/types')
 
-class ChatThread extends BaseModel {
+class ChatChannel extends BaseModel {
   constructor(properties) {
     super(properties)
-    this.type = 'chatThread'
+    this.type = 'chatChannel'
   }
 
   static get tableName() {
-    return 'chatThreads'
+    return 'chatChannels'
   }
 
   static get schema() {
@@ -34,12 +34,12 @@ class ChatThread extends BaseModel {
         relation: BaseModel.HasManyRelation,
         modelClass: ChatMessage,
         join: {
-          from: 'chatMessages.chatThreadId',
-          to: 'chatThreads.id',
+          from: 'chatMessages.chatChannelId',
+          to: 'chatChannels.id',
         },
       },
     }
   }
 }
 
-module.exports = ChatThread
+module.exports = ChatChannel

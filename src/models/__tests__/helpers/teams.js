@@ -37,14 +37,14 @@ const createLocalTeamWithUsers = async () => {
   }
 }
 
-const createChatThreadTeamWithUsers = async chatThreadId => {
+const createChatChannelTeamWithUsers = async chatChannelId => {
   try {
     const team = await Team.insert({
       role: 'editor',
       displayName: 'Editor',
       global: false,
-      objectId: chatThreadId,
-      objectType: 'chatThread',
+      objectId: chatChannelId,
+      objectType: 'chatChannel',
     })
 
     const user = await User.insert({})
@@ -57,7 +57,7 @@ const createChatThreadTeamWithUsers = async chatThreadId => {
 }
 
 module.exports = {
-  createChatThreadTeamWithUsers,
+  createChatChannelTeamWithUsers,
   createGlobalTeamWithUsers,
   createLocalTeamWithUsers,
 }

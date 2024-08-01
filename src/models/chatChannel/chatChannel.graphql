@@ -1,4 +1,4 @@
-type ChatThread {
+type ChatChannel {
   id: ID!
   created: DateTime!
   updated: DateTime!
@@ -7,17 +7,17 @@ type ChatThread {
   messages: [ChatMessage!]!
 }
 
-type ChatThreadsResponse {
-  result: [ChatThread!]!
+type ChatChannelsResponse {
+  result: [ChatChannel!]!
   totalCount: Int
 }
 
-input CreateChatThreadInput {
+input CreateChatChannelInput {
   chatType: String
   relatedObjectId: ID
 }
 
 extend type Query {
-  chatThread(id: ID!): ChatThread!
-  chatThreads(where: CreateChatThreadInput): ChatThreadsResponse!
+  chatChannel(id: ID!): ChatChannel!
+  chatChannels(where: CreateChatChannelInput): ChatChannelsResponse!
 }

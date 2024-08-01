@@ -1,6 +1,6 @@
 type ChatMessage {
   id: ID!
-  chatThreadId: ID!
+  chatChannelId: ID!
   content: String!
   timestamp: String!
   isDeleted: Boolean!
@@ -10,7 +10,7 @@ type ChatMessage {
 
 input SendChatMessageInput {
   content: String!
-  chatThreadId: ID!
+  chatChannelId: ID!
   userId: ID!
   mentions: [String!]
 }
