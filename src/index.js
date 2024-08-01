@@ -6,10 +6,20 @@ const logger = require('./logger')
 const { db, migrationManager } = require('./db')
 const subscriptionManager = require('./graphql/pubsub')
 const authentication = require('./authentication')
-const { File } = require('./models')
 const { createFile, deleteFiles } = require('./models/file/file.controller')
 
-const { BaseModel, useTransaction } = require('./models')
+const {
+  BaseModel,
+  User,
+  Identity,
+  Team,
+  TeamMember,
+  File,
+  ChatChannel,
+  ChatMessage,
+  useTransaction,
+} = require('./models')
+
 const modelJsonSchemaTypes = require('./models/_helpers/types')
 const tempFolderPath = require('./utils/tempFolderPath')
 const fileStorage = require('./fileStorage')
@@ -43,37 +53,57 @@ const createJWT = authentication.token.create
 const verifyJWT = authentication.token.verify
 
 module.exports = {
-  createJWT,
-  verifyJWT,
-  subscriptionManager,
-  modelJsonSchemaTypes,
-  fileStorage,
-  createFile,
-  deleteFiles,
-  // serviceHandshake,
-  sendEmail,
-  activityLog,
-  BaseModel,
-  File,
-  logger,
+  /* CORE FUNCTIONALITY */
   db,
-  migrationManager,
+  logger,
+
+  /* MODELS */
+  BaseModel,
+  User,
+  Identity,
+  Team,
+  TeamMember,
+  File,
+  ChatChannel,
+  ChatMessage,
+  modelJsonSchemaTypes,
   useTransaction,
+
+  /* SERVICES */
+  activityLog,
+  jobManager,
+  migrationManager,
+  subscriptionManager,
+  fileStorage,
+
+  /* UTILS */
   isEnvVariableTrue,
   request,
-  tempFolderPath,
-
+  sendEmail,
   uuid,
-  jobManager,
-
-  callMicroservice,
-  makeOAuthCall,
   WaxToDocxConverter,
 
+  // file storage
+  createFile,
+  deleteFiles,
+
+  // jwt
+  createJWT,
+  verifyJWT,
+
+  // urls
   clientUrl,
   serverUrl,
+
+  // microservices
+  callMicroservice,
+  makeOAuthCall,
+
+  // teting
   graphqlTestServer,
 
+  // temp folder
+  tempFolderPath,
   deleteFileFromTemp,
   emptyTemp,
   writeFileToTemp,
