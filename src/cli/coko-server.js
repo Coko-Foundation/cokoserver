@@ -32,6 +32,7 @@ program
     nodemon({
       script: scriptPath,
       ignore: './tmp/*',
+      ext: '*',
     })
 
     nodemon
