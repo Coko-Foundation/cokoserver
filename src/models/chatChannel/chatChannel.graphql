@@ -18,6 +18,8 @@ input CreateChatChannelInput {
 }
 
 extend type Query {
+  "Returns a chat channel by id"
   chatChannel(id: ID!): ChatChannel!
+  "Returns a list of chat channels"
   chatChannels(where: CreateChatChannelInput): ChatChannelsResponse!
 }

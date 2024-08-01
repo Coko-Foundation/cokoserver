@@ -39,9 +39,13 @@ input TeamWhereInput {
 # }
 
 extend type Query {
+  "Returns a team by id"
   team(id: ID!): Team!
+  "Returns a list of teams"
   teams(where: TeamWhereInput): TeamsResponse!
+  "Returns all global teams"
   getGlobalTeams: TeamsResponse!
+  "Returns teams for object by id and type"
   getObjectTeams(objectId: ID!, objectType: String!): TeamsResponse!
 }
 
