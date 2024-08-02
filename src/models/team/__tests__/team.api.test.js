@@ -21,12 +21,20 @@ describe('Team API', () => {
 
   it('returns teams for an object', async () => {
     const fake = await Fake.insert({})
+    const anotherFake = await Fake.insert({})
     const user = await User.insert({})
 
     const team = await Team.insert({
       role: 'author',
       displayName: 'Author',
       objectId: fake.id,
+      objectType: 'fake',
+    })
+
+    await Team.insert({
+      role: 'author',
+      displayName: 'Author',
+      objectId: anotherFake.id,
       objectType: 'fake',
     })
 
@@ -75,6 +83,14 @@ describe('Team API', () => {
     const member = await TeamMember.insert({
       teamId: globalTeam.id,
       userId: user.id,
+    })
+
+    const fake = await Fake.insert({})
+    await Team.insert({
+      role: 'editor',
+      displayName: 'Editor',
+      objectId: fake.id,
+      objectType: 'fake',
     })
 
     const GET_GLOBAL_TEAMS = gql`

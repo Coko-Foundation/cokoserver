@@ -44,10 +44,10 @@ const teamResolver = async (_, { id }) => {
   }
 }
 
-const teamsResolver = async (_, { where }) => {
+const teamsResolver = async (_, { filter }) => {
   try {
     logger.info(`${TEAM_RESOLVER} teams`)
-    return getTeams(where)
+    return getTeams(filter)
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} teams: ${e.message}`)
     throw new Error(e)

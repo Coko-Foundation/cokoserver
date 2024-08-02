@@ -47,10 +47,10 @@ const userResolver = async (_, { id }) => {
   }
 }
 
-const usersResolver = async (_, { queryParams, options }, ctx) => {
+const usersResolver = async (_, { filter, options }, ctx) => {
   try {
     logger.info(`${USER_RESOLVER} users`)
-    return getUsers(queryParams, options)
+    return getUsers(filter, options)
   } catch (e) {
     logger.error(`${USER_RESOLVER} users: ${e.message}`)
     throw new Error(e)

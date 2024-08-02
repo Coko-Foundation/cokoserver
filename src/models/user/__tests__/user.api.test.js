@@ -1,7 +1,9 @@
-const gqlServer = require('../../utils/graphqlTestServer')
-const { User, Identity } = require('..')
+const gql = require('graphql-tag')
 
-const clearDb = require('./_clearDb')
+const gqlServer = require('../../../utils/graphqlTestServer')
+const { User, Identity } = require('../..')
+
+const clearDb = require('../../__tests__/_clearDb')
 
 describe('Team API', () => {
   beforeEach(() => clearDb())
@@ -27,7 +29,7 @@ describe('Team API', () => {
       },
     ])
 
-    const GET_USER_IDENTITIES = `
+    const GET_USER_IDENTITIES = gql`
       query GetUserIdentities {
         user (id: "${user.id}") {
           id
@@ -87,7 +89,7 @@ describe('Team API', () => {
       },
     ])
 
-    const GET_USER_IDENTITIES = `
+    const GET_USER_IDENTITIES = gql`
       query GetDefaultIdentity {
         user (id: "${user.id}") {
           id
@@ -107,5 +109,36 @@ describe('Team API', () => {
     const { defaultIdentity } = response.body.singleResult.data.user
 
     expect(defaultIdentity.id).toBe(identities[0].id)
+  })
+
+  it('filters users', async () => {
+    const userOne = await User.insert({
+      isActive: true,
+    })
+
+    await User.insert({
+      isActive: false,
+    })
+
+    const ACTIVE_USERS = gql`
+      query ActiveUsers {
+        users(filter: { isActive: true }) {
+          result {
+            id
+            isActive
+          }
+          totalCount
+        }
+      }
+    `
+
+    const response = await gqlServer.executeOperation({
+      query: ACTIVE_USERS,
+    })
+
+    const data = response.body.singleResult.data.users
+
+    expect(data.totalCount).toBe(1)
+    expect(data.result[0].id).toBe(userOne.id)
   })
 })

@@ -1,11 +1,11 @@
-const { User, Identity } = require('../index')
+const { User, Identity } = require('../../index')
 
 const {
   createUser,
   createUserAndDefaultIdentity,
   createUserWithPasswordAndIdentities,
   createUserWithPasswordAndDefaultIdentity,
-} = require('./helpers/users')
+} = require('../../__tests__/helpers/users')
 
 const {
   getDisplayName,
@@ -24,12 +24,12 @@ const {
   setDefaultIdentity,
   updateUser,
   updatePassword,
-} = require('../user/user.controller')
+} = require('../user.controller')
 
-const clearDb = require('./_clearDb')
+const clearDb = require('../../__tests__/_clearDb')
 
-jest.mock('../../services/notify.js')
-jest.mock('../_helpers/emailTemplates.js')
+jest.mock('../../../services/notify.js')
+jest.mock('../../_helpers/emailTemplates.js')
 
 describe('User Controller', () => {
   beforeEach(() => clearDb())
