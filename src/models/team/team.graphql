@@ -1,10 +1,17 @@
 type Team {
+  "The team id"
   id: ID!
+  "The team role (eg. 'editor')"
   role: String!
+  "The team display name"
   displayName: String!
+  "The related object id (only if not global)"
   objectId: ID
+  "The related object type (only if not global)"
   objectType: String
+  "The members of the team"
   members(currentUserOnly: Boolean): [TeamMember!]
+  "Whether the team is global or not"
   global: Boolean!
 }
 

@@ -1,6 +1,9 @@
 type TeamMember {
-  id: ID
-  user: User
+  "The team member id"
+  id: ID!
+  "The user related to this team member. Members are separate entities from users."
+  user: User!
+  "The status of the team member"
   status: String
 }
 
