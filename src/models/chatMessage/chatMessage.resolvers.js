@@ -44,8 +44,8 @@ const deleteMessageResolver = async (_, { id }, ctx) => {
 
 module.exports = {
   Mutation: {
-    sendMessage: sendMessageResolver,
-    editMessage: editMessageResolver,
-    deleteMessage: deleteMessageResolver,
+    sendChatMessage: sendMessageResolver,
+    editChatMessage: editMessageResolver,
+    deleteChatMessage: deleteMessageResolver,
   },
 }

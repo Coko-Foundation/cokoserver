@@ -23,7 +23,6 @@ const {
   setDefaultIdentity,
   verifyEmail,
   resendVerificationEmail,
-  resendVerificationEmailFromLogin,
   resendVerificationEmailAfterLogin,
   updatePassword,
   sendPasswordResetEmail,
@@ -188,21 +187,6 @@ const resendVerificationEmailResolver = async (_, { token }) => {
   }
 }
 
-const resendVerificationEmailFromLoginResolver = async (
-  _,
-  { username, password },
-) => {
-  try {
-    logger.info(`${USER_RESOLVER} resendVerificationEmailFromLogin`)
-    return resendVerificationEmailFromLogin(username, password)
-  } catch (e) {
-    logger.error(
-      `${USER_RESOLVER} resendVerificationEmailFromLogin: ${e.message}`,
-    )
-    throw new Error(e)
-  }
-}
-
 const resendVerificationEmailAfterLoginResolver = async (_, __, ctx) => {
   try {
     logger.info(`${USER_RESOLVER} resendVerificationEmailAfterLogin`)
@@ -285,7 +269,6 @@ module.exports = {
     setDefaultIdentity: setDefaultIdentityResolver,
     verifyEmail: verifyEmailResolver,
     resendVerificationEmail: resendVerificationEmailResolver,
-    resendVerificationEmailFromLogin: resendVerificationEmailFromLoginResolver,
     resendVerificationEmailAfterLogin:
       resendVerificationEmailAfterLoginResolver,
     updatePassword: updatePasswordResolver,

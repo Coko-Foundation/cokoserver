@@ -432,164 +432,71 @@ const verifyEmail = async (token, options = {}) => {
   }
 }
 
+const resendVerificationEmailCommon = async (identity, options = {}) => {
+  const verificationToken = crypto.randomBytes(64).toString('hex')
+  const verificationTokenTimestamp = new Date()
+
+  await identity.patch(
+    {
+      verificationToken,
+      verificationTokenTimestamp,
+    },
+    { trx: options.trx },
+  )
+
+  const emailData = identityVerification({
+    verificationToken,
+    email: identity.email,
+  })
+
+  notify(EMAIL, emailData)
+}
+
 const resendVerificationEmail = async (token, options = {}) => {
   try {
-    const { trx } = options
     logger.info(
       `${USER_CONTROLLER} resendVerificationEmail: resending verification email to user`,
     )
-    return useTransaction(
-      async tr => {
-        const identity = await Identity.findOne(
-          {
-            verificationToken: token,
-          },
-          { trx: tr },
-        )
 
-        if (!identity)
-          throw new Error(
-            `${USER_CONTROLLER} resendVerificationEmail: Token does not correspond to an identity`,
-          )
-
-        const verificationToken = crypto.randomBytes(64).toString('hex')
-        const verificationTokenTimestamp = new Date()
-
-        await identity.patch(
-          {
-            verificationToken,
-            verificationTokenTimestamp,
-          },
-          { trx: tr },
-        )
-
-        const emailData = identityVerification({
-          verificationToken,
-          email: identity.email,
-        })
-
-        notify(EMAIL, emailData)
-
-        return true
+    const identity = await Identity.findOne(
+      {
+        verificationToken: token,
       },
-      { trx, passedTrxOnly: true },
+      { trx: options.trx },
     )
+
+    if (!identity)
+      throw new Error(
+        `${USER_CONTROLLER} resendVerificationEmail: Token does not correspond to an identity`,
+      )
+
+    await resendVerificationEmailCommon(identity, options)
+    return true
   } catch (e) {
     logger.error(`${USER_CONTROLLER} resendVerificationEmail: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-// TO DO - refactor resend controllers
 const resendVerificationEmailAfterLogin = async (userId, options = {}) => {
   try {
-    const { trx } = options
     logger.info(
       `${USER_CONTROLLER} resendVerificationEmailAfterLogin: resending verification email to user`,
     )
-    return useTransaction(
-      async tr => {
-        const identity = await Identity.findOne(
-          {
-            userId,
-            isDefault: true,
-          },
-          { trx: tr },
-        )
 
-        const verificationToken = crypto.randomBytes(64).toString('hex')
-        const verificationTokenTimestamp = new Date()
-
-        await identity.patch(
-          {
-            verificationToken,
-            verificationTokenTimestamp,
-          },
-          { trx: tr },
-        )
-
-        const emailData = identityVerification({
-          verificationToken,
-          email: identity.email,
-        })
-
-        notify(EMAIL, emailData)
-
-        return true
+    const identity = await Identity.findOne(
+      {
+        userId,
+        isDefault: true,
       },
-      { trx, passedTrxOnly: true },
+      { trx: options.trx },
     )
+
+    await resendVerificationEmailCommon(identity, options)
+    return true
   } catch (e) {
     logger.error(`${USER_CONTROLLER} resendVerificationEmail: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
-// TO DO -- needed?
-const resendVerificationEmailFromLogin = async (
-  username,
-  password,
-  options = {},
-) => {
-  try {
-    const { trx } = options
-    logger.info(
-      `${USER_CONTROLLER} resendVerificationEmailFromLogin: resending verification email based on form`,
-    )
-    return useTransaction(
-      async tr => {
-        const user = await User.findOne({ username }, { trx: tr })
-        if (!user)
-          throw new Error(
-            `${USER_CONTROLLER} resendVerificationEmailFromLogin: no user with username ${username} found`,
-          )
-
-        if (!user.isPasswordValid(password)) {
-          throw new Error(
-            `${USER_CONTROLLER} resendVerificationEmailFromLogin: wrong credentials`,
-          )
-        }
-
-        const identity = await Identity.findOne(
-          {
-            isDefault: true,
-            userId: user.id,
-          },
-          { trx: tr },
-        )
-
-        if (!identity)
-          throw new Error(
-            `${USER_CONTROLLER} resendVerificationEmailFromLogin: no default identity found for user with id ${user.id}`,
-          )
-
-        const verificationToken = crypto.randomBytes(64).toString('hex')
-        const verificationTokenTimestamp = new Date()
-
-        await identity.patch(
-          {
-            verificationToken,
-            verificationTokenTimestamp,
-          },
-          { trx: tr },
-        )
-
-        const emailData = identityVerification({
-          verificationToken,
-          email: identity.email,
-        })
-
-        notify(EMAIL, emailData)
-
-        return true
-      },
-      { trx, passedTrxOnly: true },
-    )
-  } catch (e) {
-    logger.error(
-      `${USER_CONTROLLER} resendVerificationEmailFromLogin: ${e.message}`,
-    )
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -809,7 +716,6 @@ module.exports = {
   updatePassword,
   resetPassword,
   resendVerificationEmail,
-  resendVerificationEmailFromLogin,
   resendVerificationEmailAfterLogin,
   setDefaultIdentity,
   sendPasswordResetEmail,

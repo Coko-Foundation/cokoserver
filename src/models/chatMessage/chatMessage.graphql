@@ -22,7 +22,10 @@ input EditChatMessageInput {
 }
 
 extend type Mutation {
-  sendMessage(input: SendChatMessageInput!): ChatMessage!
-  editMessage(input: EditChatMessageInput!): ChatMessage!
-  deleteMessage(id: ID!): ChatMessage!
+  "Deletes a chat message."
+  deleteChatMessage(id: ID!): ChatMessage!
+  "Edits the content of a chat message"
+  editChatMessage(input: EditChatMessageInput!): ChatMessage!
+  "Sends a new chat message"
+  sendChatMessage(input: SendChatMessageInput!): ChatMessage!
 }
