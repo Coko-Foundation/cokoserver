@@ -9,7 +9,7 @@ type ChatChannel {
 
 type ChatChannelsResponse {
   result: [ChatChannel!]!
-  totalCount: Int
+  totalCount: Int!
 }
 
 input CreateChatChannelInput {

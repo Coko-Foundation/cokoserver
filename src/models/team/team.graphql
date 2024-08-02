@@ -17,7 +17,7 @@ type Team {
 
 type TeamsResponse {
   result: [Team!]!
-  totalCount: Int
+  totalCount: Int!
 }
 
 # input TeamInput {
