@@ -1813,6 +1813,7 @@ __metadata:
     graphql-middleware: "npm:^6.1.35"
     graphql-shield: "npm:^7.6.5"
     graphql-subscriptions: "npm:2.0.0"
+    graphql-tag: "npm:^2.12.6"
     graphql-upload: "npm:^15.0.2"
     graphql-ws: "npm:^5.16.0"
     helmet: "npm:^7.1.0"
@@ -8193,6 +8194,17 @@ __metadata:
   peerDependencies:
     graphql: ^15.7.2 || ^16.0.0
   checksum: 10c0/d48559de5d76a9e5bca882be1b52b779f270039f9e7b2210c005128b08b4dca100d3ee37a5c00862b668f17208c43737ab10322565f30bfabf477a25e76f254e
+  languageName: node
+  linkType: hard
+
+"graphql-tag@npm:^2.12.6":
+  version: 2.12.6
+  resolution: "graphql-tag@npm:2.12.6"
+  dependencies:
+    tslib: "npm:^2.1.0"
+  peerDependencies:
+    graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 10c0/7763a72011bda454ed8ff1a0d82325f43ca6478e4ce4ab8b7910c4c651dd00db553132171c04d80af5d5aebf1ef6a8a9fd53ccfa33b90ddc00aa3d4be6114419
   languageName: node
   linkType: hard
 

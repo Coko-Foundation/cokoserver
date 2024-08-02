@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid')
-const { Team, TeamMember, User } = require('../index')
-const { createGlobalTeamWithUsers } = require('./helpers/teams')
-const clearDb = require('./_clearDb')
+const { Team, TeamMember, User } = require('../../index')
+const { createGlobalTeamWithUsers } = require('../../__tests__/helpers/teams')
+const clearDb = require('../../__tests__/_clearDb')
 
 describe('Team Model', () => {
   beforeEach(() => clearDb())

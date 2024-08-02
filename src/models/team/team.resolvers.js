@@ -12,8 +12,6 @@ const {
 const {
   getTeam,
   getTeams,
-  getGlobalTeams,
-  getObjectTeams,
   updateTeamMembership,
   addTeamMember,
   removeTeamMember,
@@ -52,26 +50,6 @@ const teamsResolver = async (_, { where }) => {
     return getTeams(where)
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} teams: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
-const getGlobalTeamsResolver = async (_, { where }) => {
-  try {
-    logger.info(`${TEAM_RESOLVER} getGlobalTeams`)
-    return getGlobalTeams()
-  } catch (e) {
-    logger.error(`${TEAM_RESOLVER} getGlobalTeams: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
-const getObjectTeamsResolver = async (_, { objectId, objectType }) => {
-  try {
-    logger.info(`${TEAM_RESOLVER} getObjectTeams`)
-    return getObjectTeams(objectId, objectType)
-  } catch (e) {
-    logger.error(`${TEAM_RESOLVER} getObjectTeams: ${e.message}`)
     throw new Error(e)
   }
 }
@@ -146,8 +124,6 @@ module.exports = {
   Query: {
     team: teamResolver,
     teams: teamsResolver,
-    getGlobalTeams: getGlobalTeamsResolver,
-    getObjectTeams: getObjectTeamsResolver,
   },
   Mutation: {
     updateTeamMembership: updateTeamMembershipResolver,

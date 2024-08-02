@@ -1,15 +1,66 @@
-const gqlServer = require('../../utils/graphqlTestServer')
-const { Team, TeamMember, User } = require('..')
-const { db } = require('../../db')
-const clearDb = require('./_clearDb')
+const gql = require('graphql-tag')
+
+const gqlServer = require('../../../utils/graphqlTestServer')
+const { Team, TeamMember, User } = require('../..')
+const { db, migrationManager } = require('../../../db')
+const clearDb = require('../../__tests__/_clearDb')
+const Fake = require('../../__tests__/helpers/fake/fake.model')
 
 describe('Team API', () => {
+  beforeAll(async () => {
+    await migrationManager.migrate()
+  })
+
   beforeEach(async () => {
     await clearDb()
   })
 
   afterAll(async () => {
     await db.destroy()
+  })
+
+  it('returns teams for an object', async () => {
+    const fake = await Fake.insert({})
+    const user = await User.insert({})
+
+    const team = await Team.insert({
+      role: 'author',
+      displayName: 'Author',
+      objectId: fake.id,
+      objectType: 'fake',
+    })
+
+    await TeamMember.insert({
+      teamId: team.id,
+      userId: user.id,
+    })
+
+    const GET_OBJECT_TEAMS = gql`
+      query GetObjectTeams($filter: TeamFilter) {
+        teams(filter: $filter) {
+          result {
+            id
+            members {
+              id
+              user {
+                id
+              }
+            }
+          }
+          totalCount
+        }
+      }
+    `
+
+    const result = await gqlServer.executeOperation({
+      query: GET_OBJECT_TEAMS,
+      variables: { filter: { objectId: fake.id } },
+    })
+
+    const data = result.body.singleResult.data.teams
+    expect(data.totalCount).toBe(1)
+    expect(data.result[0].id).toBe(team.id)
+    expect(data.result[0].members).toHaveLength(1)
   })
 
   it('returns global teams with members', async () => {
@@ -26,9 +77,9 @@ describe('Team API', () => {
       userId: user.id,
     })
 
-    const GET_GLOBAL_TEAMS = `
-      query GetGlobalTeams {
-        getGlobalTeams {
+    const GET_GLOBAL_TEAMS = gql`
+      query GetGlobalTeams($filter: TeamFilter) {
+        teams(filter: $filter) {
           result {
             id
             members {
@@ -45,9 +96,10 @@ describe('Team API', () => {
 
     const result = await gqlServer.executeOperation({
       query: GET_GLOBAL_TEAMS,
+      variables: { filter: { global: true } },
     })
 
-    const data = result.body.singleResult.data.getGlobalTeams
+    const data = result.body.singleResult.data.teams
 
     expect(data.totalCount).toBe(1)
     expect(data.result).toHaveLength(1)
@@ -94,13 +146,13 @@ describe('Team API', () => {
       userId: user.id,
     })
 
-    const GET_GLOBAL_TEAMS = `
-      query GetGlobalTeams {
-        getGlobalTeams {
+    const GET_GLOBAL_TEAMS = gql`
+      query GetGlobalTeams($filter: TeamFilter) {
+        teams(filter: $filter) {
           result {
             id
             role
-            members(currentUserOnly:true) {
+            members(currentUserOnly: true) {
               id
               user {
                 id
@@ -115,6 +167,7 @@ describe('Team API', () => {
     const result = await gqlServer.executeOperation(
       {
         query: GET_GLOBAL_TEAMS,
+        variables: { filter: { global: true } },
       },
       {
         contextValue: {
@@ -123,7 +176,7 @@ describe('Team API', () => {
       },
     )
 
-    const foundTeam = result.body.singleResult.data.getGlobalTeams.result.find(
+    const foundTeam = result.body.singleResult.data.teams.result.find(
       t => t.role === 'editor',
     )
 

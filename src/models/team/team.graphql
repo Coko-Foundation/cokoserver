@@ -22,11 +22,13 @@ type TeamsResponse {
 #   global: Boolean!
 # }
 
-input TeamWhereInput {
-  role: String
-  objectId: ID
-  objectType: String
+input TeamFilter {
+  "Filters by whether the team is global or not"
   global: Boolean
+  "Filters by a specific object id"
+  objectId: ID
+  "Filters by role"
+  role: String
 }
 
 # input UpdateTeamMembershipInput {
@@ -42,11 +44,7 @@ extend type Query {
   "Returns a team by id"
   team(id: ID!): Team!
   "Returns a list of teams"
-  teams(where: TeamWhereInput): TeamsResponse!
-  "Returns all global teams"
-  getGlobalTeams: TeamsResponse!
-  "Returns teams for object by id and type"
-  getObjectTeams(objectId: ID!, objectType: String!): TeamsResponse!
+  teams(filter: TeamFilter): TeamsResponse!
 }
 
 extend type Mutation {

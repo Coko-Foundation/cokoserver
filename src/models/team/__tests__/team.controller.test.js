@@ -1,5 +1,5 @@
 const { v4: uuid } = require('uuid')
-const { Team, TeamMember } = require('../index')
+const { Team, TeamMember } = require('../../index')
 
 const {
   getTeam,
@@ -9,16 +9,16 @@ const {
   updateTeamMembership,
   addTeamMember,
   removeTeamMember,
-} = require('../team/team.controller')
+} = require('../team.controller')
 
 const {
   createGlobalTeamWithUsers,
   createLocalTeamWithUsers,
-} = require('./helpers/teams')
+} = require('../../__tests__/helpers/teams')
 
-const { createUser } = require('./helpers/users')
+const { createUser } = require('../../__tests__/helpers/users')
 
-const clearDb = require('./_clearDb')
+const clearDb = require('../../__tests__/_clearDb')
 
 describe('Team Controller', () => {
   beforeEach(() => clearDb())
