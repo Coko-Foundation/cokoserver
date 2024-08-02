@@ -26,22 +26,8 @@ const getChatChannel = async (id, options = {}) => {
 }
 
 const getChatChannels = async (where = {}, options = {}) => {
-  try {
-    const { trx, ...restOptions } = options
-
-    return useTransaction(
-      async tr => {
-        logger.info(
-          `${CHAT_CHANNEL_CONTROLLER} getChatChannels: fetching all chat Channels based on where clause ${where} and provided options ${restOptions}`,
-        )
-        return ChatChannel.find(where, { trx: tr, ...restOptions })
-      },
-      { trx, passedTrxOnly: true },
-    )
-  } catch (e) {
-    logger.error(`${CHAT_CHANNEL_CONTROLLER} getChatChannels: ${e.message}`)
-    throw new Error(e)
-  }
+  const { trx, ...rest } = options
+  return ChatChannel.find(where, { trx, ...rest })
 }
 
 module.exports = {

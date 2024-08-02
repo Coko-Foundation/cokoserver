@@ -16,10 +16,10 @@ const chatChannelResolver = async (_, { id }, ctx) => {
   }
 }
 
-const chatChannelsResolver = async (_, { where }, ctx) => {
+const chatChannelsResolver = async (_, { filter }, ctx) => {
   try {
     logger.info(`${CHAT_CHANNEL_RESOLVER} getChatChannels`)
-    return getChatChannels(where)
+    return getChatChannels(filter)
   } catch (e) {
     logger.error(`${CHAT_CHANNEL_RESOLVER} getChatChannels: ${e.message}`)
     throw new Error(e)
