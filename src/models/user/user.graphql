@@ -72,7 +72,7 @@ input UsersQueryParams {
 
 extend type Query {
   "Returns a user by id"
-  user(id: ID): User
+  user(id: ID!): User!
   "Returns a list of users"
   users(queryParams: UsersQueryParams, options: PageInput): Users!
   "Returns the currently logged in user"
