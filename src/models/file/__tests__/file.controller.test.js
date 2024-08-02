@@ -2,9 +2,9 @@ const { v4: uuid } = require('uuid')
 const fs = require('fs-extra')
 const path = require('path')
 
-const File = require('../file/file.model')
-const { deleteFiles, createFile } = require('../file/file.controller')
-const clearDb = require('./_clearDb')
+const File = require('../file.model')
+const { deleteFiles, createFile } = require('../file.controller')
+const clearDb = require('../../__tests__/_clearDb')
 
 const testFilePath = path.join(
   __dirname,

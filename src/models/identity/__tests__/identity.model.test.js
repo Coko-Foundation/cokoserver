@@ -1,10 +1,13 @@
 const { faker } = require('@faker-js/faker')
-const { Identity } = require('../index')
+const { Identity } = require('../../index')
 
-const { createUser } = require('./helpers/users')
-const { identityWithProfileData } = require('./fixtures/identities')
+const { createUser } = require('../../__tests__/helpers/users')
 
-const clearDb = require('./_clearDb')
+const {
+  identityWithProfileData,
+} = require('../../__tests__/fixtures/identities')
+
+const clearDb = require('../../__tests__/_clearDb')
 
 describe('Identity model', () => {
   beforeEach(() => clearDb())

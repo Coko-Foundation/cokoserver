@@ -1,8 +1,8 @@
 const { v4: uuid } = require('uuid')
-const { File } = require('../index')
-const { createFilesForObjectId } = require('./helpers/files')
+const { File } = require('../../index')
+const { createFilesForObjectId } = require('../../__tests__/helpers/files')
 
-const clearDb = require('./_clearDb')
+const clearDb = require('../../__tests__/_clearDb')
 
 describe('File model', () => {
   beforeEach(() => clearDb())

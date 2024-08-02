@@ -8,14 +8,14 @@ const {
   createOAuthIdentity,
   invalidateProviderAccessToken,
   invalidateProviderTokens,
-} = require('../identity/identity.controller')
+} = require('../identity.controller')
 
-const { User, Identity } = require('../index')
-const { jobManager } = require('../../jobManager')
-const { foreverDate } = require('../../utils/time')
+const { User, Identity } = require('../../index')
+const { jobManager } = require('../../../jobManager')
+const { foreverDate } = require('../../../utils/time')
 
-const { createUser } = require('./helpers/users')
-const clearDb = require('./_clearDb')
+const { createUser } = require('../../__tests__/helpers/users')
+const clearDb = require('../../__tests__/_clearDb')
 
 // Mock "refresh token expired job"
 // jest.mock('../../services', () => {
