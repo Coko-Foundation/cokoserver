@@ -15,7 +15,7 @@ type ChatChannel {
 }
 
 "Returns a list of chat channels, as well as a total count irrespective of pagination"
-type ChatChannelsResponse {
+type ChatChannels {
   "A list of chat channels"
   result: [ChatChannel!]!
   "The total count of channels, irrespective of pagination"
@@ -34,5 +34,5 @@ extend type Query {
   "Returns a chat channel by id"
   chatChannel(id: ID!): ChatChannel!
   "Returns a list of chat channels"
-  chatChannels(filter: ChatChannelFilter): ChatChannelsResponse!
+  chatChannels(filter: ChatChannelFilter): ChatChannels!
 }

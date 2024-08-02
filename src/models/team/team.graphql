@@ -17,7 +17,7 @@ type Team {
 }
 
 "Returns a list of teams, as well as a total count irrespective of pagination"
-type TeamsResponse {
+type Teams {
   "The resulting list of teams"
   result: [Team!]!
   "The total count of teams"
@@ -56,7 +56,7 @@ extend type Query {
   "Returns a team by id"
   team(id: ID!): Team!
   "Returns a list of teams"
-  teams(filter: TeamFilter): TeamsResponse!
+  teams(filter: TeamFilter): Teams!
 }
 
 extend type Mutation {
