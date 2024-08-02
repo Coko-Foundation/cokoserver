@@ -1,8 +1,11 @@
+"The `DateTime` scalar type represents a timestamp."
 scalar DateTime
 
-# find a better place to inject that
+"Options for pagination"
 input PageInput {
+  "How many items should be on each page"
   pageSize: Int!
+  "Which page (eg. page 2)"
   page: Int!
 }
 
@@ -53,45 +56,75 @@ type Users {
   totalCount: Int!
 }
 
+"Value returned from logging in"
 type LoginResult {
+  "The user that was just logged in"
   user: User!
+  "The user's login jwt token"
   token: String!
 }
 
+"Data for signing a user up"
 input SignUpInput {
+  "The user's username"
   username: String
+  "The user's email"
   email: String!
+  "The user's password"
   password: String!
+  "The user's first/given name(s)"
   givenNames: String!
+  "The user's last/surname"
   surname: String!
+  "Whether the user has agreed to the terms and conditions"
   agreedTc: Boolean!
+  "A prefix to the user's name"
   titlePre: String
+  "A suffix to the user's name"
   titlePost: String
 }
 
+"Data for logging a user in"
 input LoginInput {
+  "The user's email"
   email: String
+  "The user's username"
   username: String
+  "The user's password"
   password: String!
 }
 
+"Data for updating a user"
 input UpdateUserInput {
+  "The user's email"
   email: String
+  "The user's username"
   username: String
+  "The user's last/surname"
   surname: String
+  "The user's first/given name(s)"
   givenNames: String
+  "Whether the user has agreed to the terms and conditions"
   agreedTc: Boolean
+  "The user's name prefix"
   titlePre: String
+  "The user's name suffix"
   titlePost: String
 }
 
+"Data for updating a user's password"
 input UpdatePasswordInput {
+  "The user's id"
   id: ID!
+  "The user's current password"
   currentPassword: String!
+  "The user's new password"
   newPassword: String!
 }
 
+"Filter options for users"
 input UserFilter {
+  "Whether the user is active or not"
   isActive: Boolean
 }
 
@@ -142,5 +175,6 @@ extend type Mutation {
 }
 
 extend type Subscription {
+  "Trigger an update for a specific user by id"
   userUpdated(userId: ID!): User!
 }

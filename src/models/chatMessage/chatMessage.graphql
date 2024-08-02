@@ -1,30 +1,47 @@
+"A single message in a chat channel"
 type ChatMessage {
+  "The message id"
   id: ID!
+  "The id of the channel that this message belongs to"
   chatChannelId: ID!
+  "The text content of the message"
   content: String!
+  "The creation time of the message"
   timestamp: String!
+  "Whether the message has been marked as deleted or not"
   isDeleted: Boolean!
+  "A list of mentions that occur in the message"
   mentions: [String!]!
+  "The user that authored the message"
   user: User!
 }
 
+"Data for sending a new chat message"
 input SendChatMessageInput {
+  "The message's text content"
   content: String!
+  "The id of channel that the message should be sent to"
   chatChannelId: ID!
+  "The user id of the message author"
   userId: ID!
+  "A list of mentions occurring in the message"
   mentions: [String!]
 }
 
+"Data for editing an existing message"
 input EditChatMessageInput {
+  "The id of the message to be edited"
   id: ID!
+  "The new content of the message"
   content: String!
+  "The mentions that occur in the message's new content"
   mentions: [String!]
 }
 
 extend type Mutation {
   "Deletes a chat message."
   deleteChatMessage(id: ID!): ChatMessage!
-  "Edits the content of a chat message"
+  "Edits the content of an existing chat message"
   editChatMessage(input: EditChatMessageInput!): ChatMessage!
   "Sends a new chat message"
   sendChatMessage(input: SendChatMessageInput!): ChatMessage!

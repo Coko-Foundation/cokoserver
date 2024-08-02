@@ -1,3 +1,4 @@
+"A member of a team"
 type TeamMember {
   "The team member id"
   id: ID!

@@ -1,3 +1,4 @@
+"A team"
 type Team {
   "The team id"
   id: ID!
@@ -15,6 +16,7 @@ type Team {
   global: Boolean!
 }
 
+"Returns a list of teams, as well as a total count irrespective of pagination"
 type TeamsResponse {
   "The resulting list of teams"
   result: [Team!]!
@@ -31,6 +33,7 @@ type TeamsResponse {
 #   global: Boolean!
 # }
 
+"Filter options for teams"
 input TeamFilter {
   "Filters by whether the team is global or not"
   global: Boolean
