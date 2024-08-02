@@ -99,7 +99,7 @@ extend type Query {
   "Returns a user by id"
   user(id: ID!): User!
   "Returns a list of users"
-  users(filter: UserFilter, options: PageInput): Users!
+  users(filter: UserFilter, pagination: PageInput): Users!
   "Returns the currently logged in user"
   currentUser: User
 }

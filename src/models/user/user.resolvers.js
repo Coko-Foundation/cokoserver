@@ -47,10 +47,10 @@ const userResolver = async (_, { id }) => {
   }
 }
 
-const usersResolver = async (_, { filter, options }, ctx) => {
+const usersResolver = async (_, { filter, pagination }, ctx) => {
   try {
     logger.info(`${USER_RESOLVER} users`)
-    return getUsers(filter, options)
+    return getUsers(filter, pagination)
   } catch (e) {
     logger.error(`${USER_RESOLVER} users: ${e.message}`)
     throw new Error(e)
