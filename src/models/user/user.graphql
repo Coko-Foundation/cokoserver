@@ -6,25 +6,50 @@ input PageInput {
   page: Int!
 }
 
+"A user in the system"
 type User {
+  "The user's id"
   id: ID!
+  "When the user object was created"
   created: DateTime!
+  "When the user object was last updated"
   updated: DateTime!
+  """
+  The user's username. This (and by extension `displayName`) is nullable for
+  cases where the user has not created the account themselves, eg. when
+  inviting a new user but they haven't accepted the invitation yet.
+  """
   username: String
+  "The user's surname"
   surname: String
+  "The user's given name(s)"
   givenNames: String
+  """
+  The user's display name. It can be set explicitly, but will fall back to a
+  combination of given names and surname, which will fall back to the username.
+  """
   displayName: String
+  "Whether the user has agreed to the terms and conditions"
   agreedTc: Boolean!
+  "Whether the user is active (ie. that an admin or similar has not deactivated their account)"
   isActive: Boolean!
+  "A list of identities related to the user"
   identities: [Identity!]!
+  "The user's default identity"
   defaultIdentity: Identity!
+  "The user's pre-name title (eg. Dr. John Green)"
   titlePre: String
+  "The user's post-name title (eg. John Green MD.)"
   titlePost: String
+  "A list of teams that the user belongs to"
   teams: [Team!]!
 }
 
+"A list of users"
 type Users {
+  "The list of users"
   result: [User!]!
+  "The total count of users"
   totalCount: Int!
 }
 
