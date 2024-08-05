@@ -10,6 +10,12 @@ module.exports = {
     host: 'POSTGRES_HOST',
     database: 'POSTGRES_DB',
     port: 'POSTGRES_PORT',
+    ssl: {
+      rejectUnauthorized: {
+        __name: 'POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES',
+        __format: 'json',
+      },
+    },
   },
   serverUrl: 'SERVER_URL',
   fileStorage: {
