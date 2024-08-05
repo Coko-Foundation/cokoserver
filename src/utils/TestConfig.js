@@ -1,4 +1,7 @@
-const checkConfig = require('../startup/checkConfig')
+const has = require('lodash/has')
+const get = require('lodash/get')
+
+const validateConfig = require('./validateConfig')
 
 class TestConfig {
   constructor(configObject = {}, optionOverrides = {}) {
@@ -38,15 +41,15 @@ class TestConfig {
     }
 
     this.config = data
-    checkConfig(this.config)
+    validateConfig(this.config)
   }
 
   get(key) {
-    return this.config[key]
+    return get(this.config, key)
   }
 
   has(key) {
-    return Object.prototype.hasOwnProperty.call(this.config, key)
+    return has(this.config, key)
   }
 }
 

@@ -1,6 +1,6 @@
 const { v4: uuid } = require('uuid')
 
-const { send: sendEmail } = require('./services/sendEmail')
+const { sendEmail } = require('./services/sendEmail')
 
 const logger = require('./logger')
 const { db, migrationManager } = require('./db')
