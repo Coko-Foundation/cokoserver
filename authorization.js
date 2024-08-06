@@ -18,9 +18,7 @@ const isAdmin = rule()(async (parent, args, ctx, info) => {
 
   /* eslint-disable-next-line global-require */
   const User = require('./src/models/user/user.model')
-
-  const user = await User.model.findById(ctx.userId)
-  return user.admin
+  return User.hasGlobalRole(ctx.userId, 'admin')
 })
 
 module.exports = {
