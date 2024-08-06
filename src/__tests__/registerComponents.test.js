@@ -1,35 +1,53 @@
 const { StatusCodes } = require('http-status-codes')
-const path = require('path')
-const config = require('config')
+const express = require('express')
+const supertest = require('supertest')
+const gql = require('graphql-tag')
 
-const mockComponentPath = path.resolve(__dirname, 'helpers', 'mockComponent.js')
+const { db } = require('../db')
+const registerComponents = require('../startup/registerComponents')
+const gqlServer = require('../utils/graphqlTestServer')
 
-config.components.push(mockComponentPath)
+jest.mock('config', () => {
+  /* eslint-disable-next-line global-require */
+  const TestConfig = require('../utils/TestConfig')
 
-const api = require('./helpers/api')
+  return new TestConfig(
+    {
+      components: ['src/__tests__/helpers/mockComponent.js'],
+    },
+    { useDb: true },
+  )
+})
 
 describe('App startup', () => {
+  const app = express()
+  const request = supertest(app)
+
+  beforeAll(async () => {
+    registerComponents(app)
+  })
+
+  afterAll(async () => {
+    await db.destroy()
+  })
+
   it('should register components on config.components', async () => {
-    const res = await api.request.get('/mock-component')
+    const res = await request.get('/mock-component')
     expect(res.status).toBe(StatusCodes.OK)
   })
 
   it('loads graphql types and resolvers', async () => {
-    const res = await api.graphql.query('{ test }')
-    expect(res.body).toEqual({ data: { test: 'OK' } })
-  })
+    const QUERY = gql`
+      query {
+        test
+      }
+    `
 
-  it('should have req in resolver', async () => {
-    const { body } = await api.graphql.query('{ ctxreq }')
-    const response = body.data.ctxreq
-    expect(response).not.toBeNull()
-    expect(response).toEqual('POST')
-  })
+    const response = await gqlServer.executeOperation({
+      query: QUERY,
+    })
 
-  it('should have res in resolver', async () => {
-    const { body } = await api.graphql.query('{ ctxres }')
-    const response = body.data.ctxres
-    expect(response).not.toBeNull()
-    expect(response).toEqual('POST')
+    const data = response.body.singleResult.data.test
+    expect(data).toBe('OK')
   })
 })

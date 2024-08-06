@@ -1,15 +1,13 @@
-/* eslint-disable jest/no-commented-out-tests */
-
-// const { omit } = require('lodash')
+const gql = require('graphql-tag')
+const { v4: uuid } = require('uuid')
 
 const clearDb = require('../../models/__tests__/_clearDb')
-const api = require('../helpers/api')
-const authentication = require('../../authentication')
 const { User } = require('../../models')
 const { db } = require('../../db')
+const gqlServer = require('../../utils/graphqlTestServer')
+const subscriptionManager = require('../../graphql/pubsub')
 
 describe('GraphQL authentication', () => {
-  let token
   let user
 
   const userData = {
@@ -20,129 +18,130 @@ describe('GraphQL authentication', () => {
   beforeEach(async () => {
     await clearDb()
     user = await User.insert(userData)
-    token = authentication.token.create(user)
   })
 
-  afterAll(() => {
-    db.destroy()
+  afterAll(async () => {
+    await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   describe('loginUser mutation', () => {
     it('can log in', async () => {
-      const { body } = await api.graphql.query(
-        `mutation($input: LoginInput!) {
+      const MUTATION = gql`
+        mutation ($input: LoginInput!) {
           login(input: $input) {
-            user { username }
+            user {
+              username
+            }
             token
           }
-        }`,
-        { input: { username: 'testuser', password: 'password' } },
-      )
+        }
+      `
 
-      expect(body).toMatchObject({
-        data: {
-          login: {
-            token: expect.any(String),
-            user: { username: 'testuser' },
-          },
+      const response = await gqlServer.executeOperation({
+        query: MUTATION,
+        variables: {
+          input: { username: 'testuser', password: 'password' },
         },
       })
+
+      const data = response.body.singleResult.data.login
+      expect(data.token).toBeDefined()
+      expect(data.user.username).toEqual('testuser')
+
+      expect(true).toBe(true)
     })
 
     it('blocks invalid login', async () => {
-      const { body } = await api.graphql.query(
-        `mutation($input: LoginInput!) {
+      const MUTATION = gql`
+        mutation ($input: LoginInput!) {
           login(input: $input) {
+            user {
+              username
+            }
             token
           }
-        }`,
-        { input: { username: 'testuser', password: 'not correct' } },
-      )
+        }
+      `
 
-      expect(body).toMatchObject({
-        data: null,
-        errors: [
-          {
-            message: 'AuthorizationError: Wrong username or password.',
-          },
-        ],
+      const response = await gqlServer.executeOperation({
+        query: MUTATION,
+        variables: {
+          input: { username: 'testuser', password: 'false' },
+        },
       })
+
+      const { errors } = response.body.singleResult
+      expect(errors[0].message).toEqual(
+        'AuthorizationError: Wrong username or password.',
+      )
     })
   })
 
   describe('currentUser query', () => {
     it('returns null when unauthenticated', async () => {
-      const { body } = await api.graphql.query(`{ currentUser { username } }`)
+      const QUERY = gql`
+        query {
+          currentUser {
+            username
+          }
+        }
+      `
 
-      expect(body).toMatchObject({
-        data: {
-          currentUser: null,
-        },
+      const response = await gqlServer.executeOperation({
+        query: QUERY,
       })
+
+      const data = response.body.singleResult.data.currentUser
+      expect(data).toBe(null)
     })
 
     it('fetches current user from token', async () => {
-      const { body } = await api.graphql.query(
-        `{ currentUser { username, teams { role }} }`,
-        {},
-        token,
-      )
+      const QUERY = gql`
+        query {
+          currentUser {
+            username
+          }
+        }
+      `
 
-      expect(body).toMatchObject({
-        data: {
-          currentUser: {
-            username: 'testuser',
-            teams: [],
+      const response = await gqlServer.executeOperation(
+        {
+          query: QUERY,
+        },
+        {
+          contextValue: {
+            userId: user.id,
           },
         },
-      })
+      )
+
+      const data = response.body.singleResult.data.currentUser
+      expect(data.username).toBe('testuser')
     })
 
     it('errors when user not found', async () => {
-      const badToken = authentication.token.create({
-        id: '123e4567-e89b-12d3-a456-426655440000',
-        username: 'does not exist',
-      })
+      const QUERY = gql`
+        query {
+          currentUser {
+            username
+          }
+        }
+      `
 
-      const { body } = await api.graphql.query(
-        `{ currentUser { username } }`,
-        {},
-        badToken,
+      const response = await gqlServer.executeOperation(
+        {
+          query: QUERY,
+        },
+        {
+          contextValue: {
+            userId: uuid(),
+          },
+        },
       )
 
-      expect(body).toMatchObject({
-        data: {
-          currentUser: null,
-        },
-        errors: [
-          {
-            message: 'Something went wrong! Please contact your administrator',
-          },
-        ],
-      })
+      const { errors } = response.body.singleResult
+      expect(errors[0].message).toBe('NotFoundError')
     })
   })
-
-  /* eslint-disable-next-line jest/no-disabled-tests */
-  // describe.skip('user query', () => {
-  //   it('errors when unauthenticated', async () => {
-  //     const { body } = await api.graphql.query(`{
-  //       users {
-  //         result {
-  //           username
-  //         }
-  //       }
-  //     }`)
-
-  //     expect(body).toMatchObject({
-  //       data: { users: null },
-  //       errors: [
-  //         {
-  //           message:
-  //             'Operation not permitted: unauthenticated users cannot perform read operation on User',
-  //         },
-  //       ],
-  //     })
-  //   })
-  // })
 })

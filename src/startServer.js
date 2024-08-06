@@ -9,7 +9,7 @@ const morgan = require('morgan')
 
 const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
-const { migrationManager } = require('./db')
+const { db, migrationManager } = require('./db')
 const { startJobManager, stopJobManager } = require('./jobManager')
 const authentication = require('./authentication')
 const healthcheck = require('./healthcheck')
@@ -115,6 +115,7 @@ const startServer = async () => {
 
   const endTime = performance.now()
   const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
+
   logInit(
     `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
   )
@@ -122,22 +123,32 @@ const startServer = async () => {
   return httpServer
 }
 
-const shutdown = async signal => {
-  logInit(`Coko server graceful shutdown after receiving signal ${signal}`)
-
-  const startTime = performance.now()
-
+const shutdownFn = async () => {
   await runCustomShutdownScripts()
 
   logTask('Shut down http server')
   await server.close()
+  server = undefined
   logTaskItem('Http server successfully shut down')
 
-  await stopJobManager()
+  await stopJobManager({ destroy: true })
 
   if (useGraphQLServer) {
+    logTask('Shut down subscription client')
     await subscriptionManager.client.end()
+    logTaskItem('Subscription client successfully shut down')
   }
+
+  logTask('Shut down database connection')
+  await db.destroy()
+  logTaskItem('Database connection successfully shut down')
+}
+
+const shutdown = async signal => {
+  logInit(`Coko server graceful shutdown after receiving signal ${signal}`)
+  const startTime = performance.now()
+
+  await shutdownFn()
 
   const endTime = performance.now()
   const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
@@ -153,4 +164,4 @@ const shutdown = async signal => {
 process.on('SIGINT', () => shutdown('SIGINT'))
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 
-module.exports = startServer
+module.exports = { startServer, shutdownFn }
