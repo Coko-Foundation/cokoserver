@@ -12,7 +12,7 @@ const pkg = require('../../package.json')
 const logger = require('../logger')
 const { logNodemon } = require('../logger/internals')
 const { migrationManager } = require('../db')
-const startServer = require('../startServer')
+const { startServer } = require('../startServer')
 
 program
   .command('start')
