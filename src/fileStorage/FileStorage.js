@@ -67,7 +67,7 @@ class FileStorage {
       Key: key,
     }
 
-    return this.s3.getObject(params)
+    return this.s3.headObject(params)
   }
 
   async #handleImageUpload(fileStream, hashedFilename) {
