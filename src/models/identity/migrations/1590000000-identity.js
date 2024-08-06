@@ -138,12 +138,15 @@ exports.up = async knex => {
       if (!hasType) {
         table.text('type').notNullable()
       }
-
-      table.dropUnique('email', 'unique_email')
-      table.unique('email', 'unique_email')
-      table.dropUnique('verification_token', 'unique_verification_token')
-      table.unique('verification_token', 'unique_verification_token')
     })
+
+    await knex.schema.raw(
+      'CREATE UNIQUE INDEX IF NOT EXISTS unique_email ON identities (email);',
+    )
+
+    await knex.schema.raw(
+      'CREATE UNIQUE INDEX IF NOT EXISTS unique_verification_token ON identities (verification_token);',
+    )
 
     await knex.schema.raw(
       ' CREATE UNIQUE INDEX IF NOT EXISTS "is_default_idx" ON "identities" (is_default, user_id) WHERE is_default IS true;',

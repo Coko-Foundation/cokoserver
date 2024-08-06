@@ -3,12 +3,7 @@ const TestConfig = require('../../utils/TestConfig')
 const db = require('../db')
 const { migrate } = require('../migrate')
 
-const {
-  migrations,
-  meta,
-  MIGRATIONS_TABLE,
-  META_TABLE,
-} = require('../migrateDbHelpers')
+const { migrations, meta, MIGRATIONS_TABLE } = require('../migrateDbHelpers')
 
 const config = new TestConfig(
   {
@@ -24,13 +19,27 @@ describe('Migrate db helpers', () => {
 
   describe('Migration db helper', () => {
     beforeAll(async () => {
-      await db.raw(`DROP TABLE IF EXISTS ${META_TABLE}`)
-      await db.raw(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`)
+      const tables = await db('pg_tables')
+        .select('tablename')
+        .where('schemaname', 'public')
+
+      /* eslint-disable-next-line no-restricted-syntax */
+      for (const t of tables) {
+        /* eslint-disable-next-line no-await-in-loop */
+        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
+      }
     })
 
     afterEach(async () => {
-      await db.raw(`DROP TABLE IF EXISTS ${META_TABLE}`)
-      await db.raw(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`)
+      const tables = await db('pg_tables')
+        .select('tablename')
+        .where('schemaname', 'public')
+
+      /* eslint-disable-next-line no-restricted-syntax */
+      for (const t of tables) {
+        /* eslint-disable-next-line no-await-in-loop */
+        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
+      }
     })
 
     it('creates migration table', async () => {
@@ -80,13 +89,27 @@ describe('Migrate db helpers', () => {
 
   describe('Meta db helper', () => {
     beforeAll(async () => {
-      await db.raw(`DROP TABLE IF EXISTS ${META_TABLE}`)
-      await db.raw(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`)
+      const tables = await db('pg_tables')
+        .select('tablename')
+        .where('schemaname', 'public')
+
+      /* eslint-disable-next-line no-restricted-syntax */
+      for (const t of tables) {
+        /* eslint-disable-next-line no-await-in-loop */
+        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
+      }
     })
 
     afterEach(async () => {
-      await db.raw(`DROP TABLE IF EXISTS ${META_TABLE}`)
-      await db.raw(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`)
+      const tables = await db('pg_tables')
+        .select('tablename')
+        .where('schemaname', 'public')
+
+      /* eslint-disable-next-line no-restricted-syntax */
+      for (const t of tables) {
+        /* eslint-disable-next-line no-await-in-loop */
+        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
+      }
     })
 
     it('clears a migration checkpoint', async () => {

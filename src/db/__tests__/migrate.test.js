@@ -4,7 +4,7 @@ const TestConfig = require('../../utils/TestConfig')
 
 const db = require('../db')
 const { migrate, rollback, pending, executed } = require('../migrate')
-const { META_TABLE, MIGRATIONS_TABLE } = require('../migrateDbHelpers')
+const { MIGRATIONS_TABLE } = require('../migrateDbHelpers')
 const MigrateOptionIntegrityError = require('../errors/MigrateOptionIntegrityError')
 const MigrateSkipLimitError = require('../errors/MigrateSkipLimitError')
 const RollbackUnavailableError = require('../errors/RollbackUnavailableError')
@@ -26,13 +26,27 @@ const failingConfig = new TestConfig(
 
 describe('Migrations', () => {
   beforeAll(async () => {
-    await db.raw(`DROP TABLE IF EXISTS ${META_TABLE}`)
-    await db.raw(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`)
+    const tables = await db('pg_tables')
+      .select('tablename')
+      .where('schemaname', 'public')
+
+    /* eslint-disable-next-line no-restricted-syntax */
+    for (const t of tables) {
+      /* eslint-disable-next-line no-await-in-loop */
+      await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
+    }
   })
 
   afterEach(async () => {
-    await db.raw(`DROP TABLE IF EXISTS ${META_TABLE}`)
-    await db.raw(`DROP TABLE IF EXISTS ${MIGRATIONS_TABLE}`)
+    const tables = await db('pg_tables')
+      .select('tablename')
+      .where('schemaname', 'public')
+
+    /* eslint-disable-next-line no-restricted-syntax */
+    for (const t of tables) {
+      /* eslint-disable-next-line no-await-in-loop */
+      await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
+    }
   })
 
   afterAll(async () => {

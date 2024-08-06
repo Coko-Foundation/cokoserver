@@ -10,7 +10,7 @@ const {
   invalidateProviderTokens,
 } = require('../identity.controller')
 
-const { db } = require('../../../db')
+const { db, migrationManager } = require('../../../db')
 const subscriptionManager = require('../../../graphql/pubsub')
 const { jobManager } = require('../../../jobManager')
 const { foreverDate } = require('../../../utils/time')
@@ -110,6 +110,10 @@ const specificDate = new Date()
 Date.now = jest.fn(() => specificDate)
 
 describe('Identity Controller', () => {
+  beforeAll(async () => {
+    await migrationManager.migrate()
+  })
+
   beforeEach(async () => {
     await clearDb()
   })
