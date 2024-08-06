@@ -1,6 +1,7 @@
 const { v4: uuid } = require('uuid')
 
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 
 const ChatChannel = require('../chatChannel.model')
 const { getChatChannels, getChatChannel } = require('../chatChannel.controller')
@@ -16,6 +17,7 @@ describe('ChatChannel Controller', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('fetches all the available channels', async () => {

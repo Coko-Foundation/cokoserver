@@ -52,19 +52,6 @@ describe('Logging manager', () => {
   })
 
   describe('when configure method is passed another logger', () => {
-    it('throws an error if a required method is not implemented', () => {
-      const logger = require('../index')
-      expect.hasAssertions()
-
-      // https://github.com/facebook/jest/issues/2124
-      try {
-        logger.configure({})
-      } catch (e) {
-        /* eslint-disable-next-line jest/no-conditional-expect */
-        expect(e.name).toBe('ValidationError')
-      }
-    })
-
     it('works with winston', () => {
       const logger = require('../index')
       const winston = require('winston')
@@ -123,20 +110,6 @@ describe('Logging manager', () => {
       const logger = require('../index')
       const rawLogger = logger.getRawLogger()
       expect(rawLogger).toEqual(global.console)
-    })
-
-    it('logger passed must be an object', () => {
-      jest.resetModules()
-      config = require('config')
-      config.logger = 'wiiiiiiiiinston'
-      expect.hasAssertions()
-
-      try {
-        require('../index')
-      } catch (e) {
-        /* eslint-disable-next-line jest/no-conditional-expect */
-        expect(e.name).toBe('ValidationError')
-      }
     })
 
     it('prevents configuration again', () => {

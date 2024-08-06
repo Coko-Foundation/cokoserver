@@ -153,7 +153,7 @@ const authorizeOAuth = async (provider, sessionState, code) => {
     throw new Error('Missing access_token from response!')
   }
 
-  if (envUtils.isValidPositiveIntegerOrZero(expires_in)) {
+  if (!envUtils.isValidPositiveIntegerOrZero(expires_in)) {
     throw new Error('Missing expires_in from response!')
   }
 
@@ -161,7 +161,7 @@ const authorizeOAuth = async (provider, sessionState, code) => {
     throw new Error('Missing refresh_token from response!')
   }
 
-  if (envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
+  if (!envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
     throw new Error('Missing refresh_expires_in from response!')
   }
 

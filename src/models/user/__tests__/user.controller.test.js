@@ -1,4 +1,7 @@
-const { User, Identity } = require('../../index')
+const User = require('../user.model')
+const Identity = require('../../identity/identity.model')
+
+const { db } = require('../../../db')
 
 const {
   createUser,
@@ -32,11 +35,12 @@ jest.mock('../../../services/notify.js')
 jest.mock('../../_helpers/emailTemplates.js')
 
 describe('User Controller', () => {
-  beforeEach(() => clearDb())
+  beforeEach(async () => {
+    await clearDb()
+  })
 
-  afterAll(() => {
-    const knex = User.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
   })
 
   it('fetches a specific user', async () => {

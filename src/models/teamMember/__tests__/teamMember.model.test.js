@@ -1,8 +1,12 @@
 const { v4: uuid } = require('uuid')
 
 const { db, migrationManager } = require('../../../db')
-const { TeamMember, Team, User } = require('../../index')
+const subscriptionManager = require('../../../graphql/pubsub')
 const clearDb = require('../../__tests__/_clearDb')
+
+const User = require('../../user/user.model')
+const Team = require('../../team/team.model')
+const TeamMember = require('../teamMember.model')
 
 describe('Team Member Model', () => {
   beforeAll(async () => {
@@ -15,6 +19,7 @@ describe('Team Member Model', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('can have a status', async () => {

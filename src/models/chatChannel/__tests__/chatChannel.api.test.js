@@ -1,6 +1,7 @@
 const gql = require('graphql-tag')
 
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 const clearDb = require('../../__tests__/_clearDb')
 const gqlServer = require('../../../utils/graphqlTestServer')
 const Fake = require('../../__tests__/helpers/fake/fake.model')
@@ -18,6 +19,7 @@ describe('Chat channel api', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('fetches channels', async () => {

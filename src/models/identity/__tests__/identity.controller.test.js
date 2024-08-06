@@ -10,31 +10,26 @@ const {
   invalidateProviderTokens,
 } = require('../identity.controller')
 
-const { User, Identity } = require('../../index')
+const { db } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 const { jobManager } = require('../../../jobManager')
 const { foreverDate } = require('../../../utils/time')
+
+const Identity = require('../identity.model')
 
 const { createUser } = require('../../__tests__/helpers/users')
 const clearDb = require('../../__tests__/_clearDb')
 
-// Mock "refresh token expired job"
-// jest.mock('../../services', () => {
-//   const { jobs: jobs_, ...originalModule } =
-//     jest.requireActual('../../services')
-
-//   return {
-//     __esModule: true,
-//     ...originalModule,
-//     jobs: {
-//       ...jobs_,
-//       defer: jest.fn(async (name, startAfter, data) => [
-//         name,
-//         startAfter,
-//         data,
-//       ]),
-//     },
-//   }
-// })
+jest.mock('../../../jobManager', () => {
+  return {
+    jobManager: {
+      sendToQueue: jest.fn(),
+    },
+    defaultJobQueueNames: {
+      REFRESH_TOKEN_EXPIRED: 'refresh-token-expired',
+    },
+  }
+})
 
 const fakeAccessToken =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJkZWZhdWx0QHRlc3QuY29tIiwiZmFtaWx5X25hbWUiOiJXYWx0b24iLCJnaXZlbl9uYW1lIjoiSm9obiJ9.8Qn2H6FAJVUn6T1U7bnbjnuguIFlY5EW_XaII1IJdE4'
@@ -115,11 +110,13 @@ const specificDate = new Date()
 Date.now = jest.fn(() => specificDate)
 
 describe('Identity Controller', () => {
-  beforeEach(() => clearDb())
+  beforeEach(async () => {
+    await clearDb()
+  })
 
-  afterAll(() => {
-    const knex = User.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('authorizes access and inserts the Oauth tokens', async () => {
@@ -156,17 +153,18 @@ describe('Identity Controller', () => {
     expect(
       timeLeft(newProvider.oauthRefreshTokenExpiration) >= 359995000,
     ).toBeTruthy()
-    // Expect renewal job to have been "scheduled"
-    const lastCallIndex = jobManager.sendToQueue.mock.calls.length - 1
 
-    const [name, renewAfter, data] =
-      jobManager.sendToQueue.mock.calls[lastCallIndex]
-
-    expect(name).toEqual('refresh-token-expired')
-    expect({ seconds: Math.round(renewAfter.seconds) }).toEqual({
-      seconds: 360000,
-    }) // 360000 - 86400
-    expect(data).toEqual({ providerLabel: 'test', userId: user.id })
+    expect(jobManager.sendToQueue).toHaveBeenCalledTimes(1)
+    expect(jobManager.sendToQueue).toHaveBeenCalledWith(
+      'refresh-token-expired',
+      {
+        providerLabel: 'test',
+        userId: user.id,
+      },
+      {
+        startAfter: 360000,
+      },
+    )
   })
 
   it('invalidates access token', async () => {

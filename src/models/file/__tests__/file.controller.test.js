@@ -10,6 +10,7 @@ const testFilePath = path.join(
   __dirname,
   '..',
   '..',
+  '..',
   'fileStorage',
   '__tests__',
   'files',

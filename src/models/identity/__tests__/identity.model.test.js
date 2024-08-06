@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker')
-const { Identity } = require('../../index')
 
+const Identity = require('../identity.model')
+const { db } = require('../../../db')
 const { createUser } = require('../../__tests__/helpers/users')
 
 const {
@@ -10,11 +11,12 @@ const {
 const clearDb = require('../../__tests__/_clearDb')
 
 describe('Identity model', () => {
-  beforeEach(() => clearDb())
+  beforeEach(async () => {
+    await clearDb()
+  })
 
-  afterAll(() => {
-    const knex = Identity.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
   })
 
   it('creates multiple identities for the same user', async () => {

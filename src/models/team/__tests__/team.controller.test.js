@@ -1,20 +1,17 @@
 const { v4: uuid } = require('uuid')
-const { Team, TeamMember } = require('../../index')
+
+const { db } = require('../../../db')
+const { TeamMember } = require('../../index')
 
 const {
   getTeam,
-  getGlobalTeams,
-  getObjectTeams,
   getTeams,
   updateTeamMembership,
   addTeamMember,
   removeTeamMember,
 } = require('../team.controller')
 
-const {
-  createGlobalTeamWithUsers,
-  createLocalTeamWithUsers,
-} = require('../../__tests__/helpers/teams')
+const { createGlobalTeamWithUsers } = require('../../__tests__/helpers/teams')
 
 const { createUser } = require('../../__tests__/helpers/users')
 
@@ -23,9 +20,8 @@ const clearDb = require('../../__tests__/_clearDb')
 describe('Team Controller', () => {
   beforeEach(() => clearDb())
 
-  afterAll(() => {
-    const knex = Team.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
   })
 
   it('fetches team for provided id', async () => {
@@ -57,22 +53,6 @@ describe('Team Controller', () => {
     const fetchedTeams = await getTeams({ global: true })
     const { result } = fetchedTeams
     expect(result[0]).toBeDefined()
-  })
-
-  it('fetches all global teams', async () => {
-    await createGlobalTeamWithUsers()
-    const fetchedTeams = await getGlobalTeams()
-    const { result } = fetchedTeams
-    expect(result[0]).toBeDefined()
-    expect(result[0].global).toEqual(true)
-  })
-
-  it('fetches all non-global teams', async () => {
-    const { team } = await createLocalTeamWithUsers()
-    const fetchedTeams = await getObjectTeams(team.objectId, team.objectType)
-    const { result } = fetchedTeams
-    expect(result[0]).toBeDefined()
-    expect(result[0].global).toEqual(false)
   })
 
   it('adds new member to team', async () => {

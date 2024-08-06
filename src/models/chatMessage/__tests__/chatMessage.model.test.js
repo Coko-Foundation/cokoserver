@@ -1,6 +1,7 @@
 const { v4: uuid } = require('uuid')
 
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 
 const {
   createChatChannelTeamWithUsers,
@@ -21,6 +22,7 @@ describe('ChatMessage model', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('does not create a new chat message without content', async () => {

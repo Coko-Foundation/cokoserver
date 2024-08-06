@@ -3,6 +3,7 @@ const gql = require('graphql-tag')
 const gqlServer = require('../../../utils/graphqlTestServer')
 const { Team, TeamMember, User } = require('../..')
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 const clearDb = require('../../__tests__/_clearDb')
 const Fake = require('../../__tests__/helpers/fake/fake.model')
 
@@ -17,6 +18,7 @@ describe('Team API', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('returns teams for an object', async () => {

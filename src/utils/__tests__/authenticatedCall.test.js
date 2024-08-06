@@ -7,7 +7,11 @@ jest.mock('../tokens', () => {
   }
 })
 
-jest.mock('../../models/identity/identity.controller.js')
+jest.mock('../../models/identity/identity.controller.js', () => {
+  return {
+    invalidateProviderAccessToken: jest.fn(),
+  }
+})
 
 const {
   invalidateProviderAccessToken,

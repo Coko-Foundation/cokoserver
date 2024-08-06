@@ -2,6 +2,7 @@ const find = require('lodash/find')
 const clone = require('lodash/clone')
 
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 
 const {
   createUserAndDefaultIdentity,
@@ -37,6 +38,7 @@ describe('User model', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('validates password correctly after saving to db', async () => {

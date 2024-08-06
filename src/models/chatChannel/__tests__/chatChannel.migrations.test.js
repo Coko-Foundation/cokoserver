@@ -1,6 +1,7 @@
 const { v4: uuid } = require('uuid')
 
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 
 const ChatChannel = require('../chatChannel.model')
 const ChatMessage = require('../../chatMessage/chatMessage.model')
@@ -22,6 +23,7 @@ describe('Chat channel migrations', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('renames table from chat thread to chat channel', async () => {

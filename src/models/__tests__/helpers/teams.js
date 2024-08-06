@@ -1,5 +1,7 @@
 const { v4: uuid } = require('uuid')
-const { Team, User } = require('../..')
+
+const User = require('../../user/user.model')
+const Team = require('../../team/team.model')
 
 const createGlobalTeamWithUsers = async () => {
   try {

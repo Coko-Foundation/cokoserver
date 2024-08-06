@@ -1,6 +1,7 @@
 const { v4: uuid } = require('uuid')
 
 const { db, migrationManager } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 const ChatChannel = require('../chatChannel.model')
 const ChatMessage = require('../../chatMessage/chatMessage.model')
 const User = require('../../user/user.model')
@@ -14,7 +15,8 @@ describe('ChatChannel Model', () => {
   beforeEach(() => clearDb())
 
   afterAll(async () => {
-    db.destroy()
+    await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('does not create new channel without a related object id', async () => {

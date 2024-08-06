@@ -1,16 +1,21 @@
 const gql = require('graphql-tag')
 
+const { db } = require('../../../db')
+const subscriptionManager = require('../../../graphql/pubsub')
 const gqlServer = require('../../../utils/graphqlTestServer')
-const { User, Identity } = require('../..')
-
 const clearDb = require('../../__tests__/_clearDb')
 
-describe('Team API', () => {
-  beforeEach(() => clearDb())
+const User = require('../user.model')
+const Identity = require('../../identity/identity.model')
 
-  afterAll(() => {
-    const knex = User.knex()
-    knex.destroy()
+describe('Team API', () => {
+  beforeEach(async () => {
+    await clearDb()
+  })
+
+  afterAll(async () => {
+    await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('gets user identities', async () => {
