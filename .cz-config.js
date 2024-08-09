@@ -6,6 +6,7 @@ const modified = {
   scopes: [
     'cli',
     'db',
+    'docs',
     'fileStorage',
     'graphql',
     'job manager',
