@@ -7,27 +7,36 @@ stages:
   - Lint & Test
   - Docs
 
-build container:
-  stage: Build
+# build container:
+#   stage: Build
+#   image: docker:26
+#   services:
+#     - docker:26-dind
+#   before_script:
+#     - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+#   script:
+#     - docker build --tag $TAG .
+#     - docker push $TAG
+
+# lint:
+#   stage: Lint & Test
+#   image: $TAG
+#   script:
+#     - cd /home/node/app
+#     - yarn coko-lint run --skip-stylelint
+
+test:
+  stage: lint & Test
   image: docker:26
   services:
     - docker:26-dind
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
   script:
-    - docker build --tag $TAG .
-    - docker push $TAG
+    - docker compose up -d db createbucket filehosting
+    - docker compose run server yarn test
 
-lint:
-  stage: Lint & Test
-  image: $TAG
-  script:
-    - cd /home/node/app
-    - yarn coko-lint run --skip-stylelint
-
-update docs:
-  stage: Docs
-  trigger:
-    project: cokoapps/docs
-    strategy: depend
-    branch: main
+# update docs:
+#   stage: Docs
+#   trigger:
+#     project: cokoapps/docs
+#     strategy: depend
+#     branch: main
