@@ -27,13 +27,12 @@ stages:
 
 test:
   stage: Lint & Test
-  image: docker:26
+  image: docker:27
   services:
-    - docker:26-dind
+    - docker:27-dind
   script:
     - docker compose up -d db createbucket filehosting
-    - docker compose run server yarn test
-
+    - docker compose run server yarn test --forceExit
 # update docs:
 #   stage: Docs
 #   trigger:
