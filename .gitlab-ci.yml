@@ -1,0 +1,9 @@
+stages:
+  - Docs
+
+update docs:
+  stage: Docs
+  trigger:
+    project: cokoapps/docs
+    strategy: depend
+    branch: main
