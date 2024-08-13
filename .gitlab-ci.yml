@@ -26,7 +26,7 @@ stages:
 #     - yarn coko-lint run --skip-stylelint
 
 test:
-  stage: lint & Test
+  stage: Lint & Test
   image: docker:26
   services:
     - docker:26-dind
