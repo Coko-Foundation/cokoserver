@@ -1,6 +1,6 @@
 const gql = require('graphql-tag')
 
-const { db } = require('../../../db')
+const { db, migrationManager } = require('../../../db')
 const subscriptionManager = require('../../../graphql/pubsub')
 const gqlServer = require('../../../utils/graphqlTestServer')
 const clearDb = require('../../__tests__/_clearDb')
@@ -8,7 +8,11 @@ const clearDb = require('../../__tests__/_clearDb')
 const User = require('../user.model')
 const Identity = require('../../identity/identity.model')
 
-describe('Team API', () => {
+describe('User API', () => {
+  beforeAll(async () => {
+    await migrationManager.migrate()
+  })
+
   beforeEach(async () => {
     await clearDb()
   })
