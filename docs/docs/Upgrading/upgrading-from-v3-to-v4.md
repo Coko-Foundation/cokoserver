@@ -60,7 +60,7 @@ available via the `coko-server` cli.
 Both allow you to:
 * run all migrations
 * run migrations up to a specific point
-* run a specified migrations from the list of migrations that haven't been
+* run a specified number of migrations from the list of migrations that haven't been
 executed yet (eg. only run the next 2 migrations, even though there is 4 new ones)
 * roll back one or more migrations
 * get a list of executed migrations
