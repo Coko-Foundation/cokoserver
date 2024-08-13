@@ -31,7 +31,6 @@ test:
   services:
     - docker:27-dind
   script:
-    - docker compose up -d db createbucket filehosting
     - docker compose run server yarn test --forceExit
 # update docs:
 #   stage: Docs
