@@ -1,4 +1,5 @@
 const BaseJoi = require('joi')
+const has = require('lodash/has')
 
 const ConfigSchemaError = require('../errors/ConfigSchemaError')
 const JoiCron = require('./joiCron')
@@ -10,11 +11,39 @@ const Joi = BaseJoi.extend(JoiCron).extend(JoiTimezone)
 const removedKeys = [
   'apollo',
   'authsome',
+  'dbManager',
   'password-reset.token-length',
-  'pubsweet-client',
   'publicKeys',
+  'pubsweet-client',
+  'pubsweet-server.apollo',
+  'pubsweet-server.app',
+  'pubsweet-server.cron',
+  'pubsweet-server.host',
+  'pubsweet-server.ignoreTerminatedConnectionError',
+  'pubsweet-server.resolvers',
+  'pubsweet-server.serveClient',
+  'pubsweet-server.typedefs',
+  'pubsweet-server.uploads',
+  'serveClient',
   'useJobQueue',
 ]
+
+// ### Renamed keys
+// * `pubsweet.components` → `components`
+// * `password-reset` → `passwordReset`
+// * `pubsweet-server.acquireConnectionTimeout` → `acquireConnectionTimeout`
+// * `pubsweet-server.db` → `db`
+// * `pubsweet-server.emailVerificationTokenExpiry` → `emailVerificationTokenExpiry`
+// * `pubsweet-server.logger` → `logger`
+// * `pubsweet-server.morganLogFormat` → `morganLogFormat`
+// * `pubsweet-server.passwordResetTokenExpiry` → `passwordResetTokenExpiry`
+// * `pubsweet-server.pool` → `pool`
+// * `pubsweet-server.port` → `port`
+// * `pubsweet-server.secret` → `secret`
+// * `pubsweet-server.serverUrl` → `serverUrl`
+// * `pubsweet-server.tokenExpiresIn` → `tokenExpiresIn`
+// * `pubsweet-server.useFileStorage` → `useFileStorage`
+// * `pubsweet-server.useGraphqlServer` → `useGraphqlServer`
 
 const renameMap = {
   'password-reset': 'passwordReset',
@@ -125,11 +154,11 @@ const check = config => {
   if (config['pubsweet-server']) throwPubsweetKeyError('pubsweet-server')
 
   removedKeys.forEach(key => {
-    if (config[key]) throwRemovedError(key)
+    if (has(config, key)) throwRemovedError(key)
   })
 
   Object.keys(renameMap).forEach(key => {
-    if (config[key]) {
+    if (has(config, key)) {
       throw new ConfigSchemaError(
         `Key ${key} has been renamed to ${renameMap[key]}`,
       )

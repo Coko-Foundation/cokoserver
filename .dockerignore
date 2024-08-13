@@ -49,3 +49,5 @@ templates
 .linstagedrc.js
 # .prettierrc.js
 .stylelintrc.js
+
+docs/

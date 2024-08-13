@@ -1,5 +1,5 @@
 const permissions = require('./permissions')
-const jobHanlder = require('../scripts/jobHandler')
+const jobHandler = require('../scripts/jobHandler')
 
 module.exports = {
   components: [
@@ -129,7 +129,7 @@ module.exports = {
   jobQueues: [
     {
       name: 'test',
-      handler: jobHanlder,
+      handler: jobHandler,
       teamSize: 1,
       teamConcurrency: 1,
       // schedule: '*/1 * * * *',
