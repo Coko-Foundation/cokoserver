@@ -530,7 +530,7 @@ Delete all dropped keys
 
 :::tip[what you need to do]
 Move all keys that exist inside `pubsweet` or `pubsweet-server` to the top
-level of your conifg. Delete the now emtpy `pubsweet` and `pubsweet-server` keys.
+level of your config. Delete the now emtpy `pubsweet` and `pubsweet-server` keys.
 Make `password-reset` key camel case.
 :::
 
