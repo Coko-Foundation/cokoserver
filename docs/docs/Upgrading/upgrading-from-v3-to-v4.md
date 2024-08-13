@@ -628,6 +628,13 @@ Password reset token expiry now has a default of 24 hours.
 `sendEmail` now accepts an extra argument that lets you override one or more of
 the options defined in `mailer.transport` in the config.
 
+### Emails in development
+If there are no credentials passed through the `mailer` config, a link will be 
+printed in your terminal when sending emails. Clicking on that link will open a
+browser tab that simulates a received email. If you use values in your `mailer`
+config, this functionality will be overriden and a real attempt to send an email
+will be performed.
+
 ## Dropped features
 
 * Email graphql middleware
