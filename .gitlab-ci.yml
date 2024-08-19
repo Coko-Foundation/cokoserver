@@ -35,6 +35,8 @@ stages:
 
 update docs:
   stage: Docs
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
   trigger:
     project: cokoapps/docs
     strategy: depend
