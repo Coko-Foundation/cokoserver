@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.13.2](https://gitlab.coko.foundation/cokoapps/server/compare/v3.13.1...v3.13.2) (2024-08-27)
+
+
+### Bug Fixes
+
+* **models:** make team member status nullable ([b91df44](https://gitlab.coko.foundation/cokoapps/server/commit/b91df449edf32ff45e0018602660c82a74dc14c6))
+
 ### [3.13.1](https://gitlab.coko.foundation/cokoapps/server/compare/v3.13.0...v3.13.1) (2024-05-14)
 
 
