@@ -1,5 +1,5 @@
 const BaseModel = require('../base.model')
-const { string, id } = require('../_helpers/types')
+const { stringNullable, id } = require('../_helpers/types')
 
 class TeamMember extends BaseModel {
   static get tableName() {
@@ -13,7 +13,7 @@ class TeamMember extends BaseModel {
       properties: {
         userId: id,
         teamId: id,
-        status: string,
+        status: stringNullable,
       },
     }
   }
