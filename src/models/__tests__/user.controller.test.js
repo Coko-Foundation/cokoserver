@@ -84,7 +84,7 @@ describe('User Controller', () => {
     expect(fetchedUser.isActive).toEqual(false)
   })
 
-  it('can deactivate  multiple users', async () => {
+  it('can deactivate multiple users', async () => {
     const user1 = await createUser()
     const user2 = await createUser()
     await activateUsers([user1.id, user2.id])
@@ -152,7 +152,7 @@ describe('User Controller', () => {
     expect(res.token).toBeDefined()
   })
 
-  it('can allow user to login with username and password', async () => {
+  it('can allow user to login with username and password if she/he is verified', async () => {
     const { user } = await createUserWithPasswordAndIdentities('password1')
 
     const res = await login({
@@ -161,6 +161,20 @@ describe('User Controller', () => {
     })
 
     expect(res.token).toBeDefined()
+  })
+
+  it('can not allow user to login with username and password if she/he is not verified', async () => {
+    const { user } = await createUserWithPasswordAndIdentities(
+      'password1',
+      false,
+    )
+
+    await expect(
+      login({
+        username: user.username,
+        password: 'password1',
+      }),
+    ).rejects.toThrow(/You are not verified/)
   })
 
   it('can set a default identity to a user', async () => {

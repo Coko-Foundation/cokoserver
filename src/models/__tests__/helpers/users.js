@@ -54,11 +54,15 @@ const createUserAndIdentities = async () => {
   return { user, id, id2 }
 }
 
-const createUserWithPasswordAndIdentities = async password => {
+const createUserWithPasswordAndIdentities = async (
+  password,
+  isActive = true,
+) => {
   const user = await User.query().insert({
     givenNames: name.firstName(),
     surname: name.lastName(),
     password,
+    isActive,
     username: internet.userName(),
   })
 

@@ -293,6 +293,12 @@ const login = async input => {
       throw new AuthorizationError('Wrong username or password.')
     }
 
+    if (!user.isActive) {
+      throw new AuthorizationError(
+        'You are not verified. You have to follow the verification process by clicking the verification link sent to your email',
+      )
+    }
+
     logger.info(`${USER_CONTROLLER} login: password is valid`)
     return {
       user,
