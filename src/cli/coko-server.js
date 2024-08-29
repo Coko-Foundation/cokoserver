@@ -144,21 +144,28 @@ program
   .description('Display circular dependencies')
   .showHelpAfterError()
   .action(async () => {
-    const res = await madge(process.cwd())
-    const circular = res.circular()
+    try {
+      const res = await madge(process.cwd())
+      const circular = res.circular()
 
-    // borrowed from the madge cli tool: https://github.com/pahen/madge/blob/master/bin/cli.js#L9
-    const spinner = ora({
-      text: 'Finding files',
-      color: 'white',
-      interval: 100000,
-      isEnabled: program.spinner === 'false' ? false : null,
-    })
+      // borrowed from the madge cli tool: https://github.com/pahen/madge/blob/master/bin/cli.js#L9
+      const spinner = ora({
+        text: 'Finding files',
+        color: 'white',
+        interval: 100000,
+        isEnabled: program.spinner === 'false' ? false : null,
+      })
 
-    output.circular(spinner, res, circular, {
-      json: program.json,
-      printCount: program.count,
-    })
+      output.circular(spinner, res, circular, {
+        json: program.json,
+        printCount: program.count,
+      })
+
+      process.exit(0)
+    } catch (e) {
+      logger.error(e)
+      process.exit(1)
+    }
   })
 
 program
