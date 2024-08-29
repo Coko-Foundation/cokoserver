@@ -18,6 +18,8 @@ const loaders = require('./loaders')
 const generateSchema = require('./generateSchema')
 
 const setup = async (httpServer, app, passport) => {
+  app.use(graphqlUploadExpress())
+
   const schema = generateSchema()
 
   /* SUBSCRIPTION SERVER */
@@ -106,8 +108,6 @@ const setup = async (httpServer, app, passport) => {
       },
     }),
   )
-
-  app.use(graphqlUploadExpress())
 }
 
 module.exports = setup
