@@ -2,6 +2,138 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-beta.0](https://gitlab.coko.foundation/cokoapps/server/compare/v3.13.2...v4.0.0-beta.0) (2024-08-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* s3 protocol, host, port is now url
+* **server:** drop hardcoded POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES reference
+* **models:** deleting a chat channel now deletes its messages too
+* **graphql:** Renamed types TeamsResponse and ChatChannelResponse to Teams and ChatChannels respectively.
+* **graphql:** Renamed sendMessage, editMessage and deleteMessage to senChatMessage, editChatMessage and
+deleteChatMessage respectively. UpdateUserInput id is now not nullable.
+* **graphql:** renamed gql chatChannels where to filter
+* **graphql:** renamed gql users options to users pagination
+* **graphql:** renamed UserQueryParams to UserFilter
+* **graphql:** gql user id param and user result are not nullable
+* **graphql:** gql totalCount is now not nullable
+* **graphql:** make teamMember id and user in gql not-nullable
+* **graphql:** drop getGlobalTeams, getObjectTeams, rename TeamWhereInput to TeamFilter
+* **models:** chat threads renamed to chat channels, chat message chatThreadId renamed to chatChannelId
+* **models:** graphql UpdateInput has been renamed to UpdateUserInput. identityId has been dropped from
+UpdateInput.
+* **models:** deleteByIds does not return ids but number of rows now
+* **models:** delete identities on user deletion
+* ctx.user is renamed to ctx.userId
+* **server:** renamed pubsub to subscriptionManager
+* **server:** allow unauthenticated subscriptions
+* rename filestorage deletefiles to delete
+* drop connectToFileStorage and rename fileStorage to FileStorage
+* **models:** modelTypes is now modelJsonSchemaTypes
+* **models:** all nullable model types now have a default of null
+* password reset token expiry now has default value (24 hours)
+* drop exporting startServer
+* drop extending typedefs and resolvers through config
+* drop upload to disk endpoints
+* drop serveClient option
+* drop automatically serving _build and static folders
+* **db manager:** drop createTables script
+* drop extending the express app
+* changed teams config structure
+* dropped password-reset.token-length
+* config.password-reset renamed to config.passwordReset
+* drop extending apollo through config
+* dropped pubsweet from config
+* dropped pubsweet-server from config
+* **db manager:** drop DATABASE_URL environment variable
+
+### Features
+
+* add helpful error message for pubsweet config changes ([c82b1da](https://gitlab.coko.foundation/cokoapps/server/commit/c82b1da44cebbd49afd0df9b5cfc1f71b2c122ac))
+* add job manager and job definitions config ([bfa6b22](https://gitlab.coko.foundation/cokoapps/server/commit/bfa6b22901f8d7b39f8c2210374a98d8f7a98017))
+* add messages for removed keys ([52d0880](https://gitlab.coko.foundation/cokoapps/server/commit/52d0880e2de14e97d5e87a3a79fe87b2b017504c))
+* add meta table and constraints on migration files ([6d906bc](https://gitlab.coko.foundation/cokoapps/server/commit/6d906bc2887ebb0c3658df0e02ef4a59a72700fb))
+* add onStartup hook for custom init scripts ([3c43420](https://gitlab.coko.foundation/cokoapps/server/commit/3c43420317036da1ed600a4d792c555d4d9bb953))
+* add write to temp util ([e4ccbde](https://gitlab.coko.foundation/cokoapps/server/commit/e4ccbde6c8ddbea469e84290c6c434a138125bb1))
+* allow config to define mount point for static folders ([85fe5b5](https://gitlab.coko.foundation/cokoapps/server/commit/85fe5b55585f9e63a9f48d32e38ed18d37c0db81))
+* check for db connection at startup ([d28c24f](https://gitlab.coko.foundation/cokoapps/server/commit/d28c24f3d7e607466430efbecb66dbacf6fdb086))
+* **cli:** add circular command ([5242ba2](https://gitlab.coko.foundation/cokoapps/server/commit/5242ba25fdc48c6471e447b52fb621023f79396d))
+* **cli:** add start command ([c06e2f3](https://gitlab.coko.foundation/cokoapps/server/commit/c06e2f31c459838e541c08a8fdba74cae56aa979))
+* **cli:** add start-dev command ([24b9821](https://gitlab.coko.foundation/cokoapps/server/commit/24b982150c83d5bbd0c3d4009b0e308ed40d27d2))
+* **cli:** expand migrate command functionality ([633d485](https://gitlab.coko.foundation/cokoapps/server/commit/633d485c5fa6ad79601bcfaf03993a2a7bd2d26e))
+* **db manager:** drop DATABASE_URL environment variable ([4f52e20](https://gitlab.coko.foundation/cokoapps/server/commit/4f52e204ca763d57797836b80e629f8fdce0446a))
+* **db manager:** remove create tables script ([6decbef](https://gitlab.coko.foundation/cokoapps/server/commit/6decbef1d5a2cc3ec0da121f445a4269f18d4f5e))
+* define static folders to serve through config ([41f9b26](https://gitlab.coko.foundation/cokoapps/server/commit/41f9b26305a4db740d3ce8bb6c299b3c44a113a8))
+* drop app.locals and @pubsweet/models ([35a424b](https://gitlab.coko.foundation/cokoapps/server/commit/35a424bb5120912279527a105befba1f3b8087a2))
+* drop authsome ([8dab3e5](https://gitlab.coko.foundation/cokoapps/server/commit/8dab3e5759f4e42817c0eb850fcd101e7c489921))
+* drop entities table via core migrations ([8e33a50](https://gitlab.coko.foundation/cokoapps/server/commit/8e33a50a49f4ffe7224015e44d8590ee48ee8f44))
+* dropped connectors ([fdd0d8e](https://gitlab.coko.foundation/cokoapps/server/commit/fdd0d8e0757bfbe341b7dba9bab11959e4bca513))
+* dropped password reset token length config option ([38f4a11](https://gitlab.coko.foundation/cokoapps/server/commit/38f4a1129dff945a5a8d833e5bd3cba46756abf8))
+* export withFilter for subscriptions ([fbea60d](https://gitlab.coko.foundation/cokoapps/server/commit/fbea60d739d8b06bcf7a3c7b7e0a70f64ee81495))
+* expose graphql test server for api testing ([870ea1b](https://gitlab.coko.foundation/cokoapps/server/commit/870ea1ba3be96277efe0822ba2a9097253f700ce))
+* expose standardized temp folder path ([eb68bc8](https://gitlab.coko.foundation/cokoapps/server/commit/eb68bc8232048b5e99ca18027cd9d3fd2edb8642))
+* expose temp folder utility functions ([7593192](https://gitlab.coko.foundation/cokoapps/server/commit/7593192d4cb3b45cb8e0aed613f6f0ec7554679f))
+* **fileStorage:** allow file storage connection config to be overriden through createfile and deletefile ([a37f2ea](https://gitlab.coko.foundation/cokoapps/server/commit/a37f2ea17f1226fced582d9750205c74cec4b7d6))
+* **graphql:** rename chat channels where to filter and add api tests ([df46d65](https://gitlab.coko.foundation/cokoapps/server/commit/df46d658054a4cc55aade816373ed437f976e0e4))
+* **graphql:** rename chat message mutations and add docs for all mutations ([19adcd0](https://gitlab.coko.foundation/cokoapps/server/commit/19adcd09340498ba610a02b56e5caab22093c259))
+* **graphql:** rename users options to pagination ([33c3e79](https://gitlab.coko.foundation/cokoapps/server/commit/33c3e799ead7aeca9b25313f3a992f98b2d3a693))
+* **graphql:** simplify type naming for teams and chat channels ([dff3adb](https://gitlab.coko.foundation/cokoapps/server/commit/dff3adbba1bb412aa6e43fe4457a0912ac53208a))
+* **graphql:** update team graphql api ([ebd04d5](https://gitlab.coko.foundation/cokoapps/server/commit/ebd04d544a385539fad75490ddc0c62fb741bd4e))
+* **graphql:** user query params is now user filter ([347b780](https://gitlab.coko.foundation/cokoapps/server/commit/347b780f3addeb7087fbf3be5d33bdc6f654d335))
+* improve config validations ([662f16a](https://gitlab.coko.foundation/cokoapps/server/commit/662f16a71de75cf6992a7a054afe03f1063318a9))
+* install pgcrypto via core migrations ([f3f710d](https://gitlab.coko.foundation/cokoapps/server/commit/f3f710dea6b645c8d264e7a30c5d0ee9f11e3a0f))
+* make all config pubsweet keys top-level ([53dcc94](https://gitlab.coko.foundation/cokoapps/server/commit/53dcc94d5785e5b791b9516fc9177fe7469bd0de))
+* make all config pubsweet-server keys top-level ([ff81563](https://gitlab.coko.foundation/cokoapps/server/commit/ff8156324fd9b767669688ad9b84aa44281cf852))
+* make file storage a singleton class ([64ed7c3](https://gitlab.coko.foundation/cokoapps/server/commit/64ed7c31a45110ae5bf616926250827273991a54))
+* make teams configs arrays ([c89bf90](https://gitlab.coko.foundation/cokoapps/server/commit/c89bf90e04e475c5bf2d35533a72c3ef18f1af92))
+* **models:** base model delete by ids returns number of affected rows ([14c688e](https://gitlab.coko.foundation/cokoapps/server/commit/14c688e9a9f0d1db75a80885ea7778eab001adf9))
+* **models:** delete chat messages on chat channel delete cascade ([dfe071c](https://gitlab.coko.foundation/cokoapps/server/commit/dfe071c1aec6721860184834c88c4e8ddcdea404))
+* **models:** delete identities on cascade when user delete happens ([467ef39](https://gitlab.coko.foundation/cokoapps/server/commit/467ef396e891df9d5267cc06ae51b41d3c2c6937))
+* **models:** export models directly from coko server ([fa9b8d1](https://gitlab.coko.foundation/cokoapps/server/commit/fa9b8d1cbff19df3e7575018a66d64c26ce04942))
+* **models:** rename chat threads to chat channels ([e6f7649](https://gitlab.coko.foundation/cokoapps/server/commit/e6f76496b7c57f5a71c3f19d11b55de15f47bd60))
+* **models:** rename exported modelTypes to modelJsonSchemaTypes ([53c6d01](https://gitlab.coko.foundation/cokoapps/server/commit/53c6d019505202f1e7b007a6f47a26273cb0a1b4))
+* **models:** rename UpdateInput to UpdateUserInput ([2676458](https://gitlab.coko.foundation/cokoapps/server/commit/2676458191323c53d1ec7119e0b70b97f135e0e6))
+* **models:** skip full size image migration if file storage is not used at all ([a9f447f](https://gitlab.coko.foundation/cokoapps/server/commit/a9f447f3aefbff15e4ed62df3695e13689570477))
+* only update migrate checkpoint if it has changed ([7b8a576](https://gitlab.coko.foundation/cokoapps/server/commit/7b8a5764f63ea272e479f8de90f03b8b70b2df33))
+* remove config option to serve client ([b098a4b](https://gitlab.coko.foundation/cokoapps/server/commit/b098a4b26f88eeb3de9ccd87954750cc5c6d3211))
+* remove config.apollo from configuration ([70e26ac](https://gitlab.coko.foundation/cokoapps/server/commit/70e26ac0ba9d9829c9358ca72207d5677b5a02bf))
+* remove option to extend the express app ([2039f87](https://gitlab.coko.foundation/cokoapps/server/commit/2039f87c50cbd00bfa35d1eb3f700fe6d8bbeec1))
+* remove option to extend typedefs and resolvers through config ([c42abad](https://gitlab.coko.foundation/cokoapps/server/commit/c42abad0def54c7292d37146d756a6e7300fa2d4))
+* remove start server export ([57cbc86](https://gitlab.coko.foundation/cokoapps/server/commit/57cbc8666ef1448133ef32e807f970e6e539b063))
+* remove upload to disk endpoints and uploads config ([c71eb55](https://gitlab.coko.foundation/cokoapps/server/commit/c71eb559fd6dd704cdb2c1458aae9755076e06c0))
+* rename ctx.user in graphql to ctx.userId ([ea7da11](https://gitlab.coko.foundation/cokoapps/server/commit/ea7da11b734ceabee26c0aa0f4f9b006bdb50373))
+* rename filestorage deleteFiles to delete ([8c876b9](https://gitlab.coko.foundation/cokoapps/server/commit/8c876b986a88a4b49b4136edc4218008c6d50abe))
+* rename password reset config to camelcase ([6255f95](https://gitlab.coko.foundation/cokoapps/server/commit/6255f95c281f55c6932b24001633131f911b5045))
+* **server:** add option to add custom shutdown scripts ([e5bca73](https://gitlab.coko.foundation/cokoapps/server/commit/e5bca73af19f2b22af37cc2415680a1c471f5eae))
+* **server:** do not throw error when subscriptions do not provide an auth token ([5b485db](https://gitlab.coko.foundation/cokoapps/server/commit/5b485db3b9eb5228fb47fa4ad09866f6513f3a02))
+* **server:** expose subscription manager instead of pubsub and make less verbose ([b046ca1](https://gitlab.coko.foundation/cokoapps/server/commit/b046ca17c0d915ba05f669d3e90cfaf93593ab18))
+* **server:** make mailer fall back on ethereal if not in prod and overridable ([997ad99](https://gitlab.coko.foundation/cokoapps/server/commit/997ad9943e337c2590524a11dcd22d24f587636b))
+* **server:** record last successful migrate run ([f704050](https://gitlab.coko.foundation/cokoapps/server/commit/f704050139f152e59373602153580318aeb5a2a8))
+* **server:** remove hardcoded POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES reference, let app handle it ([c95bcef](https://gitlab.coko.foundation/cokoapps/server/commit/c95bcefc5927a2cc661ef2b0995a58aa9639e38e))
+* **server:** seed global teams at server startup ([2bab536](https://gitlab.coko.foundation/cokoapps/server/commit/2bab5364967edd704dcbd0de26e3d5ff422a3b1b))
+* **server:** upgrade to apollo server v4 ([5a1e103](https://gitlab.coko.foundation/cokoapps/server/commit/5a1e103f63b35e94df8e2c17a3dfc836bc0a3a26))
+* simplify s3 url config ([cd5b1c2](https://gitlab.coko.foundation/cokoapps/server/commit/cd5b1c2dde54d69d4dd7948607c0926ea1a30fcd))
+* upgrade aws-sdk to v3 ([fae0125](https://gitlab.coko.foundation/cokoapps/server/commit/fae01258d358b403cf2775313372c44e1c4d2e2f))
+
+
+### Bug Fixes
+
+* add useJobQueue to list of removed config keys ([56e9139](https://gitlab.coko.foundation/cokoapps/server/commit/56e9139e0664df436c8ed054dfc67a4f4dab1f1b))
+* **cli:** fix circular command not exiting ([285e44a](https://gitlab.coko.foundation/cokoapps/server/commit/285e44a3c9ecec497c76df24dbf2b137cb5f18be))
+* fix graphql cors ([4f0adde](https://gitlab.coko.foundation/cokoapps/server/commit/4f0adde4f9a454ddb26c6c03f6e0a7c7c8d9c99b))
+* fix optional missing keys crashing ([797ec71](https://gitlab.coko.foundation/cokoapps/server/commit/797ec71c8563de9566cc1e81d6ffa293bfaa66a1))
+* **graphql:** fix isAdmin shield permission ([06c7970](https://gitlab.coko.foundation/cokoapps/server/commit/06c797051274f4ac1a660b99a31b775aa2bdbc63))
+* **graphql:** make sure totalCount cannot be null ([6c51caa](https://gitlab.coko.foundation/cokoapps/server/commit/6c51caad88a33c9c82d45bd87ebfda9ca0d20458))
+* **graphql:** make user query result and id param not nullable ([2a9f174](https://gitlab.coko.foundation/cokoapps/server/commit/2a9f17443c029ba68e1eecc6e7a6201594a3f36a))
+* **graphql:** set not nullable values on members and add type docs for teams ([9c58861](https://gitlab.coko.foundation/cokoapps/server/commit/9c588612a035acaf46f4f3736f670aaaaf70f8ac))
+* **server:** fix startServer imports ([7ecc1e8](https://gitlab.coko.foundation/cokoapps/server/commit/7ecc1e812547006bf76bc1110c541650ad2aaeae))
+* **server:** make sure nodemon restarts for non-js files ([8154927](https://gitlab.coko.foundation/cokoapps/server/commit/81549279d2c60d9b716039d4be4884f1fbd63d06))
+
+
+* **models:** upgrade knex and objection ([d4e0b2a](https://gitlab.coko.foundation/cokoapps/server/commit/d4e0b2a4eaf2b18c84cf4b4a932b512218167b94))
+* upgrade faker ([6b4b708](https://gitlab.coko.foundation/cokoapps/server/commit/6b4b70829493750fb477fbfc59565f48f7c2bff3))
+
 ### [3.13.2](https://gitlab.coko.foundation/cokoapps/server/compare/v3.13.1...v3.13.2) (2024-08-27)
 
 
