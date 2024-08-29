@@ -1,5 +1,6 @@
 class PostgresPubSubNoop {
-  static error() {
+  /* eslint-disable-next-line class-methods-use-this */
+  error() {
     throw new Error(
       'Cannot use the Subscription Manager when useGraphQLServer is false in the config',
     )
