@@ -12,6 +12,7 @@ const {
 } = require('@apollo/server/plugin/drainHttpServer')
 
 const AuthenticationError = require('../errors/AuthenticationError')
+const logger = require('../logger')
 
 const loaders = require('./loaders')
 const generateSchema = require('./generateSchema')
@@ -77,6 +78,10 @@ const setup = async (httpServer, app, passport) => {
     ],
     introspection: process.env.NODE_ENV === 'development',
     csrfPrevention: true,
+    formatError: error => {
+      logger.error(error)
+      return error
+    },
   })
 
   await apolloServer.start()
