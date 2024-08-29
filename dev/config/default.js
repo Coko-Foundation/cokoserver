@@ -45,7 +45,6 @@ module.exports = {
     ],
   },
   useFileStorage: true,
-  useGraphQLServer: true,
   staticFolders: [
     {
       folderPath: './dev/static',
