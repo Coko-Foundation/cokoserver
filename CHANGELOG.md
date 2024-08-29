@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-beta.5](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.4...v4.0.0-beta.5) (2024-08-29)
+
+
+### Bug Fixes
+
+* **graphql:** fix when graphql upload express is called ([71495b7](https://gitlab.coko.foundation/cokoapps/server/commit/71495b7b31bab90dc41ae489b342ac372e7be283))
+
 ## [4.0.0-beta.4](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.3...v4.0.0-beta.4) (2024-08-29)
 
 
