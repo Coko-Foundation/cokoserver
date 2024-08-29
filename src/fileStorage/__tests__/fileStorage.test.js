@@ -197,4 +197,26 @@ describe('File Storage Service', () => {
     expect('upload' in FileStorageConstructor.prototype).toBe(true)
     expect('getFileInfo' in FileStorageConstructor.prototype).toBe(false)
   })
+
+  it('replaces a file with the same key', async () => {
+    const filePath = path.join(testFilePath, 'helloWorld.txt')
+    const fileStream = fs.createReadStream(filePath)
+
+    const storedObjects = await fileStorage.upload(fileStream, 'helloWorld.txt')
+    const { key } = storedObjects[0]
+
+    let allFiles = await fileStorage.list()
+    expect(allFiles.Contents).toHaveLength(1)
+
+    const anotherFilePath = path.join(testFilePath, 'helloWorld.txt')
+    const anotherFileStream = fs.createReadStream(anotherFilePath)
+
+    await fileStorage.upload(anotherFileStream, 'helloWorld.txt', {
+      forceObjectKeyValue: key,
+    })
+
+    allFiles = await fileStorage.list()
+    expect(allFiles.Contents).toHaveLength(1)
+    expect(allFiles.Contents[0].Key).toEqual(key)
+  })
 })
