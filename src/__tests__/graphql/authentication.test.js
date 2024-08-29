@@ -4,7 +4,7 @@ const { v4: uuid } = require('uuid')
 const clearDb = require('../../models/__tests__/_clearDb')
 const { User } = require('../../models')
 const { db } = require('../../db')
-const gqlServer = require('../../utils/graphqlTestServer')
+const gqlServer = require('../../utils/createGraphqlTestServer')()
 const subscriptionManager = require('../../graphql/pubsub')
 
 describe('GraphQL authentication', () => {

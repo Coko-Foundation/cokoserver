@@ -29,7 +29,7 @@ describe('ChatGPT', () => {
   }, 20000)
 
   it.skip('uses the graphql resolver to call the openai api', async () => {
-    const gqlServer = require('../../utils/graphqlTestServer')
+    const gqlServer = require('../../utils/createGraphqlTestServer')()
 
     const CHAT_GPT = `
       query chatGPT ($input: String!) {

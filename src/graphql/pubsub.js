@@ -6,9 +6,17 @@ const { getDbConnectionConfig } = require('../db')
 
 const connectionConfig = getDbConnectionConfig()
 
-const exportedClass =
-  config.has('useGraphQLServer') && config.get('useGraphQLServer')
-    ? new PostgresPubSub(connectionConfig)
-    : new PostgresPubSubNoop()
+let useGraphQLServer = true
+
+if (
+  config.has('useGraphQLServer') &&
+  config.get('useGraphQLServer') === false
+) {
+  useGraphQLServer = false
+}
+
+const exportedClass = useGraphQLServer
+  ? new PostgresPubSub(connectionConfig)
+  : new PostgresPubSubNoop()
 
 module.exports = exportedClass
