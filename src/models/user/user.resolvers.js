@@ -130,10 +130,17 @@ const deactivateUsersResolver = async (_, { ids }) => {
 const updateUserResolver = async (_, { id, input }) => {
   try {
     logger.info(`${USER_RESOLVER} updateUser`)
-    return updateUser(id, input)
+
+    const updatedUser = await updateUser(id, input)
+
+    subscriptionManager.publish(USER_UPDATED, {
+      userUpdated: updatedUser,
+    })
+
+    return updatedUser
   } catch (e) {
     logger.error(`${USER_RESOLVER} updateUser: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
