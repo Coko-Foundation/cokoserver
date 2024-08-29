@@ -48,7 +48,7 @@ const {
 } = require('./utils/filesystem')
 
 const { clientUrl, serverUrl } = require('./utils/urls')
-const graphqlTestServer = require('./utils/graphqlTestServer')
+const createGraphqlTestServer = require('./utils/createGraphqlTestServer')
 
 const createJWT = authentication.token.create
 const verifyJWT = authentication.token.verify
@@ -102,7 +102,7 @@ module.exports = {
   makeOAuthCall,
 
   // teting
-  graphqlTestServer,
+  createGraphqlTestServer,
 
   // temp folder
   tempFolderPath,

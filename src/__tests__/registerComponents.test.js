@@ -5,7 +5,7 @@ const gql = require('graphql-tag')
 
 const { db } = require('../db')
 const registerComponents = require('../startup/registerComponents')
-const gqlServer = require('../utils/graphqlTestServer')
+const gqlServer = require('../utils/createGraphqlTestServer')()
 
 jest.mock('config', () => {
   /* eslint-disable-next-line global-require */

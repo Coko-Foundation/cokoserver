@@ -1,6 +1,6 @@
 const gql = require('graphql-tag')
 
-const gqlServer = require('../../../utils/graphqlTestServer')
+const gqlServer = require('../../../utils/createGraphqlTestServer')()
 const { Team, TeamMember, User } = require('../..')
 const { db, migrationManager } = require('../../../db')
 const subscriptionManager = require('../../../graphql/pubsub')
