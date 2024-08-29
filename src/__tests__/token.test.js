@@ -1,7 +1,7 @@
-/* eslint-disable global-require, jest/no-done-callback */
+/* eslint-disable global-require */
 
 describe('token management', () => {
-  it('creates and verifies a token', done => {
+  it('creates and verifies a token', () => {
     const {
       token: { create: createToken, verify: verifyToken },
     } = require('../authentication')
@@ -14,13 +14,12 @@ describe('token management', () => {
       }
 
       expect(user.token).toEqual(token)
-      done()
     }
 
     verifyToken(token, callback)
   })
 
-  it('does not verify an expired token', done => {
+  it('does not verify an expired token', () => {
     const {
       token: { create: createToken, verify: verifyToken },
     } = require('../authentication')
@@ -33,7 +32,6 @@ describe('token management', () => {
       }
 
       expect(user).toEqual(undefined)
-      done()
     }
 
     // Mock a Date now in 24 hours, the default expiry
@@ -44,11 +42,11 @@ describe('token management', () => {
     Date.now = realDate
   })
 
-  it('accepts a configuration option for expiry', done => {
+  it('accepts a configuration option for expiry', () => {
     // Resetting modules to reload with the new config
     jest.resetModules()
 
-    process.env.NODE_CONFIG = `{"pubsweet-server":{"tokenExpiresIn":"2 days"}}`
+    process.env.NODE_CONFIG = `{"tokenExpiresIn":"2 days"}`
 
     const {
       token: { create: createToken, verify: verifyToken },
@@ -59,7 +57,6 @@ describe('token management', () => {
     const tokenValidCallback = (err, id, user) => {
       if (err) throw new Error()
       expect(user.token).toEqual(token)
-      done()
     }
 
     const realDate = Date.now
@@ -77,7 +74,6 @@ describe('token management', () => {
     const tokenErrorCallback = (err, id, user) => {
       if (err) throw new Error()
       expect(user).toEqual(undefined)
-      done()
     }
 
     // Token should be expired

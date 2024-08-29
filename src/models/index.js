@@ -1,6 +1,6 @@
 const BaseModel = require('./base.model')
 
-const ChatThread = require('./chatThread/chatThread.model')
+const ChatChannel = require('./chatChannel/chatChannel.model')
 const ChatMessage = require('./chatMessage/chatMessage.model')
 
 const Team = require('./team/team.model')
@@ -18,7 +18,7 @@ const ServiceCredential = require('./serviceCredential/serviceCredential.model')
 module.exports = {
   BaseModel,
 
-  ChatThread,
+  ChatChannel,
   ChatMessage,
 
   Team,
@@ -29,7 +29,7 @@ module.exports = {
 
   File,
   ActivityLog,
+  ServiceCredential,
 
   useTransaction,
-  ServiceCredential,
 }

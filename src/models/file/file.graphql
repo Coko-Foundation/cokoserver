@@ -1,3 +1,4 @@
+"Representation of a file"
 type File {
   id: ID!
   name: String!
@@ -10,6 +11,7 @@ type File {
   created: DateTime!
 }
 
+"Metadata related to image files"
 type ImageMetadata {
   width: Int!
   height: Int!
@@ -17,6 +19,7 @@ type ImageMetadata {
   density: Int
 }
 
+"The objects stored for a single file"
 type StoredObjects {
   type: ImageSize!
   key: String!
@@ -26,12 +29,14 @@ type StoredObjects {
   imageMetadata: ImageMetadata
 }
 
+""
 enum ImageSize {
   original
   medium
   small
 }
 
+""
 input UpdateFileInput {
   id: ID!
   name: String
@@ -40,6 +45,7 @@ input UpdateFileInput {
   tags: [String!]!
 }
 
+"The signed url of a file"
 type SignedURLPayload {
   url: String!
 }

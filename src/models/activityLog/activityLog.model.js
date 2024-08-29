@@ -21,7 +21,6 @@ const affectedObject = {
 const affectedObjects = {
   type: 'array',
   default: [],
-  additionalProperties: false,
   items: affectedObject,
 }
 

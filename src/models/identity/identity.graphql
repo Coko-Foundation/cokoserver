@@ -1,12 +1,22 @@
+"An identity belonging to a user"
 type Identity {
+  "The identity's id"
   id: ID!
+  "Timestamp of when the identity was created"
   created: DateTime!
+  "Timestamp of when the identity was last updated"
   updated: DateTime
+  "The email related to this identity"
   email: String!
+  "Whether this identity is the default identity"
   isDefault: Boolean!
+  "Whether this identity is a social identity (ie. not a user/password login, but orcid, google etc)"
   isSocial: Boolean!
+  "Whether this identity has been verified"
   isVerified: Boolean!
+  "The provider of the identity. Relevant if `isSocial` is true. (eg. provider could be 'orcid')"
   provider: String
+  "Whether this identity has a valid refresh token. Relevant for social identities that have expiring tokens."
   hasValidRefreshToken: Boolean
 }
 

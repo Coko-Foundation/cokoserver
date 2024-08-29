@@ -1,23 +1,22 @@
-/* eslint-disable import/no-unresolved */
+const { buffer } = require('stream/consumers')
+
+/**
+ * Some light duplication of code in this file, in order to keep it from being
+ * a blocker for refactoring or other changes.
+ * (eg. we made uploadFileHandler a private method, so it wouldn't be available here)
+ */
+
 const mime = require('mime-types')
 const fs = require('fs-extra')
 const path = require('path')
 const sharp = require('sharp')
-const { useTransaction } = require('@coko/server')
+const config = require('config')
+const { Upload } = require('@aws-sdk/lib-storage')
 
-const File = require('@coko/server/src/models/file/file.model')
-
-const {
-  connectToFileStorage,
-  download,
-  uploadFileHandler,
-} = require('@coko/server/src/services/fileStorage')
-
-const {
-  convertFileStreamIntoBuffer,
-  getFileExtension,
-  getImageFileMetadata,
-} = require('@coko/server/src/helpers')
+const useTransaction = require('../../useTransaction')
+const File = require('../file.model')
+const tempFolderPath = require('../../../utils/tempFolderPath')
+const fileStorage = require('../../../fileStorage')
 
 const imageSizeConversionMapper = {
   tiff: {
@@ -37,8 +36,18 @@ const imageSizeConversionMapper = {
   },
 }
 
+const getMetadata = async fileBuffer => {
+  try {
+    const originalImage = sharp(fileBuffer, { limitInputPixels: false })
+    const imageMetadata = await originalImage.metadata()
+    return imageMetadata
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
 const sharpConversionFullFilePath = async (
-  buffer,
+  bufferData,
   tempFileDir,
   filenameWithoutExtension,
   format,
@@ -54,18 +63,59 @@ const sharpConversionFullFilePath = async (
     }`,
   )
 
-  await sharp(buffer).toFile(tempFullFilePath)
+  await sharp(bufferData).toFile(tempFullFilePath)
 
   return tempFullFilePath
 }
 
-exports.up = async knex => {
+const uploadFileHandler = async (fileStream, filename, mimetype) => {
+  const params = {
+    Bucket: fileStorage.bucket,
+    Key: filename, // file name you want to save as
+    Body: fileStream,
+    ContentType: mimetype,
+  }
+
+  const upload = new Upload({
+    client: fileStorage.s3,
+    params,
+  })
+
+  // upload.on('httpUploadProgress', progress => {
+  //   console.log(progress)
+  // })
+
+  const data = await upload.done()
+
+  const { Key } = data
+  return { key: Key }
+}
+
+exports.up = async () => {
+  /**
+   * If the app didn't use file storage before or after, this migration is unnecessary.
+   *
+   * If the app didn't use file storage before this migration, but started using
+   * it after, this migration is unnecessary (new files will have a full quallity version).
+   *
+   * If the app used file storage before this migration, but stopped using it
+   * before this migration, it is assumed that the files in file storage are
+   * not used any more, so this migration will be skipped.
+   *
+   * There is an edge case where the app used file storage, stopped for a while,
+   * in which period this migration ran, then started using it again, and the
+   * files are still used. In this case this migration will need to be run manually.
+   */
+
+  if (!(config.has('useFileStorage') && config.get('useFileStorage'))) {
+    return true
+  }
+
   try {
     return useTransaction(async trx => {
-      await connectToFileStorage()
       const files = await File.query(trx)
 
-      const tempDir = path.join(__dirname, '..', 'temp')
+      const tempDir = tempFolderPath
       await fs.ensureDir(tempDir)
 
       await Promise.all(
@@ -77,7 +127,7 @@ exports.up = async knex => {
           )
 
           if (mimetype.match(/^image\//) && !fullStoredObject) {
-            const tempFileDir = path.join(__dirname, '..', 'temp', file.id)
+            const tempFileDir = path.join(tempDir, file.id)
             await fs.ensureDir(tempFileDir)
 
             const originalStoredObject = file.storedObjects.find(
@@ -90,14 +140,14 @@ exports.up = async knex => {
 
             const tempPath = path.join(tempFileDir, originalStoredObject.key)
 
-            await download(originalStoredObject.key, tempPath)
+            await fileStorage.download(originalStoredObject.key, tempPath)
 
             const format = originalStoredObject.extension
 
-            const buffer = fs.readFileSync(tempPath)
+            const bufferData = fs.readFileSync(tempPath)
 
             const tempFullFilePath = await sharpConversionFullFilePath(
-              buffer,
+              bufferData,
               tempFileDir,
               filenameWithoutExtension,
               format,
@@ -113,9 +163,7 @@ exports.up = async knex => {
               mime.lookup(tempFullFilePath),
             )
 
-            const fullFileBuffer = await convertFileStreamIntoBuffer(
-              fullImageStream,
-            )
+            const fullFileBuffer = await buffer(fullImageStream)
 
             const {
               width: fWidth,
@@ -123,7 +171,7 @@ exports.up = async knex => {
               space: fSpace,
               density: fDensity,
               size: fSize,
-            } = await getImageFileMetadata(fullFileBuffer)
+            } = await getMetadata(fullFileBuffer)
 
             full.imageMetadata = {
               density: fDensity,
@@ -132,7 +180,7 @@ exports.up = async knex => {
               width: fWidth,
             }
             full.size = fSize
-            full.extension = `${getFileExtension(tempFullFilePath)}`
+            full.extension = path.extname(tempFullFilePath).slice(1)
             full.type = 'full'
             full.mimetype = mime.lookup(tempFullFilePath)
 
@@ -148,7 +196,7 @@ exports.up = async knex => {
       )
 
       try {
-        await fs.remove(tempDir)
+        await fs.emptyDir(tempDir)
       } catch (e) {
         throw new Error(e)
       }

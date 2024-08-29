@@ -1,46 +1,37 @@
-const cron = require('node-cron')
 const { v4: uuid } = require('uuid')
+const { withFilter } = require('graphql-subscriptions')
 
-const { send: sendEmail } = require('./services/sendEmail')
+const { sendEmail } = require('./services/sendEmail')
 
 const logger = require('./logger')
-const db = require('./dbManager/db')
-const migrate = require('./dbManager/migrate')
-const createTables = require('./dbManager/createTables')
-const pubsubManager = require('./graphql/pubsub')
+const { db, migrationManager } = require('./db')
+const subscriptionManager = require('./graphql/pubsub')
 const authentication = require('./authentication')
-const { File } = require('./models')
 const { createFile, deleteFiles } = require('./models/file/file.controller')
 
-const { boss, connectToJobQueue } = require('./jobs')
-const app = require('./app')
-const startServer = require('./startServer')
-const { BaseModel, useTransaction } = require('./models')
-const modelTypes = require('./models/_helpers/types')
-
 const {
-  healthCheck,
-  getURL,
-  upload,
-  deleteFiles: fileStorageDeleteFiles,
-  list,
-  download,
-} = require('./services/fileStorage')
+  BaseModel,
+  User,
+  Identity,
+  Team,
+  TeamMember,
+  File,
+  ChatChannel,
+  ChatMessage,
+  useTransaction,
+} = require('./models')
+
+const modelJsonSchemaTypes = require('./models/_helpers/types')
+const tempFolderPath = require('./utils/tempFolderPath')
+const fileStorage = require('./fileStorage')
 
 const WaxToDocxConverter = require('./services/docx/docx.service')
 
+const { jobManager } = require('./jobManager')
+
 const activityLog = require('./services/activityLog')
 const { isEnvVariableTrue } = require('./utils/env')
-
-// Do not expose connectToFileStorage
-const fileStorage = {
-  healthCheck,
-  getURL,
-  upload,
-  deleteFiles: fileStorageDeleteFiles,
-  list,
-  download,
-}
+const request = require('./utils/request')
 
 // const { serviceHandshake } = require('./helpers')
 
@@ -50,43 +41,72 @@ const {
   authenticatedCall: makeOAuthCall,
 } = require('./utils/authenticatedCall')
 
+const {
+  deleteFileFromTemp,
+  emptyTemp,
+  writeFileToTemp,
+} = require('./utils/filesystem')
+
 const { clientUrl, serverUrl } = require('./utils/urls')
+const graphqlTestServer = require('./utils/graphqlTestServer')
 
 const createJWT = authentication.token.create
 const verifyJWT = authentication.token.verify
 
 module.exports = {
-  app,
-  createJWT,
-  verifyJWT,
-  pubsubManager,
-  startServer,
-  modelTypes,
-  fileStorage,
-  createFile,
-  deleteFiles,
-  // serviceHandshake,
-  sendEmail,
-  activityLog,
-  BaseModel,
-  File,
-  logger,
+  /* CORE FUNCTIONALITY */
   db,
-  migrate,
-  createTables,
+  logger,
+
+  /* MODELS */
+  BaseModel,
+  User,
+  Identity,
+  Team,
+  TeamMember,
+  File,
+  ChatChannel,
+  ChatMessage,
+  modelJsonSchemaTypes,
   useTransaction,
+
+  /* SERVICES */
+  activityLog,
+  jobManager,
+  migrationManager,
+  subscriptionManager,
+  fileStorage,
+
+  /* UTILS */
   isEnvVariableTrue,
-
-  cron,
+  request,
+  sendEmail,
+  withFilter,
   uuid,
-
-  boss,
-  connectToJobQueue,
-
-  callMicroservice,
-  makeOAuthCall,
   WaxToDocxConverter,
 
+  // file storage
+  createFile,
+  deleteFiles,
+
+  // jwt
+  createJWT,
+  verifyJWT,
+
+  // urls
   clientUrl,
   serverUrl,
+
+  // microservices
+  callMicroservice,
+  makeOAuthCall,
+
+  // teting
+  graphqlTestServer,
+
+  // temp folder
+  tempFolderPath,
+  deleteFileFromTemp,
+  emptyTemp,
+  writeFileToTemp,
 }

@@ -10,19 +10,16 @@ const {
 } = require('graphql-shield')
 
 const isAuthenticated = rule()(async (parent, args, ctx, info) => {
-  return !!ctx.user
+  return !!ctx.userId
 })
 
-const isAdmin = rule()(
-  async (parent, args, { user: userId, connectors: { User } }, info) => {
-    if (!userId) {
-      return false
-    }
+const isAdmin = rule()(async (parent, args, ctx, info) => {
+  if (!ctx.userId) return false
 
-    const user = await User.model.findById(userId)
-    return user.admin
-  },
-)
+  /* eslint-disable-next-line global-require */
+  const User = require('./src/models/user/user.model')
+  return User.hasGlobalRole(ctx.userId, 'admin')
+})
 
 module.exports = {
   rule,

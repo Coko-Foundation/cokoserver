@@ -1,9 +1,81 @@
-const logger = require('../logger')
+const { Model, AjvValidator } = require('objection')
+const config = require('config')
+const merge = require('lodash/merge')
+const uuid = require('uuid')
+const addFormats = require('ajv-formats')
 
-const PubsweetBaseModel = require('./pubsweetBase.model')
+const { db } = require('../db')
+const logger = require('../logger')
 const useTransaction = require('./useTransaction')
 
-class BaseModel extends PubsweetBaseModel {
+const { dateNotNullable } = require('./_helpers/types')
+
+Model.knex(db)
+
+class BaseModel extends Model {
+  static createValidator() {
+    return new AjvValidator({
+      onCreateAjv: ajv => {
+        addFormats(ajv)
+      },
+    })
+  }
+
+  static get jsonSchema() {
+    let schema
+
+    const mergeSchema = additionalSchema => {
+      if (additionalSchema) {
+        schema = merge(schema, additionalSchema)
+      }
+    }
+
+    // Crawls up the prototype chain to collect schema
+    // information from models and extended models
+    const getSchemasRecursively = object => {
+      mergeSchema(object.schema)
+
+      if (config.has('schema')) {
+        mergeSchema(config.schema[object.name])
+      }
+
+      const proto = Object.getPrototypeOf(object)
+
+      if (proto.name !== 'BaseModel') {
+        getSchemasRecursively(proto)
+      }
+    }
+
+    getSchemasRecursively(this)
+
+    const baseSchema = {
+      type: 'object',
+      properties: {
+        type: { type: 'string' },
+        id: { type: 'string', format: 'uuid' },
+        created: dateNotNullable,
+        updated: dateNotNullable,
+      },
+      additionalProperties: false,
+    }
+
+    if (schema) {
+      return merge(baseSchema, schema)
+    }
+
+    return baseSchema
+  }
+
+  $beforeInsert() {
+    this.id = this.id || uuid.v4()
+    this.created = new Date().toISOString()
+    this.updated = this.created
+  }
+
+  $beforeUpdate() {
+    this.updated = new Date().toISOString()
+  }
+
   static async find(data, options = {}) {
     try {
       const { trx, related, orderBy, page, pageSize } = options
@@ -267,95 +339,38 @@ class BaseModel extends PubsweetBaseModel {
 
   static async deleteById(id, options = {}) {
     try {
-      const { trx } = options
-      return useTransaction(
-        async tr => this.query(tr).deleteById(id).throwIfNotFound(),
-        {
-          trx,
-          passedTrxOnly: true,
-        },
-      )
+      return this.query(options.trx).deleteById(id).throwIfNotFound()
     } catch (e) {
-      logger.error('Base model: deleteById failed', e)
-      throw new Error(e)
+      logger.error(`${this.name} model: deleteById failed.`, e)
+      throw e
     }
   }
 
   static async deleteByIds(ids, options = {}) {
     try {
-      const { trx } = options
-      return useTransaction(
-        async tr => {
-          const result = await this.query(tr)
-            .delete()
-            .whereIn('id', ids)
-            .returning('id')
+      const rows = await this.query(options.trx).findByIds(ids)
 
-          if (result.length < ids.length) {
-            const delta = ids.filter(
-              id => !result.map(res => res.id).includes(id),
-            )
+      if (rows.length < ids.length) {
+        const diff = ids.filter(id => !rows.map(res => res.id).includes(id))
 
-            throw new Error(`id ${delta} not found`)
-          }
+        throw new Error(
+          `id${diff.length > 1 ? 's' : ''} ${diff.join(', ')} not found`,
+        )
+      }
 
-          return result.map(u => u.id)
-        },
-        {
-          trx,
-          passedTrxOnly: true,
-        },
-      )
+      const result = await this.query(options.trx)
+        .delete()
+        .whereIn('id', ids)
+        .returning('id')
+
+      return result.length
     } catch (e) {
-      logger.error('Base model: deleteByIds failed', e)
+      logger.error(`${this.name} model: deleteByIds failed`, e)
       throw new Error(e)
     }
   }
-
-  // #region legacy
-  /* eslint-disable class-methods-use-this */
-  save() {
-    throw new Error('Base model: save method has been disabled')
-  }
-
-  saveGraph(opts = {}) {
-    throw new Error('Base model: saveGraph method has been disabled')
-  }
-
-  /* eslint-disable-next-line no-underscore-dangle */
-  async _save(insertAndFetch, updateAndFetch, trx) {
-    throw new Error('Base model: _save method has been disabled')
-  }
-
-  /* eslint-disable-next-line no-underscore-dangle */
-  _updateProperties(properties) {
-    throw new Error('Base model: _updateProperties method has been disabled')
-  }
-
-  updateProperties(properties) {
-    throw new Error('Base model: updateProperties method has been disabled')
-  }
-
-  setOwners(owners) {
-    throw new Error('Base model: setOwners method has been disabled')
-  }
-
-  async delete() {
-    throw new Error('Base model: delete method has been disabled')
-  }
-  /* eslint-enable class-methods-use-this */
-
-  static findByField(field, value) {
-    throw new Error('Base model: findByField method has been disabled')
-  }
-
-  static async findOneByField(field, value) {
-    throw new Error('Base model: findOneByField method has been disabled')
-  }
-
-  static async all() {
-    throw new Error('Base model: all method has been disabled')
-  }
-  // #endregion legacy
 }
+
+BaseModel.pickJsonSchemaProperties = false
+
 module.exports = BaseModel

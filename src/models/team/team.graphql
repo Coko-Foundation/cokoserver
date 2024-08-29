@@ -1,16 +1,27 @@
+"A team"
 type Team {
+  "The team id"
   id: ID!
+  "The team role (eg. 'editor')"
   role: String!
+  "The team display name"
   displayName: String!
+  "The related object id (only if not global)"
   objectId: ID
+  "The related object type (only if not global)"
   objectType: String
+  "The members of the team"
   members(currentUserOnly: Boolean): [TeamMember!]
+  "Whether the team is global or not"
   global: Boolean!
 }
 
-type TeamsResponse {
+"Returns a list of teams, as well as a total count irrespective of pagination"
+type Teams {
+  "The resulting list of teams"
   result: [Team!]!
-  totalCount: Int
+  "The total count of teams"
+  totalCount: Int!
 }
 
 # input TeamInput {
@@ -22,11 +33,14 @@ type TeamsResponse {
 #   global: Boolean!
 # }
 
-input TeamWhereInput {
-  role: String
-  objectId: ID
-  objectType: String
+"Filter options for teams"
+input TeamFilter {
+  "Filters by whether the team is global or not"
   global: Boolean
+  "Filters by a specific object id"
+  objectId: ID
+  "Filters by role"
+  role: String
 }
 
 # input UpdateTeamMembershipInput {
@@ -39,17 +53,21 @@ input TeamWhereInput {
 # }
 
 extend type Query {
+  "Returns a team by id"
   team(id: ID!): Team!
-  teams(where: TeamWhereInput): TeamsResponse!
-  getGlobalTeams: TeamsResponse!
-  getObjectTeams(objectId: ID!, objectType: String!): TeamsResponse!
+  "Returns a list of teams"
+  teams(filter: TeamFilter): Teams!
 }
 
 extend type Mutation {
   # createTeam(input: TeamInput!): Team!
   # updateTeam(id: ID!, input: TeamInput!): Team!
-  updateTeamMembership(teamId: ID!, members: [ID!]!): Team!
-  addTeamMember(teamId: ID!, userId: ID!): Team!
-  removeTeamMember(teamId: ID!, userId: ID!): Team!
   # deleteTeam(id: ID!): ID!
+
+  "Add a user to a team"
+  addTeamMember(teamId: ID!, userId: ID!): Team!
+  "Remove a user from a team"
+  removeTeamMember(teamId: ID!, userId: ID!): Team!
+  "Update the list of member in a team. The members array is an array of user ids, not team member ids."
+  updateTeamMembership(teamId: ID!, members: [ID!]!): Team!
 }

@@ -137,10 +137,13 @@ exports.up = async knex => {
     await knex.schema.raw(
       'CREATE UNIQUE INDEX IF NOT EXISTS "users_username_unique" ON "users" (username);',
     )
+
     return true
   } catch (e) {
     throw new Error(`Users: Initial: Migration failed! ${e}`)
   }
 }
 
-exports.down = async knex => knex.schema.dropTable('users')
+exports.down = async knex => {
+  return knex.schema.dropTable('users')
+}

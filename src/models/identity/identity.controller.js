@@ -3,9 +3,9 @@ const config = require('config')
 const moment = require('moment')
 
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 const { getExpirationTime, foreverDate } = require('../../utils/time')
-const { jobs } = require('../../services')
+const { jobManager, defaultJobQueueNames } = require('../../jobManager')
 const { getUser } = require('../user/user.controller')
 const Identity = require('./identity.model')
 
@@ -17,7 +17,7 @@ const {
   labels: { IDENTITY_CONTROLLER },
 } = require('./constants')
 
-const { emptyUndefinedOrNull } = require('../../helpers')
+const envUtils = require('../../utils/env')
 
 const getUserIdentities = async userId => {
   try {
@@ -95,10 +95,10 @@ const createOAuthIdentity = async (userId, provider, sessionState, code) => {
     if (oauthRefreshTokenExpiration.getTime() !== foreverDate.getTime()) {
       const expiresIn = (oauthRefreshTokenExpiration - moment().utc()) / 1000
 
-      await jobs.defer(
-        jobs.REFRESH_TOKEN_EXPIRED,
-        { seconds: expiresIn },
+      await jobManager.sendToQueue(
+        defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
         { userId, providerLabel: provider },
+        { startAfter: expiresIn },
       )
     }
 
@@ -153,7 +153,7 @@ const authorizeOAuth = async (provider, sessionState, code) => {
     throw new Error('Missing access_token from response!')
   }
 
-  if (emptyUndefinedOrNull(expires_in)) {
+  if (!envUtils.isValidPositiveIntegerOrZero(expires_in)) {
     throw new Error('Missing expires_in from response!')
   }
 
@@ -161,7 +161,7 @@ const authorizeOAuth = async (provider, sessionState, code) => {
     throw new Error('Missing refresh_token from response!')
   }
 
-  if (emptyUndefinedOrNull(refresh_expires_in)) {
+  if (!envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
     throw new Error('Missing refresh_expires_in from response!')
   }
 
@@ -194,8 +194,6 @@ const invalidateProviderAccessToken = async (userId, providerLabel) => {
 }
 
 const invalidateProviderTokens = async (userId, providerLabel) => {
-  const pubsub = await pubsubManager.getPubsub()
-
   const updatedUser = await getUser(userId)
 
   const providerUserIdentity = await Identity.findOne({
@@ -208,7 +206,7 @@ const invalidateProviderTokens = async (userId, providerLabel) => {
     oauthRefreshTokenExpiration: moment().utc().toDate(),
   })
 
-  pubsub.publish(USER_UPDATED, {
+  subscriptionManager.publish(USER_UPDATED, {
     userUpdated: updatedUser,
   })
 

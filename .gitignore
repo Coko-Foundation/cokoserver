@@ -76,3 +76,36 @@ uploads/
 .cache/
 .DS_Store
 .nvmrc
+
+# yarn v4
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# docs
+docs/.pnp.*
+docs/.yarn/*
+!docs/.yarn/patches
+!docs/.yarn/plugins
+!docs/.yarn/releases
+!docs/.yarn/sdks
+!docs/.yarn/versions
+
+docs/npm-debug.log*
+docs/yarn-debug.log*
+docs/yarn-error.log*
+
+docs/.DS_Store
+docs/.env.local
+docs/.env.development.local
+docs/.env.test.local
+docs/.env.production.local
+
+docs/.docusaurus
+docs/.cache-loader
+
+docs/build

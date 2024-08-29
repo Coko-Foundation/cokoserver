@@ -1,4 +1,4 @@
-const migrate = require('../../dbManager/migrate')
+// const { migrationManager } = require('../../db')
 
 // Ideally, instead of running a single worker, we should be spinning up
 // one db per worker, so that the tests run in parallel without interfering
@@ -9,6 +9,5 @@ const migrate = require('../../dbManager/migrate')
 
 module.exports = async jestConfig => {
   // const { maxWorkers } = jestConfig
-
-  await migrate()
+  // await migrationManager.migrate()
 }

@@ -1,13 +1,12 @@
-/* eslint-disable jest/no-commented-out-tests */
+const gql = require('graphql-tag')
 
-const api = require('../helpers/api')
-const authentication = require('../../authentication')
 const { User } = require('../../models')
 const clearDb = require('../../models/__tests__/_clearDb')
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
+const gqlServer = require('../../utils/graphqlTestServer')
+const subscriptionManager = require('../../graphql/pubsub')
 
 describe('GraphQL core mutations', () => {
-  let token
   let user
 
   const userData = {
@@ -18,93 +17,65 @@ describe('GraphQL core mutations', () => {
   beforeEach(async () => {
     await clearDb()
     user = await User.insert(userData)
-    token = authentication.token.create(user)
   })
 
-  afterAll(() => {
-    db.destroy()
+  afterAll(async () => {
+    await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   describe('mutations', () => {
-    // it.skip('can create a user', async () => {
-    //   const { body } = await api.graphql.query(
-    //     `mutation($input: UserInput) {
-    //       createUser(input: $input) { username }
-    //     }`,
-    //     {
-    //       input: {
-    //         username: 'floobs',
-    //         email: 'nobody@example.com',
-    //         password: 'password',
-    //       },
-    //     },
-    //     token,
-    //   )
-
-    //   expect(body).toEqual({
-    //     data: {
-    //       createUser: { username: 'floobs' },
-    //     },
-    //   })
-    // })
-
     it('can update a user', async () => {
-      const { body } = await api.graphql.query(
-        `mutation($id: ID, $input: UpdateInput!) {
-          updateUser(id: $id, input: $input) { username }
-        }`,
+      const MUTATION = gql`
+        mutation ($id: ID!, $input: UpdateUserInput!) {
+          updateUser(id: $id, input: $input) {
+            username
+          }
+        }
+      `
+
+      const response = await gqlServer.executeOperation(
         {
-          id: user.id,
-          input: {
-            username: 'floobs',
+          query: MUTATION,
+          variables: {
+            id: user.id,
+            input: { username: 'newUsername' },
           },
         },
-        token,
+        {
+          contextValue: {
+            userId: user.id,
+          },
+        },
       )
 
-      expect(body).toEqual({
-        data: {
-          updateUser: { username: 'floobs' },
-        },
-      })
+      const data = response.body.singleResult.data.updateUser
+      expect(data.username).toEqual('newUsername')
     })
 
     it('can delete a user', async () => {
-      const { body } = await api.graphql.query(
-        `mutation($id: ID!) {
+      const MUTATION = gql`
+        mutation ($id: ID!) {
           deleteUser(id: $id)
-        }`,
-        { id: user.id },
-        token,
+        }
+      `
+
+      const response = await gqlServer.executeOperation(
+        {
+          query: MUTATION,
+          variables: {
+            id: user.id,
+          },
+        },
+        {
+          contextValue: {
+            userId: user.id,
+          },
+        },
       )
 
-      expect(body).toEqual({
-        data: { deleteUser: '1' },
-      })
+      const data = response.body.singleResult.data.deleteUser
+      expect(data).toEqual('1')
     })
-
-    // it('sets owners when creating a collection', async () => {
-    //   const { body } = await api.graphql.query(
-    //     `mutation($input: CollectionInput) {
-    //       createCollection(input: $input) {
-    //         owners {
-    //           id
-    //         }
-    //       }
-    //     }`,
-    //     {
-    //       input: {},
-    //     },
-    //     token,
-    //   )
-
-    //   expect(body).toEqual({
-    //     data: {
-    //       createCollection: {
-    //         owners: [{ id: user.id }],
-    //       },
-    //     },
-    //   })
-    // })
   })
 })

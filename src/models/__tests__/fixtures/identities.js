@@ -1,8 +1,8 @@
-const { internet } = require('faker')
+const { faker } = require('@faker-js/faker')
 
 module.exports = {
   identityWithProfileData: {
-    email: internet.email(),
+    email: faker.internet.email(),
     isDefault: true,
     profileData: {
       displayName: 'Test User',

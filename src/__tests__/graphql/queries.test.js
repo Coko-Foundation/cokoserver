@@ -1,11 +1,13 @@
-const { Team, TeamMember, User } = require('../../models')
+const { v4: uuid } = require('uuid')
+const gql = require('graphql-tag')
+
+const { Team, User } = require('../../models')
 const clearDb = require('../../models/__tests__/_clearDb')
-const api = require('../helpers/api')
-const authentication = require('../../authentication')
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
+const gqlServer = require('../../utils/graphqlTestServer')
+const subscriptionManager = require('../../graphql/pubsub')
 
 describe('GraphQL core queries', () => {
-  let token
   let user
 
   const userData = {
@@ -16,107 +18,109 @@ describe('GraphQL core queries', () => {
   beforeEach(async () => {
     await clearDb()
     user = await User.insert(userData)
-    token = authentication.token.create(user)
   })
 
-  afterAll(() => {
-    db.destroy()
+  afterAll(async () => {
+    await db.destroy()
+    await subscriptionManager.client.end()
   })
 
   it('can resolve all users', async () => {
-    const { body } = await api.graphql.query(
-      `{ users { result { username } } }`,
-      {},
-      token,
-    )
+    const QUERY = gql`
+      query {
+        users {
+          result {
+            username
+          }
+        }
+      }
+    `
 
-    expect(body).toEqual({
-      data: {
-        users: {
-          result: [{ username: user.username }],
-        },
-      },
+    const response = await gqlServer.executeOperation({
+      query: QUERY,
     })
+
+    const data = response.body.singleResult.data.users
+    expect(data.result).toHaveLength(1)
+    expect(data.result[0].username).toEqual('testuser')
   })
 
   it('can resolve user by ID', async () => {
-    const { body } = await api.graphql.query(
-      `query($id: ID) {
-          user(id: $id) {
-            username
-          }
-        }`,
-      { id: user.id },
-      token,
-    )
+    const QUERY = gql`
+      query ($id: ID!) {
+        user(id: $id) {
+          username
+        }
+      }
+    `
 
-    expect(body).toEqual({
-      data: { user: { username: user.username } },
+    const response = await gqlServer.executeOperation({
+      query: QUERY,
+      variables: {
+        id: user.id,
+      },
     })
+
+    const data = response.body.singleResult.data.user
+    expect(data.username).toEqual('testuser')
   })
 
   it('can resolve a query for a missing object', async () => {
-    const { body } = await api.graphql.query(
-      `query($id: ID) {
-          user(id: $id) {
-            username
-          }
-        }`,
-      { id: '09e2fdec-a589-4104-b366-108b6e54f2b8' },
-      token,
-    )
+    const QUERY = gql`
+      query ($id: ID!) {
+        user(id: $id) {
+          username
+        }
+      }
+    `
 
-    expect(body.data).toEqual({ user: null })
-    expect(body.errors[0].message).toMatch(
-      'Something went wrong! Please contact your administrator',
-    )
+    const response = await gqlServer.executeOperation({
+      query: QUERY,
+      variables: {
+        id: uuid(),
+      },
+    })
+
+    const { errors } = response.body.singleResult
+    expect(errors[0].message).toEqual('NotFoundError')
   })
 
   it('can resolve nested query', async () => {
     const team = await Team.insert({
       role: 'editor',
       displayName: 'Editor',
-      users: [{ id: user.id }],
       global: true,
     })
 
-    await TeamMember.insert({
-      teamId: team.id,
-      userId: user.id,
-    })
+    await Team.addMember(team.id, user.id)
 
-    const { body } = await api.graphql.query(
-      `{
+    const QUERY = gql`
+      query {
         users {
           result {
-            username, 
-            teams { 
-              displayName, 
-              global 
-            } 
+            username
+            teams {
+              id
+              displayName
+              global
+            }
           }
-        } 
-      }`,
-      {},
-      token,
-    )
+        }
+      }
+    `
 
-    expect(body).toEqual({
-      data: {
-        users: {
-          result: [
-            {
-              username: user.username,
-              teams: [
-                {
-                  displayName: 'Editor',
-                  global: true,
-                },
-              ],
-            },
-          ],
-        },
-      },
+    const response = await gqlServer.executeOperation({
+      query: QUERY,
     })
+
+    const data = response.body.singleResult.data.users
+    expect(data.result).toHaveLength(1)
+    const foundUser = data.result[0]
+    expect(foundUser.username).toEqual('testuser')
+    expect(foundUser.teams).toHaveLength(1)
+    const foundTeam = foundUser.teams[0]
+    expect(foundTeam.id).toEqual(team.id)
+    expect(foundTeam.displayName).toEqual(team.displayName)
+    expect(foundTeam.global).toBe(true)
   })
 })

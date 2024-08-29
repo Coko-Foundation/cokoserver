@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
-const { lorem } = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { v4: uuid } = require('uuid')
 
@@ -145,7 +145,7 @@ const document = {
       content: [
         {
           type: 'text',
-          text: `${lorem.sentences(20)} `,
+          text: `${faker.lorem.sentences(20)} `,
         },
       ],
     },
@@ -172,7 +172,7 @@ const document = {
               content: [
                 {
                   type: 'text',
-                  text: lorem.sentences(5),
+                  text: faker.lorem.sentences(5),
                 },
               ],
             },
@@ -286,7 +286,9 @@ const document = {
                       content: [
                         {
                           type: 'text',
-                          text: `First nested item. ${lorem.sentences(5)}`,
+                          text: `First nested item. ${faker.lorem.sentences(
+                            5,
+                          )}`,
                         },
                       ],
                     },
@@ -315,7 +317,9 @@ const document = {
                               content: [
                                 {
                                   type: 'text',
-                                  text: `Another level. ${lorem.sentences(5)}`,
+                                  text: `Another level. ${faker.lorem.sentences(
+                                    5,
+                                  )}`,
                                 },
                               ],
                             },

@@ -1,5 +1,5 @@
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 
 const {
   labels: { TEAM_RESOLVER },
@@ -12,8 +12,6 @@ const {
 const {
   getTeam,
   getTeams,
-  getGlobalTeams,
-  getObjectTeams,
   updateTeamMembership,
   addTeamMember,
   removeTeamMember,
@@ -26,11 +24,9 @@ const TeamMember = require('../teamMember/teamMember.model')
 
 const broadcastUserUpdated = async userId => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
-
     const updatedUser = await getUser(userId)
 
-    return pubsub.publish(USER_UPDATED, {
+    return subscriptionManager.publish(USER_UPDATED, {
       userUpdated: updatedUser,
     })
   } catch (e) {
@@ -38,7 +34,7 @@ const broadcastUserUpdated = async userId => {
   }
 }
 
-const teamResolver = async (_, { id }, ctx) => {
+const teamResolver = async (_, { id }) => {
   try {
     logger.info(`${TEAM_RESOLVER} team`)
     return getTeam(id)
@@ -48,37 +44,17 @@ const teamResolver = async (_, { id }, ctx) => {
   }
 }
 
-const teamsResolver = async (_, { where }, ctx) => {
+const teamsResolver = async (_, { filter }) => {
   try {
     logger.info(`${TEAM_RESOLVER} teams`)
-    return getTeams(where)
+    return getTeams(filter)
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} teams: ${e.message}`)
     throw new Error(e)
   }
 }
 
-const getGlobalTeamsResolver = async (_, { where }, ctx) => {
-  try {
-    logger.info(`${TEAM_RESOLVER} getGlobalTeams`)
-    return getGlobalTeams()
-  } catch (e) {
-    logger.error(`${TEAM_RESOLVER} getGlobalTeams: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
-const getObjectTeamsResolver = async (_, { objectId, objectType }, ctx) => {
-  try {
-    logger.info(`${TEAM_RESOLVER} getObjectTeams`)
-    return getObjectTeams(objectId, objectType)
-  } catch (e) {
-    logger.error(`${TEAM_RESOLVER} getObjectTeams: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
-const updateTeamMembershipResolver = async (_, { teamId, members }, ctx) => {
+const updateTeamMembershipResolver = async (_, { teamId, members }) => {
   try {
     logger.info(`${TEAM_RESOLVER} updateTeamMembership`)
 
@@ -93,7 +69,7 @@ const updateTeamMembershipResolver = async (_, { teamId, members }, ctx) => {
   }
 }
 
-const addTeamMemberResolver = async (_, { teamId, userId }, ctx) => {
+const addTeamMemberResolver = async (_, { teamId, userId }) => {
   try {
     logger.info(`${TEAM_RESOLVER} addTeamMember`)
 
@@ -101,14 +77,14 @@ const addTeamMemberResolver = async (_, { teamId, userId }, ctx) => {
 
     await broadcastUserUpdated(userId)
 
-    return updatedTeam(teamId, userId)
+    return updatedTeam
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} addTeamMember: ${e.message}`)
     throw new Error(e)
   }
 }
 
-const removeTeamMemberResolver = async (_, { teamId, userId }, ctx) => {
+const removeTeamMemberResolver = async (_, { teamId, userId }) => {
   try {
     logger.info(`${TEAM_RESOLVER} removeTeamMember`)
 
@@ -123,7 +99,7 @@ const removeTeamMemberResolver = async (_, { teamId, userId }, ctx) => {
   }
 }
 
-// const deleteTeamResolver = async (_, { id }, ctx) => {
+// const deleteTeamResolver = async (_, { id }) => {
 //   try {
 //     logger.info(`${TEAM_RESOLVER} deleteTeam`)
 //     return deleteTeam(id)
@@ -138,7 +114,7 @@ const teamMemberResolver = async (team, { currentUserOnly }, ctx) => {
   // return ctx.loaders.TeamMember.teamMembersBasedOnTeamIdsLoader.load(id)
 
   const where = { teamId: team.id }
-  if (currentUserOnly) where.userId = ctx.user
+  if (currentUserOnly) where.userId = ctx.userId
 
   const { result: members } = await TeamMember.find(where)
   return members
@@ -148,8 +124,6 @@ module.exports = {
   Query: {
     team: teamResolver,
     teams: teamsResolver,
-    getGlobalTeams: getGlobalTeamsResolver,
-    getObjectTeams: getObjectTeamsResolver,
   },
   Mutation: {
     updateTeamMembership: updateTeamMembershipResolver,

@@ -3,7 +3,7 @@ const config = require('config')
 const axios = require('axios')
 const moment = require('moment')
 
-const pubsubManager = require('../graphql/pubsub')
+const subscriptionManager = require('../graphql/pubsub')
 
 const { getExpirationTime, foreverDate } = require('./time')
 
@@ -20,7 +20,7 @@ const {
   invalidateProviderTokens,
 } = require('../models/identity/identity.controller')
 
-const { emptyUndefinedOrNull } = require('../helpers')
+const envUtils = require('./env')
 
 const getAuthTokens = async (userId, providerLabel) => {
   return requestTokensFromProvider(userId, providerLabel, {
@@ -34,7 +34,6 @@ const requestTokensFromProvider = async (
   providerLabel,
   options = {},
 ) => {
-  const pubsub = await pubsubManager.getPubsub()
   const { checkAccessToken, returnAccessToken } = options
 
   const providerUserIdentity = await Identity.findOne({
@@ -70,7 +69,7 @@ const requestTokensFromProvider = async (
   if (refreshTokenExpired) {
     const updatedUser = await getUser(userId)
 
-    pubsub.publish(USER_UPDATED, {
+    subscriptionManager.publish(USER_UPDATED, {
       userUpdated: updatedUser,
     })
     // logger.error(
@@ -129,7 +128,7 @@ const requestTokensFromProvider = async (
     throw new Error('Missing access_token from response!')
   }
 
-  if (emptyUndefinedOrNull(expires_in)) {
+  if (envUtils.isValidPositiveIntegerOrZero(expires_in)) {
     throw new Error('Missing expires_in from response!')
   }
 
@@ -137,7 +136,7 @@ const requestTokensFromProvider = async (
     throw new Error('Missing refresh_token from response!')
   }
 
-  if (emptyUndefinedOrNull(refresh_expires_in)) {
+  if (envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
     throw new Error('Missing refresh_expires_in from response!')
   }
 

@@ -6,13 +6,14 @@ const AnonymousStrategy = require('passport-anonymous').Strategy
 const LocalStrategy = require('passport-local').Strategy
 
 const logger = require('./logger')
+const User = require('./models/user/user.model')
 
 const createToken = user => {
   logger.debug('Creating token for', user.username)
   let expiresIn = 24 * 3600
 
-  if (config.has('pubsweet-server.tokenExpiresIn')) {
-    expiresIn = config.get('pubsweet-server.tokenExpiresIn')
+  if (config.has('tokenExpiresIn')) {
+    expiresIn = config.get('tokenExpiresIn')
   }
 
   return jwt.sign(
@@ -20,13 +21,13 @@ const createToken = user => {
       username: user.username,
       id: user.id,
     },
-    config.get('pubsweet-server.secret'),
+    config.get('secret'),
     { expiresIn },
   )
 }
 
 const verifyToken = (token, done) => {
-  jwt.verify(token, config.get('pubsweet-server.secret'), (err, decoded) => {
+  jwt.verify(token, config.get('secret'), (err, decoded) => {
     if (err) return done(null)
 
     return done(null, decoded.id, {
@@ -41,8 +42,6 @@ const verifyPassword = (username, password, done) => {
   const errorMessage = 'Wrong username or password.'
   logger.debug('User finding:', username)
 
-  /* eslint-disable-next-line global-require */
-  const { User } = require('@pubsweet/models')
   User.findByUsername(username)
     .then(user => {
       logger.debug('User found:', user.username)

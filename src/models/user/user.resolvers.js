@@ -1,7 +1,7 @@
 const { withFilter } = require('graphql-subscriptions')
 
 const logger = require('../../logger')
-const pubsubManager = require('../../graphql/pubsub')
+const subscriptionManager = require('../../graphql/pubsub')
 
 const {
   labels: { USER_RESOLVER },
@@ -23,7 +23,6 @@ const {
   setDefaultIdentity,
   verifyEmail,
   resendVerificationEmail,
-  resendVerificationEmailFromLogin,
   resendVerificationEmailAfterLogin,
   updatePassword,
   sendPasswordResetEmail,
@@ -37,7 +36,7 @@ const {
   getDefaultIdentity,
 } = require('../identity/identity.controller')
 
-const userResolver = async (_, { id }, ctx) => {
+const userResolver = async (_, { id }) => {
   try {
     logger.info(`${USER_RESOLVER} user`)
     return getUser(id)
@@ -47,10 +46,10 @@ const userResolver = async (_, { id }, ctx) => {
   }
 }
 
-const usersResolver = async (_, { queryParams, options }, ctx) => {
+const usersResolver = async (_, { filter, pagination }, ctx) => {
   try {
     logger.info(`${USER_RESOLVER} users`)
-    return getUsers(queryParams, options)
+    return getUsers(filter, pagination)
   } catch (e) {
     logger.error(`${USER_RESOLVER} users: ${e.message}`)
     throw new Error(e)
@@ -59,17 +58,16 @@ const usersResolver = async (_, { queryParams, options }, ctx) => {
 
 const currentUserResolver = async (_, __, ctx) => {
   try {
-    const { user: userId } = ctx
     logger.info(`${USER_RESOLVER} currentUser`)
-    if (!userId) return null
-    return getUser(userId)
+    if (!ctx.userId) return null
+    return getUser(ctx.userId)
   } catch (e) {
     logger.error(`${USER_RESOLVER} currentUser: ${e.message}`)
     throw new Error(e)
   }
 }
 
-const activateUserResolver = async (_, { id }, ctx) => {
+const activateUserResolver = async (_, { id }) => {
   try {
     logger.info(`${USER_RESOLVER} activateUser`)
     return activateUser(id)
@@ -79,7 +77,7 @@ const activateUserResolver = async (_, { id }, ctx) => {
   }
 }
 
-const activateUsersResolver = async (_, { ids }, ctx) => {
+const activateUsersResolver = async (_, { ids }) => {
   try {
     logger.info(`${USER_RESOLVER} activateUsers`)
     return activateUsers(ids)
@@ -89,7 +87,7 @@ const activateUsersResolver = async (_, { ids }, ctx) => {
   }
 }
 
-const deleteUserResolver = async (_, { id }, ctx) => {
+const deleteUserResolver = async (_, { id }) => {
   try {
     logger.info(`${USER_RESOLVER} deleteUser`)
     return deleteUser(id)
@@ -99,7 +97,7 @@ const deleteUserResolver = async (_, { id }, ctx) => {
   }
 }
 
-const deleteUsersResolver = async (_, { ids }, ctx) => {
+const deleteUsersResolver = async (_, { ids }) => {
   try {
     logger.info(`${USER_RESOLVER} deleteUsers`)
     return deleteUsers(ids)
@@ -109,7 +107,7 @@ const deleteUsersResolver = async (_, { ids }, ctx) => {
   }
 }
 
-const deactivateUserResolver = async (_, { id }, ctx) => {
+const deactivateUserResolver = async (_, { id }) => {
   try {
     logger.info(`${USER_RESOLVER} deactivateUser`)
     return deactivateUser(id)
@@ -119,7 +117,7 @@ const deactivateUserResolver = async (_, { id }, ctx) => {
   }
 }
 
-const deactivateUsersResolver = async (_, { ids }, ctx) => {
+const deactivateUsersResolver = async (_, { ids }) => {
   try {
     logger.info(`${USER_RESOLVER} deactivateUsers`)
     return deactivateUsers(ids)
@@ -129,7 +127,7 @@ const deactivateUsersResolver = async (_, { ids }, ctx) => {
   }
 }
 
-const updateUserResolver = async (_, { id, input }, ctx) => {
+const updateUserResolver = async (_, { id, input }) => {
   try {
     logger.info(`${USER_RESOLVER} updateUser`)
     return updateUser(id, input)
@@ -139,7 +137,7 @@ const updateUserResolver = async (_, { id, input }, ctx) => {
   }
 }
 
-const loginResolver = async (_, { input }, ctx) => {
+const loginResolver = async (_, { input }) => {
   try {
     logger.info(`${USER_RESOLVER} login`)
     return login(input)
@@ -149,7 +147,7 @@ const loginResolver = async (_, { input }, ctx) => {
   }
 }
 
-const signUpResolver = async (_, { input }, ctx) => {
+const signUpResolver = async (_, { input }) => {
   try {
     logger.info(`${USER_RESOLVER} signUp`)
     return signUp(input)
@@ -159,7 +157,7 @@ const signUpResolver = async (_, { input }, ctx) => {
   }
 }
 
-const setDefaultIdentityResolver = async (_, { userId, identityId }, ctx) => {
+const setDefaultIdentityResolver = async (_, { userId, identityId }) => {
   try {
     logger.info(`${USER_RESOLVER} setDefaultIdentity`)
     return setDefaultIdentity(userId, identityId)
@@ -169,7 +167,7 @@ const setDefaultIdentityResolver = async (_, { userId, identityId }, ctx) => {
   }
 }
 
-const verifyEmailResolver = async (_, { token }, ctx) => {
+const verifyEmailResolver = async (_, { token }) => {
   try {
     logger.info(`${USER_RESOLVER} verifyEmail`)
     return verifyEmail(token)
@@ -179,7 +177,7 @@ const verifyEmailResolver = async (_, { token }, ctx) => {
   }
 }
 
-const resendVerificationEmailResolver = async (_, { token }, ctx) => {
+const resendVerificationEmailResolver = async (_, { token }) => {
   try {
     logger.info(`${USER_RESOLVER} resendVerificationEmail`)
     return resendVerificationEmail(token)
@@ -189,26 +187,10 @@ const resendVerificationEmailResolver = async (_, { token }, ctx) => {
   }
 }
 
-const resendVerificationEmailFromLoginResolver = async (
-  _,
-  { username, password },
-  ctx,
-) => {
-  try {
-    logger.info(`${USER_RESOLVER} resendVerificationEmailFromLogin`)
-    return resendVerificationEmailFromLogin(username, password)
-  } catch (e) {
-    logger.error(
-      `${USER_RESOLVER} resendVerificationEmailFromLogin: ${e.message}`,
-    )
-    throw new Error(e)
-  }
-}
-
 const resendVerificationEmailAfterLoginResolver = async (_, __, ctx) => {
   try {
     logger.info(`${USER_RESOLVER} resendVerificationEmailAfterLogin`)
-    return resendVerificationEmailAfterLogin(ctx.user)
+    return resendVerificationEmailAfterLogin(ctx.userId)
   } catch (e) {
     logger.error(
       `${USER_RESOLVER} resendVerificationEmailAfterLogin: ${e.message}`,
@@ -217,7 +199,7 @@ const resendVerificationEmailAfterLoginResolver = async (_, __, ctx) => {
   }
 }
 
-const updatePasswordResolver = async (_, { input }, ctx) => {
+const updatePasswordResolver = async (_, { input }) => {
   try {
     logger.info(`${USER_RESOLVER} updatePassword`)
     const { id, currentPassword, newPassword } = input
@@ -228,7 +210,7 @@ const updatePasswordResolver = async (_, { input }, ctx) => {
   }
 }
 
-const sendPasswordResetEmailResolver = async (_, { email }, ctx) => {
+const sendPasswordResetEmailResolver = async (_, { email }) => {
   try {
     logger.info(`${USER_RESOLVER} sendPasswordResetEmail`)
     return sendPasswordResetEmail(email)
@@ -238,7 +220,7 @@ const sendPasswordResetEmailResolver = async (_, { email }, ctx) => {
   }
 }
 
-const resetPasswordResolver = async (_, { token, password }, ctx) => {
+const resetPasswordResolver = async (_, { token, password }) => {
   try {
     logger.info(`${USER_RESOLVER} resetPassword`)
     return resetPassword(token, password)
@@ -248,13 +230,13 @@ const resetPasswordResolver = async (_, { token, password }, ctx) => {
   }
 }
 
-const identitiesResolver = async (user, _, ctx) => {
+const identitiesResolver = async (user, _) => {
   const identities = await getUserIdentities(user.id)
   return identities.result
   // return ctx.loaders.Identity.identitiesBasedOnUserIdsLoader.load(user.id)
 }
 
-const defaultIdentityResolver = async (user, _, ctx) => {
+const defaultIdentityResolver = async user => {
   return getDefaultIdentity(user.id)
   // return ctx.loaders.Identity.defaultIdentityBasedOnUserIdsLoader.load(user.id)
 }
@@ -263,7 +245,7 @@ const displayNameResolver = async user => {
   return getDisplayName(user)
 }
 
-//   // TODO loader
+// TODO loader
 const teamsResolver = async user => {
   return getUserTeams(user)
 }
@@ -287,7 +269,6 @@ module.exports = {
     setDefaultIdentity: setDefaultIdentityResolver,
     verifyEmail: verifyEmailResolver,
     resendVerificationEmail: resendVerificationEmailResolver,
-    resendVerificationEmailFromLogin: resendVerificationEmailFromLoginResolver,
     resendVerificationEmailAfterLogin:
       resendVerificationEmailAfterLoginResolver,
     updatePassword: updatePasswordResolver,
@@ -303,11 +284,9 @@ module.exports = {
   Subscription: {
     userUpdated: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
-
         return withFilter(
           () => {
-            return pubsub.asyncIterator(USER_UPDATED)
+            return subscriptionManager.asyncIterator(USER_UPDATED)
           },
           (payload, variables) => {
             const { userId } = variables

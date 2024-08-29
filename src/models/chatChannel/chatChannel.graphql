@@ -1,0 +1,38 @@
+"A chat channel, containing zero or more messages"
+type ChatChannel {
+  "The id of the channel"
+  id: ID!
+  "Timestamp of when the channel was created"
+  created: DateTime!
+  "Timestamp of when the channel was last updated"
+  updated: DateTime!
+  "The type of chat. Basically a free string. Up to the apps how this will be organized."
+  chatType: String!
+  "The id of the object that this channel belongs to. (eg. a specific manuscript)"
+  relatedObjectId: ID!
+  "A list of chat messages belonging to this channel"
+  messages: [ChatMessage!]!
+}
+
+"Returns a list of chat channels, as well as a total count irrespective of pagination"
+type ChatChannels {
+  "A list of chat channels"
+  result: [ChatChannel!]!
+  "The total count of channels, irrespective of pagination"
+  totalCount: Int!
+}
+
+"Filter options for chat channels"
+input ChatChannelFilter {
+  "The channel chat type"
+  chatType: String
+  "The id of the object the channel belongs to"
+  relatedObjectId: ID
+}
+
+extend type Query {
+  "Returns a chat channel by id"
+  chatChannel(id: ID!): ChatChannel!
+  "Returns a list of chat channels"
+  chatChannels(filter: ChatChannelFilter): ChatChannels!
+}

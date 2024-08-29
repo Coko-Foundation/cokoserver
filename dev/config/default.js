@@ -1,49 +1,66 @@
-const path = require('path')
-
-const components = require('./components')
+const permissions = require('./permissions')
+const jobHandler = require('../scripts/jobHandler')
 
 module.exports = {
-  pubsweet: {
-    components,
-  },
+  components: [
+    './src/models/__tests__/helpers/fake',
+    './src/models/activityLog',
+    './src/models/chatMessage',
+    './src/models/chatChannel',
+    './src/models/file',
+    './src/models/identity',
+    './src/models/serviceCredential',
+    './src/models/team',
+    './src/models/teamMember',
+    './src/models/user',
+  ],
   teams: {
-    global: {
-      admin: {
+    global: [
+      {
         displayName: 'Admin',
         role: 'admin',
       },
-      editor: {
+      {
         displayName: 'Editor',
         role: 'editor',
       },
-      author: {
+      {
         displayName: 'Author',
         role: 'author',
       },
-    },
-    nonGlobal: {
-      editor: {
+    ],
+    nonGlobal: [
+      {
         displayName: 'Editor',
         role: 'editor',
       },
-      author: {
+      {
         displayName: 'Author',
         role: 'author',
       },
-      reviewer: {
+      {
         displayName: 'Reviewer',
         role: 'reviewer',
       },
+    ],
+  },
+  useFileStorage: true,
+  useGraphQLServer: true,
+  staticFolders: [
+    {
+      folderPath: './dev/static',
+      mountPoint: '/',
     },
-  },
-  'pubsweet-server': {
-    host: 'localhost',
-  },
-  authsome: {
-    mode: path.join(__dirname, 'authsome.js'),
+  ],
+  fileStorage: {
+    accessKeyId: 'cokoServerUser',
+    secretAccessKey: 'superSecretUserPassword',
+    bucket: 'uploads',
+    url: 'http://localhost:9000',
+    s3SeparateDeleteOperations: false,
   },
   integrations: {
-    dummy: {
+    test: {
       clientId: 'ketida-editor',
       redirectUri:
         'http://localhost:4000/provider-connection-popup/lulu?next=/',
@@ -51,7 +68,77 @@ module.exports = {
         'https://api.sandbox.lulu.com/auth/realms/glasstree/protocol/openid-connect/token',
     },
   },
-  mailer: {
-    from: '',
-  },
+  permissions,
+  // onStartup: [
+  //   {
+  //     label: 'do it 1',
+  //     execute: () => {
+  //       console.log('this is 1')
+  //     },
+  //   },
+  //   {
+  //     label: 'do it 2',
+  //     execute: () => {
+  //       console.log('this is 2')
+  //       // throw new Error('nooooooo')
+  //     },
+  //   },
+  //   {
+  //     label: 'do it 3',
+  //     execute: () => {
+  //       console.log('this is 3 starting')
+  //       return new Promise(resolve => {
+  //         setTimeout(() => {
+  //           console.log('this 3 ending')
+  //           resolve()
+  //         }, 2000)
+  //       })
+  //     },
+  //   },
+  //   {
+  //     label: 'do it 4',
+  //     execute: () => {
+  //       console.log('this is 4 starting')
+  //       return new Promise(resolve => {
+  //         setTimeout(() => {
+  //           console.log('this 4 ending')
+  //           resolve()
+  //         }, 2000)
+  //       })
+  //     },
+  //   },
+  // ],
+  // onShutdown: [
+  //   {
+  //     label: 'shutdown test',
+  //     execute: () => {
+  //       return new Promise(resolve => {
+  //         console.log('Cleaning up...')
+  //         setTimeout(() => {
+  //           console.log('Cleanup done.')
+  //           resolve()
+  //         }, 2000)
+  //       })
+  //     },
+  //   },
+  // ],
+  jobQueues: [
+    {
+      name: 'test',
+      handler: jobHandler,
+      teamSize: 1,
+      teamConcurrency: 1,
+      // schedule: '*/1 * * * *',
+      // scheduleTimezone: 'Europe/Athens',
+    },
+    // {
+    //   name: 'test1',
+    //   handler: () => {
+    //     // console.log('hello testz 2')
+    //   },
+    //   teamSize: 1,
+    //   teamConcurrency: 1,
+    // },
+  ],
+  random: true,
 }

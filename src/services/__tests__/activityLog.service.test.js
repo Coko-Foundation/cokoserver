@@ -1,19 +1,18 @@
 const activityLog = require('../activityLog')
 
-const Fake = require('../../models/__tests__/helpers/fake/fake.model')
 const { createUser } = require('../../models/__tests__/helpers/users')
 const clearDb = require('../../models/__tests__/_clearDb')
 const ActivityLog = require('../../models/activityLog/activityLog.model')
 const { actionTypes } = require('../../models/activityLog/constants')
+const { db } = require('../../db')
 
 describe('Activity Log Service', () => {
   beforeEach(async () => {
     await clearDb()
   })
 
-  afterAll(() => {
-    const knex = Fake.knex()
-    knex.destroy()
+  afterAll(async () => {
+    await db.destroy()
   })
 
   it('creates a log entry', async () => {

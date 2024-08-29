@@ -1,16 +1,13 @@
 const config = require('config')
 const DataLoader = require('dataloader')
 
-const tryRequireRelative = require('../tryRequireRelative')
+const tryRequireRelative = require('../utils/tryRequireRelative')
 
 // Require components here so that the requires are done only once per app runtime
 let components = []
 
-if (
-  config.has('pubsweet.components') &&
-  Array.isArray(config.get('pubsweet.components'))
-) {
-  components = config.get('pubsweet.components')
+if (config.has('components') && Array.isArray(config.get('components'))) {
+  components = config.get('components')
   components = components.map(componentName =>
     tryRequireRelative(componentName),
   )

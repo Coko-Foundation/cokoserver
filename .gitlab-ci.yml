@@ -1,0 +1,41 @@
+variables:
+  IMAGE_NAME: cokoapps/server/coko-server-test
+  TAG: $CI_REGISTRY/$IMAGE_NAME:$CI_COMMIT_REF_NAME.$CI_COMMIT_SHA
+
+stages:
+  - Build
+  - Lint & Test
+  - Docs
+
+# build container:
+#   stage: Build
+#   image: docker:26
+#   services:
+#     - docker:26-dind
+#   before_script:
+#     - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+#   script:
+#     - docker build --tag $TAG .
+#     - docker push $TAG
+
+# lint:
+#   stage: Lint & Test
+#   image: $TAG
+#   script:
+#     - cd /home/node/app
+#     - yarn coko-lint run --skip-stylelint
+
+# test:
+#   stage: Lint & Test
+#   image: docker:27
+#   services:
+#     - docker:27-dind
+#   script:
+#     - docker compose run server yarn test --forceExit
+
+update docs:
+  stage: Docs
+  trigger:
+    project: cokoapps/docs
+    strategy: depend
+    branch: main

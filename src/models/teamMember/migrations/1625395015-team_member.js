@@ -84,4 +84,6 @@ exports.up = async knex => {
   }
 }
 
-exports.down = knex => knex.schema.dropTable('team_members')
+exports.down = knex => {
+  return knex.schema.dropTable('team_members')
+}

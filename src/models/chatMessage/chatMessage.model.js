@@ -20,10 +20,10 @@ class ChatMessage extends BaseModel {
   static get schema() {
     return {
       type: 'object',
-      required: ['content', 'chatThreadId', 'userId'],
+      required: ['content', 'chatChannelId', 'userId'],
       properties: {
         content: stringNotEmpty,
-        chatThreadId: id,
+        chatChannelId: id,
         userId: id,
         mentions: arrayOfIds,
         isDeleted: booleanDefaultFalse,

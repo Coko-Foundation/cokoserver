@@ -3,41 +3,75 @@ const config = require('config')
 
 const logger = require('../logger')
 
-let mailerConfig
+const SendEmailError = require('./SendEmailError')
 
-if (config.has('mailer.path')) {
-  mailerConfig = require(config.get('mailer.path')) // eslint-disable-line import/no-dynamic-require, global-require
-} else if (config.has('mailer.transport')) {
-  mailerConfig = config.get('mailer')
-}
+const makeTransportConfig = async (
+  configObject,
+  mailerConfigOverrides = {},
+) => {
+  const isProduction = process.env.NODE_ENV === 'production'
 
-module.exports = {
-  send: mailData => {
-    if (!mailerConfig || !mailerConfig.transport) {
-      throw new Error(`Mailer: The configuration is either invalid or missing`)
+  const globalConfig =
+    configObject.has('mailer.transport') && configObject.get('mailer.transport')
+
+  let configToUse
+
+  const foundConfig = {
+    ...globalConfig,
+    ...mailerConfigOverrides,
+  }
+
+  const hasConfig = Object.keys(foundConfig).length > 0
+
+  let testTransportUsed = false
+
+  if (hasConfig) configToUse = foundConfig
+
+  if (!hasConfig && !isProduction) {
+    const ethereal = await nodemailer.createTestAccount()
+
+    configToUse = {
+      ...ethereal.smtp,
+      auth: {
+        user: ethereal.user,
+        pass: ethereal.pass,
+      },
     }
 
-    const transporter = nodemailer.createTransport(mailerConfig.transport)
+    testTransportUsed = true
+  }
 
-    return transporter
-      .sendMail(mailData)
-      .then(info => {
-        if (process.env.NODE_ENV === 'development') {
-          try {
-            logger.info(
-              `Email sent. Preview available at: ${nodemailer.getTestMessageUrl(
-                info,
-              )}`,
-            )
-          } catch (err) {
-            logger.info(`Email sent.`)
-          }
-        }
+  if (!configToUse) {
+    throw new SendEmailError(`Mailer configuration is missing`)
+  }
 
-        return info
-      })
-      .catch(err => {
-        logger.error(`Failed to send email ${err}`)
-      })
-  },
+  return {
+    transportConfig: configToUse,
+    testTransportUsed,
+  }
 }
+
+const sendEmail = async (mailData, mailerConfigOverrides = {}) => {
+  const { transportConfig, testTransportUsed } = await makeTransportConfig(
+    config,
+    mailerConfigOverrides,
+  )
+
+  const transporter = nodemailer.createTransport(transportConfig)
+
+  try {
+    const info = await transporter.sendMail(mailData)
+
+    if (testTransportUsed) {
+      logger.info(
+        `Email preview available at: ${nodemailer.getTestMessageUrl(info)}`,
+      )
+    }
+
+    return info
+  } catch (e) {
+    throw new SendEmailError(e)
+  }
+}
+
+module.exports = { sendEmail, makeTransportConfig }

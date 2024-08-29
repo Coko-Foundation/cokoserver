@@ -8,7 +8,7 @@ const {
 } = require('./constants')
 
 const sendMessage = async (
-  chatThreadId,
+  chatChannelId,
   content,
   userId,
   mentions = [],
@@ -20,10 +20,10 @@ const sendMessage = async (
     const newMessage = await useTransaction(
       async tr => {
         logger.info(
-          `${CHAT_MESSAGE_CONTROLLER} sendMessage: creating a new message for chat thread with id ${chatThreadId}`,
+          `${CHAT_MESSAGE_CONTROLLER} sendMessage: creating a new message for chat channel with id ${chatChannelId}`,
         )
         return ChatMessage.insert(
-          { chatThreadId, userId, content, mentions },
+          { chatChannelId, userId, content, mentions },
           { trx: tr, ...restOptions },
         )
       },

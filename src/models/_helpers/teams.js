@@ -1,18 +1,17 @@
 const config = require('config')
 const union = require('lodash/union')
+const uniq = require('lodash/uniq')
 
-const globalTeams = Object.values(
-  (config.has('teams.global') && config.get('teams.global')) || {},
-)
+const globalTeams =
+  (config.has('teams.global') && config.get('teams.global')) || []
 
-const nonGlobalTeams = Object.values(
-  (config.has('teams.nonGlobal') && config.get('teams.nonGlobal')) || {},
-)
+const nonGlobalTeams =
+  (config.has('teams.nonGlobal') && config.get('teams.nonGlobal')) || []
 
 const allTeams = union(globalTeams, nonGlobalTeams)
 
-const flattenAllTeamRoles = allTeams.map(team => team.role)
-const flattenAllTeamDisplayNames = allTeams.map(team => team.displayName)
+const flattenAllTeamRoles = uniq(allTeams.map(team => team.role))
+const flattenAllTeamDisplayNames = uniq(allTeams.map(team => team.displayName))
 
 module.exports = {
   globalTeams,

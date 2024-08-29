@@ -12,9 +12,9 @@ const {
 
 const sendMessageResolver = async (_, { input }, ctx) => {
   try {
-    const { chatThreadId, content, userId, mentions } = input
+    const { chatChannelId, content, userId, mentions } = input
     logger.info(`${CHAT_MESSAGE_RESOLVER} sendMessage`)
-    return sendMessage(chatThreadId, content, userId, mentions)
+    return sendMessage(chatChannelId, content, userId, mentions)
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_RESOLVER} sendMessage: ${e.message}`)
     throw new Error(e)
@@ -44,8 +44,8 @@ const deleteMessageResolver = async (_, { id }, ctx) => {
 
 module.exports = {
   Mutation: {
-    sendMessage: sendMessageResolver,
-    editMessage: editMessageResolver,
-    deleteMessage: deleteMessageResolver,
+    sendChatMessage: sendMessageResolver,
+    editChatMessage: editMessageResolver,
+    deleteChatMessage: deleteMessageResolver,
   },
 }

@@ -24,4 +24,6 @@ exports.up = knex => {
   }
 }
 
-exports.down = knex => knex.schema.dropTable('activity_logs')
+exports.down = knex => {
+  return knex.schema.dropTable('activity_logs')
+}

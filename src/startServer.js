@@ -2,74 +2,166 @@ const express = require('express')
 const { promisify } = require('util')
 const http = require('http')
 const config = require('config')
-const fs = require('fs')
-const path = require('path')
-const isFunction = require('lodash/isFunction')
+const passport = require('passport')
+const cookieParser = require('cookie-parser')
+const helmet = require('helmet')
+const morgan = require('morgan')
 
 const logger = require('./logger')
+const { logInit, logTask, logTaskItem } = require('./logger/internals')
+const { db, migrationManager } = require('./db')
+const { startJobManager, stopJobManager } = require('./jobManager')
+const authentication = require('./authentication')
+const healthcheck = require('./healthcheck')
+const setupGraphqlServer = require('./graphql/setup')
+const subscriptionManager = require('./graphql/pubsub')
+
+const seedGlobalTeams = require('./startup/seedGlobalTeams')
+const ensureTempFolderExists = require('./startup/ensureTempFolderExists')
+const checkConfig = require('./startup/checkConfig')
+const errorStatuses = require('./startup/errorStatuses')
+const mountStatic = require('./startup/static')
+const registerComponents = require('./startup/registerComponents')
+const cors = require('./startup/cors')
+const { checkConnections } = require('./startup/checkConnections')
+
+const {
+  runCustomStartupScripts,
+  runCustomShutdownScripts,
+} = require('./startup/customScripts')
 
 let server
+let useGraphQLServer = true
 
-const startServer = async (app = express()) => {
+if (
+  config.has('useGraphQLServer') &&
+  config.get('useGraphQLServer') === false
+) {
+  useGraphQLServer = false
+}
+
+const startServer = async () => {
   if (server) return server
 
-  let configureApp
-  // ./server/app.js in your app is used if it exist,
-  // and no different entrypoint is configured in the
-  // config at `pubsweet-server.app`
-  const appPath = path.resolve('.', 'server', 'app.js')
+  const startTime = performance.now()
 
-  if (config.has('pubsweet-server.app')) {
-    // See if a custom app entrypoint is configured
+  logInit('Coko server init tasks')
 
-    try {
-      /* eslint-disable-next-line global-require, import/no-dynamic-require */
-      configureApp = require(config.get('pubsweet-server.app'))
-    } catch (e) {
-      logger.error(e)
-      throw new Error('Cannot load app from provided path!')
-    }
-  } else if (fs.existsSync(appPath)) {
-    // See if a custom app entrypoint exists at ./server/app.js
-    /* eslint-disable-next-line global-require, import/no-dynamic-require */
-    configureApp = require(appPath)
-  } else {
-    // If no custom entrypoints exist, use the default
-    /* eslint-disable-next-line global-require */
-    configureApp = require('./app')
-  }
+  checkConfig(config)
 
-  if (!configureApp) {
-    throw new Error('App module not found!')
-  }
+  await ensureTempFolderExists()
+  await checkConnections()
+  await migrationManager.migrate()
+  await seedGlobalTeams()
+  await runCustomStartupScripts()
 
-  if (!isFunction(configureApp)) {
-    throw new Error('App module is not a function!')
-  }
+  const app = express()
 
-  const configuredApp = configureApp(app)
-  const port = config['pubsweet-server'].port || 3000
-  configuredApp.set('port', port)
-  const httpServer = http.createServer(configuredApp)
-  httpServer.app = configuredApp
-
-  logger.info(`Starting HTTP server`)
+  const port = config.port || 3000
+  app.set('port', port)
+  const httpServer = http.createServer(app)
+  httpServer.app = app
+  logTask(`Starting HTTP server`)
   const startListening = promisify(httpServer.listen).bind(httpServer)
   await startListening(port)
-  logger.info(`App is listening on port ${port}`)
-  await configuredApp.onListen(httpServer)
+  logTaskItem(`App is listening on port ${port}`)
 
-  httpServer.originalClose = httpServer.close
+  app.use(express.json({ limit: '50mb' }))
+  app.use(express.urlencoded({ extended: false }))
+  app.use(cookieParser())
+  app.use(helmet())
+  app.use(cors)
 
-  httpServer.close = async cb => {
-    server = undefined
-    await configuredApp.onClose()
-    return httpServer.originalClose(cb)
-  }
+  morgan.token('graphql', ({ body }, res, type) => {
+    if (!body.operationName) return ''
+
+    switch (type) {
+      case 'query':
+        return body.query.replace(/\s+/g, ' ')
+      case 'variables':
+        return JSON.stringify(body.variables)
+      case 'operation':
+      default:
+        return body.operationName
+    }
+  })
+
+  app.use(
+    morgan(
+      (config.has('morganLogFormat') && config.get('morganLogFormat')) ||
+        'combined',
+      {
+        stream: logger.stream,
+      },
+    ),
+  )
+
+  app.use(passport.initialize())
+  passport.use('bearer', authentication.strategies.bearer)
+  passport.use('anonymous', authentication.strategies.anonymous)
+  passport.use('local', authentication.strategies.local)
+
+  app.get('/healthcheck', healthcheck)
+
+  mountStatic(app)
+  registerComponents(app)
+  errorStatuses(app)
+
+  if (useGraphQLServer) await setupGraphqlServer(httpServer, app, passport)
+
+  await startJobManager()
 
   server = httpServer
+
+  const endTime = performance.now()
+  const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
+
+  logInit(
+    `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
+  )
 
   return httpServer
 }
 
-module.exports = startServer
+const shutdownFn = async () => {
+  await runCustomShutdownScripts()
+
+  logTask('Shut down http server')
+  await server.close()
+  server = undefined
+  logTaskItem('Http server successfully shut down')
+
+  await stopJobManager({ destroy: true })
+
+  if (useGraphQLServer) {
+    logTask('Shut down subscription client')
+    await subscriptionManager.client.end()
+    logTaskItem('Subscription client successfully shut down')
+  }
+
+  logTask('Shut down database connection')
+  await db.destroy()
+  logTaskItem('Database connection successfully shut down')
+}
+
+const shutdown = async signal => {
+  logInit(`Coko server graceful shutdown after receiving signal ${signal}`)
+  const startTime = performance.now()
+
+  await shutdownFn()
+
+  const endTime = performance.now()
+  const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
+  logInit(
+    `Coko server graceful shutdown finished in ${durationInSeconds.toFixed(
+      4,
+    )} seconds`,
+  )
+
+  process.exit()
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+
+module.exports = { startServer, shutdownFn }

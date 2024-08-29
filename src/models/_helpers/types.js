@@ -11,6 +11,7 @@ const boolean = {
 
 const booleanNullable = {
   type: ['boolean', 'null'],
+  default: null,
 }
 
 const booleanDefaultFalse = {
@@ -24,13 +25,16 @@ const booleanDefaultTrue = {
 }
 
 const dateNotNullable = {
-  type: ['string', 'object'],
-  format: 'date-time',
+  anyOf: [{ type: 'string', format: 'date-time' }, { type: 'object' }],
 }
 
 const dateNullable = {
-  type: ['string', 'object', 'null'],
-  format: 'date-time',
+  anyOf: [
+    { type: 'string', format: 'date-time' },
+    { type: 'object' },
+    { type: 'null' },
+  ],
+  default: null,
 }
 
 const email = {
@@ -46,6 +50,7 @@ const id = {
 const idNullable = {
   type: ['string', 'null'],
   format: 'uuid',
+  default: null,
 }
 
 const integerPositive = {
@@ -59,6 +64,7 @@ const object = {
 
 const objectNullable = {
   type: ['object', 'null'],
+  default: null,
 }
 
 const password = {
@@ -76,7 +82,8 @@ const stringNotEmpty = {
 }
 
 const stringNullable = {
-  type: ['string', null],
+  type: ['string', 'null'],
+  default: null,
 }
 
 const arrayOfIds = {
@@ -93,6 +100,7 @@ const arrayOfObjects = {
 const arrayOfObjectsNullable = {
   type: ['array', 'null'],
   items: object,
+  default: null,
 }
 
 const arrayOfStrings = {

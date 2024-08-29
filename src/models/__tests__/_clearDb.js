@@ -1,4 +1,4 @@
-const db = require('../../dbManager/db')
+const { db } = require('../../db')
 
 const dbCleaner = async () => {
   const query = await db.raw(
@@ -12,7 +12,7 @@ const dbCleaner = async () => {
       rows.map(async row => {
         const { tablename } = row
 
-        if (tablename !== 'migrations') {
+        if (!['migrations', 'coko_server_meta'].includes(tablename)) {
           await db.raw(`TRUNCATE TABLE ${tablename} CASCADE`)
         }
 

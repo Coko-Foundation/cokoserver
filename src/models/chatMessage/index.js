@@ -1,14 +1,14 @@
 const fs = require('fs')
 const path = require('path')
 const model = require('./chatMessage.model')
-const { messagesBasedOnChatThreadIdsLoader } = require('./chatMessage.loaders')
+const { messagesBasedOnChatChannelIdsLoader } = require('./chatMessage.loaders')
 const chatMessageResolvers = require('./chatMessage.resolvers')
 
 module.exports = {
   model,
   modelName: 'ChatMessage',
   modelLoaders: {
-    messagesBasedOnChatThreadIdsLoader,
+    messagesBasedOnChatChannelIdsLoader,
   },
   typeDefs: fs.readFileSync(
     path.join(__dirname, 'chatMessage.graphql'),

@@ -6,26 +6,26 @@ const {
   labels: { CHAT_MESSAGE_LOADER },
 } = require('./constants')
 
-const messagesBasedOnChatThreadIdsLoader = async chatThreadIds => {
+const messagesBasedOnChatChannelIdsLoader = async chatChannelIds => {
   try {
-    const chatThreadMessages = await ChatMessage.query().whereIn(
-      'chatThreadId',
-      chatThreadIds,
+    const chatChannelMessages = await ChatMessage.query().whereIn(
+      'chatChannelId',
+      chatChannelIds,
     )
 
-    return chatThreadIds.map(chatThreadId =>
-      chatThreadMessages.filter(
-        chatMessage => chatMessage.chatThreadId === chatThreadId,
+    return chatChannelIds.map(chatChannelId =>
+      chatChannelMessages.filter(
+        chatMessage => chatMessage.chatChannelId === chatChannelId,
       ),
     )
   } catch (e) {
     logger.error(
-      `${CHAT_MESSAGE_LOADER} messagesBasedOnChatThreadIdsLoader: ${e.message}`,
+      `${CHAT_MESSAGE_LOADER} messagesBasedOnChatChannelIdsLoader: ${e.message}`,
     )
     throw new Error(e)
   }
 }
 
 module.exports = {
-  messagesBasedOnChatThreadIdsLoader,
+  messagesBasedOnChatChannelIdsLoader,
 }
