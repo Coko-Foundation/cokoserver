@@ -44,7 +44,6 @@ module.exports = {
       },
     ],
   },
-  host: 'localhost',
   useFileStorage: true,
   useGraphQLServer: true,
   staticFolders: [

@@ -10,8 +10,12 @@ const Joi = BaseJoi.extend(JoiCron).extend(JoiTimezone)
 
 const removedKeys = [
   'apollo',
+  'app',
   'authsome',
+  'cron',
   'dbManager',
+  'host',
+  'ignoreTerminatedConnectionError',
   'password-reset.token-length',
   'publicKeys',
   'pubsweet-client',
@@ -24,26 +28,12 @@ const removedKeys = [
   'pubsweet-server.serveClient',
   'pubsweet-server.typedefs',
   'pubsweet-server.uploads',
+  'resolvers',
   'serveClient',
+  'typedefs',
+  'uploads',
   'useJobQueue',
 ]
-
-// ### Renamed keys
-// * `pubsweet.components` → `components`
-// * `password-reset` → `passwordReset`
-// * `pubsweet-server.acquireConnectionTimeout` → `acquireConnectionTimeout`
-// * `pubsweet-server.db` → `db`
-// * `pubsweet-server.emailVerificationTokenExpiry` → `emailVerificationTokenExpiry`
-// * `pubsweet-server.logger` → `logger`
-// * `pubsweet-server.morganLogFormat` → `morganLogFormat`
-// * `pubsweet-server.passwordResetTokenExpiry` → `passwordResetTokenExpiry`
-// * `pubsweet-server.pool` → `pool`
-// * `pubsweet-server.port` → `port`
-// * `pubsweet-server.secret` → `secret`
-// * `pubsweet-server.serverUrl` → `serverUrl`
-// * `pubsweet-server.tokenExpiresIn` → `tokenExpiresIn`
-// * `pubsweet-server.useFileStorage` → `useFileStorage`
-// * `pubsweet-server.useGraphqlServer` → `useGraphqlServer`
 
 const renameMap = {
   'password-reset': 'passwordReset',
@@ -158,6 +148,16 @@ const check = config => {
       )
     }
   })
+
+  if (
+    has(config, 'fileStorage.protocol') ||
+    has(config, 'fileStorage.host') ||
+    has(config, 'fileStorage.port')
+  ) {
+    throw new ConfigSchemaError(
+      `File storage keys 'fileStorage.protocol', 'fileStorage.host' and 'fileStorage.port' have been dropped. Use the 'fileStorage.url' key instead.`,
+    )
+  }
 
   const validationResult = schema.validate(config)
 
