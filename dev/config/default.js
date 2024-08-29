@@ -57,10 +57,7 @@ module.exports = {
     accessKeyId: 'cokoServerUser',
     secretAccessKey: 'superSecretUserPassword',
     bucket: 'uploads',
-    protocol: 'http',
-    host: 'localhost',
-    port: '9000',
-    minioConsolePort: '9001',
+    url: 'http://localhost:9000',
     s3SeparateDeleteOperations: false,
   },
   integrations: {

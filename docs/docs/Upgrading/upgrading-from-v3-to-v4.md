@@ -534,6 +534,34 @@ level of your config. Delete the now emtpy `pubsweet` and `pubsweet-server` keys
 Make `password-reset` key camel case.
 :::
 
+### S3 keys
+
+The file storage keys `fileStorage.protocol`, `fileStorage.host` and `fileStorage.port`
+have been replaced by `fileStorage.url` for simplicity.
+
+:::tip[what you need to do]
+If your previous configuration was for example this:
+```js
+{
+  fileStorage: {
+    protocol: 'http',
+    host: 'localhost',
+    port: 9000,
+  }
+}
+```
+change it to this:
+```js
+{
+  fileStorage: {
+    url: 'http://localhost:9000',
+  }
+}
+```
+
+Make sure you also update your environment variables.
+:::
+
 ### Team config
 
 Change the previous structure:

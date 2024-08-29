@@ -22,14 +22,11 @@ class FileStorage {
       secretAccessKey,
       bucket,
       region,
-      protocol,
-      host,
-      port,
+      url,
       s3ForcePathStyle,
       s3SeparateDeleteOperations,
     } = config.get('fileStorage')
 
-    const fileStorageUrl = `${protocol}://${host}${port ? `:${port}` : ''}`
     const forcePathStyle = envUtils.isTrue(s3ForcePathStyle) || true
 
     this.s3 = new S3({
@@ -38,7 +35,7 @@ class FileStorage {
         secretAccessKey,
       },
       forcePathStyle,
-      endpoint: fileStorageUrl,
+      endpoint: url,
       region: region || DEFAULT_REGION,
     })
 

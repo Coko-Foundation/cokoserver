@@ -86,15 +86,9 @@ const schema = Joi.object({
       accessKeyId: Joi.string().required(),
       secretAccessKey: Joi.string().required(),
 
+      url: Joi.string().required(),
       bucket: Joi.string().required(),
       region: Joi.string().optional(),
-
-      protocol: Joi.string().required(),
-      host: Joi.string().required(),
-      port: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
-      minioConsolePort: Joi.alternatives()
-        .try(Joi.string(), Joi.number())
-        .required(),
 
       s3ForcePathStyle: Joi.boolean().optional(),
       s3SeparateDeleteOperations: Joi.boolean().optional(),
