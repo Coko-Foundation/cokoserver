@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-beta.2](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.1...v4.0.0-beta.2) (2024-08-29)
+
+
+### Bug Fixes
+
+* **graphql:** do not initialize graphql test server on index import ([0af6155](https://gitlab.coko.foundation/cokoapps/server/commit/0af61555ebb87d17fbf0705d822b4072f8e32bbb))
+* **graphql:** fix pubsub noop error method ([8a6f13c](https://gitlab.coko.foundation/cokoapps/server/commit/8a6f13ca7aff1b43a1c8516c144da0af249f3b37))
+* **graphql:** fix useGraphql not being true by default for pubsub ([fe060d8](https://gitlab.coko.foundation/cokoapps/server/commit/fe060d8581b6a6f66b8fe73c761db8e712d4c60f))
+
 ## [4.0.0-beta.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.0...v4.0.0-beta.1) (2024-08-29)
 
 
