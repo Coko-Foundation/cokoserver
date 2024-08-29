@@ -160,7 +160,7 @@ describe('File Storage Service', () => {
   })
 
   it('deletes files when separateDeleteOperations is true', async () => {
-    const ModifiedFS = new FileStorageConstructor({
+    const ModifiedFS = new FileStorageConstructor(null, {
       separateDeleteOperations: true,
     })
 

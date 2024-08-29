@@ -14,8 +14,10 @@ const envUtils = require('../utils/env')
 const Image = require('./Image')
 
 class FileStorage {
-  constructor(properties) {
+  constructor(connectionConfig, properties) {
     const DEFAULT_REGION = 'us-east-1'
+
+    const configToUse = connectionConfig || config.get('fileStorage')
 
     const {
       accessKeyId,
@@ -25,7 +27,7 @@ class FileStorage {
       url,
       s3ForcePathStyle,
       s3SeparateDeleteOperations,
-    } = config.get('fileStorage')
+    } = configToUse
 
     const forcePathStyle = envUtils.isTrue(s3ForcePathStyle) || true
 
