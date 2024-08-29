@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-beta.3](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.2...v4.0.0-beta.3) (2024-08-29)
+
+
+### Bug Fixes
+
+* **server:** fix serving of static assets from the server ([a95ccd3](https://gitlab.coko.foundation/cokoapps/server/commit/a95ccd363dc615efb2915d951c0172934b2c477e))
+
 ## [4.0.0-beta.2](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.1...v4.0.0-beta.2) (2024-08-29)
 
 
