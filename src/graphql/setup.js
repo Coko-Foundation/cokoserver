@@ -18,6 +18,8 @@ const loaders = require('./loaders')
 const generateSchema = require('./generateSchema')
 
 const setup = async (httpServer, app, passport) => {
+  // it is important that this runs before generateSchema (applyMiddleware specifically),
+  // otherwise uploads will not work, showing a POST body empty error
   app.use(graphqlUploadExpress())
 
   const schema = generateSchema()
