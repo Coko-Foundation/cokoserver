@@ -69,7 +69,14 @@ const startServer = async () => {
   app.use(express.json({ limit: '50mb' }))
   app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
-  app.use(helmet({ crossOriginEmbedderPolicy: false }))
+  /**
+   * Perhaps in the future, we can add a config option to make this 'same-site' in
+   * some cases. (eg. client running at myapp.com and server running at
+   * server.myapp.com can use a stricter 'same-site' policy without issues.)
+   * Or maybe someone is not mounting static folders at all and they want to
+   * restrict even further to 'same-origin'.
+   */
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
   app.use(cors)
 
   morgan.token('graphql', ({ body }, res, type) => {
