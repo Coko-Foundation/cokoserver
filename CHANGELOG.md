@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-beta.6](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.5...v4.0.0-beta.6) (2024-08-30)
+
+
+### Bug Fixes
+
+* **server:** fix helmet cross origin resource policy ([f42d235](https://gitlab.coko.foundation/cokoapps/server/commit/f42d2350c4573b5a82d30f1036fb6072eaf768aa))
+
 ## [4.0.0-beta.5](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.4...v4.0.0-beta.5) (2024-08-29)
 
 
