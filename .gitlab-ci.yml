@@ -33,7 +33,7 @@ stages:
 #   script:
 #     - docker compose run server yarn test --forceExit
 
-update docs:
+.update docs:
   stage: Docs
   trigger:
     project: cokoapps/docs
