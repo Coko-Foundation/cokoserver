@@ -7,12 +7,16 @@ const madge = require('madge')
 const output = require('madge/lib/output')
 const ora = require('ora')
 const nodemon = require('nodemon')
+const config = require('config')
 
 const pkg = require('../../package.json')
 const logger = require('../logger')
 const { logNodemon } = require('../logger/internals')
 const { migrationManager } = require('../db')
 const { startServer } = require('../startServer')
+
+const devServerIgnore =
+  (config.has('devServerIgnore') && config.get('devServerIgnore')) || []
 
 program
   .command('start')
@@ -31,7 +35,7 @@ program
 
     nodemon({
       script: scriptPath,
-      ignore: './tmp/*',
+      ignore: ['./tmp/*', ...devServerIgnore],
       ext: '*',
     })
 

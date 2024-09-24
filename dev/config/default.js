@@ -142,5 +142,6 @@ module.exports = {
     //   teamConcurrency: 1,
     // },
   ],
+  devServerIgnore: ['./dev/ignoreMe/*'],
   random: true,
 }

@@ -70,6 +70,8 @@ const reservedQueueNames = Object.keys(defaultJobQueueNames).map(
 const predefined = [...reservedQueueNames, 'email']
 
 const schema = Joi.object({
+  devServerIgnore: Joi.array().items(Joi.string()).optional(),
+
   fileStorage: Joi.when('useFileStorage', {
     is: true,
     then: Joi.object({
