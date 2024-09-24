@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-beta.7](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.6...v4.0.0-beta.7) (2024-09-24)
+
+
+### Features
+
+* allow globs to be ignored by nodemon ([a1a07ac](https://gitlab.coko.foundation/cokoapps/server/commit/a1a07ac4fc3ab98afc91162dde5ba13041ba5f46))
+
 ## [4.0.0-beta.6](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.5...v4.0.0-beta.6) (2024-08-30)
 
 
