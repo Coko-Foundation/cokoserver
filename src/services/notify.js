@@ -20,7 +20,7 @@ const sendEmail = async data => {
   }
 
   logger.info(
-    `${NOTIFY_SERVICE} sendEmail: email will be sent to ${to} with subject ${subject}`,
+    `${NOTIFY_SERVICE} sendEmail: email will be sent with subject ${subject}`,
   )
 
   return mailer.sendEmail(emailData)
