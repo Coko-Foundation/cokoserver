@@ -1,10 +1,4 @@
-FROM node:20
-
-RUN apt-get update && \ 
-    apt-get install -y imagemagick potrace ghostscript ranger vim
-
-RUN sed -i.bak 's/rights="none" pattern="PS"/rights="read | write" pattern="PS"/g' /etc/ImageMagick-6/policy.xml
-RUN sed -i.bak 's/rights="none" pattern="EPS"/rights="read | write" pattern="EPS"/g' /etc/ImageMagick-6/policy.xml
+FROM cokoapps/base-dev:20
 
 RUN corepack enable
 

@@ -23,12 +23,7 @@ const sendEmail = async data => {
     `${NOTIFY_SERVICE} sendEmail: email will be sent to ${to} with subject ${subject}`,
   )
 
-  if (!mailer || !mailer.send) {
-    logger.error(`${NOTIFY_SERVICE} sendEmail: mailer not configured`)
-    return null
-  }
-
-  return mailer.send(emailData)
+  return mailer.sendEmail(emailData)
 }
 
 const notify = (type, data) => {
