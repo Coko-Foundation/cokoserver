@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.7...v4.0.0) (2024-10-21)
+
+
+### Bug Fixes
+
+* **server:** fix wrong function call in notify email ([fc4b006](https://gitlab.coko.foundation/cokoapps/server/commit/fc4b0069074db6c50c7ea1180f12e835abc89e41))
+
 ## [4.0.0-beta.7](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.6...v4.0.0-beta.7) (2024-09-24)
 
 
