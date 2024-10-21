@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0...v4.0.1) (2024-10-21)
+
+
+### Bug Fixes
+
+* **server:** do not print user emails in the logs ([8b1cde9](https://gitlab.coko.foundation/cokoapps/server/commit/8b1cde9cbfe350098a80d013d10098f810bc0ac1))
+
 ## [4.0.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0-beta.7...v4.0.0) (2024-10-21)
 
 
