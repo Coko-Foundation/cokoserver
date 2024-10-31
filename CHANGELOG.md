@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.2](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.1...v4.0.2) (2024-10-31)
+
+
+### Bug Fixes
+
+* **api:** return Int when deleting users in bulk ([1b7a2aa](https://gitlab.coko.foundation/cokoapps/server/commit/1b7a2aa527ba4af3f6f20d54feca2e94f0b09da4))
+
 ### [4.0.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.0...v4.0.1) (2024-10-21)
 
 
