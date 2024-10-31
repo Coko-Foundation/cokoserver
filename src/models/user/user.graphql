@@ -150,7 +150,7 @@ extend type Mutation {
   "Delete one user"
   deleteUser(id: ID!): ID!
   "Delete multiple users"
-  deleteUsers(ids: [ID!]!): [ID!]!
+  deleteUsers(ids: [ID!]!): Int!
   "Set a user identity as default"
   setDefaultIdentity(userId: ID!, identityId: ID!): User!
   "Update a user's password"
