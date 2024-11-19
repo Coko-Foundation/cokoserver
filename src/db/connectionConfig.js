@@ -1,11 +1,28 @@
 const config = require('config')
 
-const getDbConnectionConfig = () => {
-  const { allowSelfSignedCertificates, caCert, ...connectionConfig } =
-    config.get('db')
+const getDbConnectionConfig = (key = 'db') => {
+  let { allowSelfSignedCertificates, caCert, ...connectionConfig } =
+    config.get(key)
 
   // clone to get around an issue of knex deleting password from the original object
-  const connection = { ...connectionConfig }
+  let connection = { ...connectionConfig }
+
+  // Fallback to the values of db for the keys that are not defined
+  if (key !== 'db') {
+    const {
+      allowSelfSignedCertificatesDefault,
+      caCertDefault,
+      ...connectionConfigDefault
+    } = config.get('db')
+
+    connection = { ...connectionConfigDefault, ...connection }
+
+    if (typeof allowSelfSignedCertificates === 'undefined') {
+      allowSelfSignedCertificates = allowSelfSignedCertificatesDefault
+    }
+
+    caCert = caCert || caCertDefault
+  }
 
   if (allowSelfSignedCertificates) {
     if (!connection.ssl) connection.ssl = {}

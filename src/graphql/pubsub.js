@@ -4,7 +4,7 @@ const PostgresPubSub = require('./PostgresPubSub')
 const PostgresPubSubNoop = require('./PostgresPubSubNoop')
 const { getDbConnectionConfig } = require('../db')
 
-const connectionConfig = getDbConnectionConfig()
+const connectionConfig = getDbConnectionConfig('subscriptionsDb')
 
 let useGraphQLServer = true
 

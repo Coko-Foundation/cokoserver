@@ -16,6 +16,18 @@ module.exports = {
     },
     caCert: 'POSTGRES_CA_CERT',
   },
+  subscriptionsDb: {
+    user: 'SUBSCRIPTIONS_POSTGRES_USER',
+    password: 'SUBSCRIPTIONS_POSTGRES_PASSWORD',
+    host: 'SUBSCRIPTIONS_POSTGRES_HOST',
+    database: 'SUBSCRIPTIONS_POSTGRES_DB',
+    port: 'SUBSCRIPTIONS_POSTGRES_PORT',
+    allowSelfSignedCertificates: {
+      __name: 'SUBSCRIPTIONS_POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES',
+      __format: 'json',
+    },
+    caCert: 'SUBSCRIPTIONS_POSTGRES_CA_CERT',
+  },
   serverUrl: 'SERVER_URL',
   fileStorage: {
     accessKeyId: 'S3_ACCESS_KEY_ID',
