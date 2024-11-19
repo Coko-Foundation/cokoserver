@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.2...v4.1.0) (2024-11-19)
+
+
+### Features
+
+* **db:** allow passing an encoded ca certificate through envornment variables ([c44ac0b](https://gitlab.coko.foundation/cokoapps/server/commit/c44ac0bc4d66dfe4ea9300ff54840d86dc3e161f))
+* **db:** allow subscriptions to connect to a different db ([17803a0](https://gitlab.coko.foundation/cokoapps/server/commit/17803a0c13cc4ccc06be41b367338920206ed710))
+
+
+### Bug Fixes
+
+* **db:** correctly read allow self signed certificates variable ([45f189c](https://gitlab.coko.foundation/cokoapps/server/commit/45f189cd5209ad74e570f56a3369a42a9a105665))
+
 ### [4.0.2](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.1...v4.0.2) (2024-10-31)
 
 
