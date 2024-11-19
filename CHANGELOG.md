@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.1.0...v4.1.1) (2024-11-19)
+
+
+### Bug Fixes
+
+* **db:** fix object destructure for fallback db values ([67c7c31](https://gitlab.coko.foundation/cokoapps/server/commit/67c7c31474850fc5e28a35caf3a1f04695ad5f9d))
+
 ## [4.1.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.0.2...v4.1.0) (2024-11-19)
 
 
