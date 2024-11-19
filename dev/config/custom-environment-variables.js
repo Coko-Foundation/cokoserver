@@ -14,12 +14,7 @@ module.exports = {
       __name: 'POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES',
       __format: 'json',
     },
-    // ssl: {
-    //   rejectUnauthorized: {
-    //     __name: 'POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES',
-    //     __format: 'json',
-    //   },
-    // },
+    caCert: 'POSTGRES_CA_CERT',
   },
   serverUrl: 'SERVER_URL',
   fileStorage: {
