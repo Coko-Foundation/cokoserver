@@ -10,8 +10,8 @@ const getDbConnectionConfig = (key = 'db') => {
   // Fallback to the values of db for the keys that are not defined
   if (key !== 'db') {
     const {
-      allowSelfSignedCertificatesDefault,
-      caCertDefault,
+      allowSelfSignedCertificates: allowSelfSignedCertificatesDefault,
+      caCert: caCertDefault,
       ...connectionConfigDefault
     } = config.get('db')
 
