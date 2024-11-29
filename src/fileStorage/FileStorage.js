@@ -31,15 +31,27 @@ class FileStorage {
 
     const forcePathStyle = envUtils.isTrue(s3ForcePathStyle) || true
 
-    this.s3 = new S3({
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
+    const s3config = {
       forcePathStyle,
       endpoint: url,
       region: region || DEFAULT_REGION,
-    })
+    }
+
+    /**
+     * These are optional as authentication in AWS could happen through the
+     * existence of environment variables or IAM roles.
+     *
+     * If the environment is not set up correctly, startup will fail when
+     * checking the file storage connection.
+     */
+    if (accessKeyId || secretAccessKey) {
+      s3config.credentials = {
+        accessKeyId,
+        secretAccessKey,
+      }
+    }
+
+    this.s3 = new S3(s3config)
 
     this.bucket = bucket
 
