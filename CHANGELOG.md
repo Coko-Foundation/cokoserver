@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.1.1...v4.2.0) (2024-11-29)
+
+
+### Features
+
+* **fileStorage:** allow aws s3 connection without key secret pair ([a703310](https://gitlab.coko.foundation/cokoapps/server/commit/a7033107d32e4a7c4e78944d5c1ab11d6eff870a))
+
 ### [4.1.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.1.0...v4.1.1) (2024-11-19)
 
 
