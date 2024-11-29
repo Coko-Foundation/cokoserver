@@ -75,8 +75,8 @@ const schema = Joi.object({
   fileStorage: Joi.when('useFileStorage', {
     is: true,
     then: Joi.object({
-      accessKeyId: Joi.string().required(),
-      secretAccessKey: Joi.string().required(),
+      accessKeyId: Joi.string(),
+      secretAccessKey: Joi.string(),
 
       url: Joi.string().required(),
       bucket: Joi.string().required(),
