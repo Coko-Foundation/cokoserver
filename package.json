@@ -31,9 +31,6 @@
       "path": "cz-customizable"
     }
   },
-  "resolutions": {
-    "pg": "^8.7.3"
-  },
   "dependencies": {
     "@apollo/server": "^4.10.4",
     "@aws-sdk/client-s3": "^3.577.0",
