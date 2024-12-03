@@ -51,13 +51,6 @@ module.exports = {
       mountPoint: '/',
     },
   ],
-  fileStorage: {
-    accessKeyId: 'cokoServerUser',
-    secretAccessKey: 'superSecretUserPassword',
-    bucket: 'uploads',
-    url: 'http://localhost:9000',
-    s3SeparateDeleteOperations: false,
-  },
   integrations: {
     test: {
       clientId: 'ketida-editor',
