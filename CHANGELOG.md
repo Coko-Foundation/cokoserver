@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.3.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.2.0...v4.3.0) (2024-12-13)
+
+
+### Features
+
+* **graphql:** export race from graphql shield ([fc3cfcc](https://gitlab.coko.foundation/cokoapps/server/commit/fc3cfcc980134c0e8fdc1e7fcad3854f3067d7da))
+
+
+### Bug Fixes
+
+* **server:** do not throw error if subscriptions db is not defined in config ([4adf2a1](https://gitlab.coko.foundation/cokoapps/server/commit/4adf2a17484c5f2920bb808405171b7599410382))
+
 ## [4.2.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.1.1...v4.2.0) (2024-11-29)
 
 
