@@ -2,7 +2,7 @@ const config = require('config')
 
 const getDbConnectionConfig = (key = 'db') => {
   let { allowSelfSignedCertificates, caCert, ...connectionConfig } =
-    config.get(key)
+    (config.has(key) && config.get(key)) || {}
 
   // clone to get around an issue of knex deleting password from the original object
   let connection = { ...connectionConfig }

@@ -137,5 +137,4 @@ module.exports = {
   ],
   devServerIgnore: ['./dev/ignoreMe/*'],
   random: true,
-  subscriptionsDb: {},
 }
