@@ -7,6 +7,7 @@ const {
   chain,
   or,
   not,
+  race,
 } = require('graphql-shield')
 
 const isAuthenticated = rule()(async (parent, args, ctx, info) => {
@@ -30,6 +31,7 @@ module.exports = {
   chain,
   or,
   not,
+  race,
   isAuthenticated,
   isAdmin,
 }
