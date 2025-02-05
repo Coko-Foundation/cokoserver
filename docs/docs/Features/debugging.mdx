@@ -1,0 +1,76 @@
+import Tag from '../../src/components/Tag'
+
+# Inspecting with a debugger
+
+<Tag>Added in 4.4.0</Tag>
+
+When starting the server with `start-dev`, coko server automatically opens an
+inspector port (`9229` by default) that your debugger can connect to.
+
+On startup, you should see a log along the lines of:
+```
+Debugger listening on ws://0.0.0.0:9229/279b953c-38d3-4bb1-80c4-d18a47fa95ec
+```
+
+The port used can be overridden with the `inspectorPort` configuration property.
+
+## Exposing the debugger in your app
+
+First, map the `inspectorPort` configuration property to an environment
+variable in the `custom-environment-variables.js` file.
+
+```js
+// config/custom-environment-variables.js
+
+module.exports = {
+  // ...
+  inspectorPort: 'INSPECTOR_PORT',
+}
+```
+
+Then, in your docker compose file, you need to
+1. Pass this variable to the environment
+2. Map a port on the host to the inspector port inside container
+
+```yml
+services:
+  server:
+    ports:
+      # Map port on the host to port inside the container
+      - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
+    environment:
+      # Pass variable value to container
+      - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
+```
+
+## Setting up the debugger (Visual Studio Code)
+
+Switch to the "Run and Debug" tab on the left. You will need to create or edit
+a `launch.json` file. What we want to do is set the debugger to listen to the
+mapped port on the host, so that it attaches itself inside the running docker
+container.
+
+This is an example configuration to make that work:
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Docker",
+      "type": "node",
+      "request": "attach",
+      "port": 9229, // or whatever port you are using
+      "address": "0.0.0.0",
+      "restart": true,
+      "remoteRoot": "/home/node/app",
+
+      // Change this to the location of your server code
+      // eg. ${workspaceFolder}/packages/server
+      "localRoot": "${workspaceFolder}"
+    }
+  ]
+}
+```
+
+After creating the debugger launch configuration, make sure you select it from
+the dropdown on the top left. You should now be able to add breakpoints.

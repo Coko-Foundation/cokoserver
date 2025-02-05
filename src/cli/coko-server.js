@@ -18,6 +18,9 @@ const { startServer } = require('../startServer')
 const devServerIgnore =
   (config.has('devServerIgnore') && config.get('devServerIgnore')) || []
 
+const inspectorPort =
+  (config.has('inspectorPort') && config.get('inspectorPort')) || 9229
+
 program
   .command('start')
   .description('Start server')
@@ -34,7 +37,7 @@ program
     const scriptPath = path.join(__dirname, '..', 'init')
 
     nodemon({
-      script: scriptPath,
+      exec: `node --inspect=0.0.0.0:${inspectorPort} "${scriptPath}"`,
       ignore: ['./tmp/*', ...devServerIgnore],
       ext: '*',
     })

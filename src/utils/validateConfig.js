@@ -99,6 +99,8 @@ const schema = Joi.object({
     }),
   }),
 
+  inspectorPort: Joi.number(),
+
   jobQueues: Joi.array()
     .items(
       Joi.object({

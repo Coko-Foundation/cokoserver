@@ -10,6 +10,7 @@ services:
     command: ['yarn', 'coko-server', 'start-dev']
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
+      - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - NODE_CONFIG_DIR=./dev/config
@@ -38,6 +39,7 @@ services:
       # - MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES=100
       # - S3_SEPARATE_DELETE_OPERATIONS=true
       # - S3_FORCE_PATH_STYLE=true
+      - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
     volumes:
       - ./dev:/home/node/app/dev
       - ./src:/home/node/app/src
