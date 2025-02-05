@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.4.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.3.0...v4.4.0) (2025-02-05)
+
+
+### Features
+
+* **cli:** allow debug inspectors to attach ([480d6dc](https://gitlab.coko.foundation/cokoapps/server/commit/480d6dcbc4e6ea827314d3fad08dbe267178a290))
+
 ## [4.3.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.2.0...v4.3.0) (2024-12-13)
 
 
