@@ -40,6 +40,7 @@ services:
       # - S3_SEPARATE_DELETE_OPERATIONS=true
       # - S3_FORCE_PATH_STYLE=true
       - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
+      - CORS_ORIGIN=https://studio.apollographql.com
     volumes:
       - ./dev:/home/node/app/dev
       - ./src:/home/node/app/src

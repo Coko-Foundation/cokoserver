@@ -55,4 +55,5 @@ module.exports = {
     },
   },
   inspectorPort: 'INSPECTOR_PORT',
+  corsOrigin: 'CORS_ORIGIN',
 }

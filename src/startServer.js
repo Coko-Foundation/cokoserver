@@ -77,7 +77,7 @@ const startServer = async () => {
    * restrict even further to 'same-origin'.
    */
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
-  app.use(cors)
+  app.use(cors())
 
   morgan.token('graphql', ({ body }, res, type) => {
     if (!body.operationName) return ''
