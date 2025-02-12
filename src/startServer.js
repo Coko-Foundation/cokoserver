@@ -69,14 +69,43 @@ const startServer = async () => {
   app.use(express.json({ limit: '50mb' }))
   app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
+
   /**
-   * Perhaps in the future, we can add a config option to make this 'same-site' in
-   * some cases. (eg. client running at myapp.com and server running at
+   * Perhaps in the future, we can add a config option to make this 'same-site'
+   * in some cases. (eg. client running at myapp.com and server running at
    * server.myapp.com can use a stricter 'same-site' policy without issues.)
    * Or maybe someone is not mounting static folders at all and they want to
    * restrict even further to 'same-origin'.
    */
-  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
+  let helmetConfig = { crossOriginResourcePolicy: { policy: 'cross-origin' } }
+
+  /**
+   * This makes apollo explorer work in development
+   * See https://docs.nestjs.com/security/helmet#use-with-express-default
+   */
+  if (process.env.NODE_ENV === 'development' && useGraphQLServer) {
+    helmetConfig = {
+      ...helmetConfig,
+      crossOriginEmbedderPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          imgSrc: [
+            `'self'`,
+            'data:',
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+          manifestSrc: [
+            `'self'`,
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
+        },
+      },
+    }
+  }
+
+  app.use(helmet(helmetConfig))
   app.use(cors())
 
   morgan.token('graphql', ({ body }, res, type) => {

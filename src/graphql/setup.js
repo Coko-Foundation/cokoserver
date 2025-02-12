@@ -11,6 +11,10 @@ const {
   ApolloServerPluginDrainHttpServer,
 } = require('@apollo/server/plugin/drainHttpServer')
 
+const {
+  ApolloServerPluginLandingPageLocalDefault,
+} = require('@apollo/server/plugin/landingPage/default')
+
 const AuthenticationError = require('../errors/AuthenticationError')
 const logger = require('../logger')
 
@@ -79,7 +83,11 @@ const setup = async (httpServer, app, passport) => {
           }
         },
       },
-    ],
+
+      // Embed apollo explorer
+      process.env.NODE_ENV === 'development' &&
+        ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+    ].filter(Boolean),
     introspection: process.env.NODE_ENV === 'development',
     csrfPrevention: true,
     formatError: error => {

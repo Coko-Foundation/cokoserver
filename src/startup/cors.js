@@ -31,7 +31,7 @@ const createCORSConfig = () => {
 
 const middleware = () => {
   const corsConfig = createCORSConfig()
-  logTaskItem(`CORS origin set to: ${corsConfig.origin.toString()}`)
+  logTaskItem(`CORS origin set to: ${corsConfig?.origin?.toString() || 'null'}`)
   return cors(corsConfig)
 }
 
