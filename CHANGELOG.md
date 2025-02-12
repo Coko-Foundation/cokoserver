@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.5.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.4.0...v4.5.0) (2025-02-12)
+
+
+### Features
+
+* **graphql:** embed apollo explorer at /graphql in development ([3b85e32](https://gitlab.coko.foundation/cokoapps/server/commit/3b85e32637a0281971a03e80e56cb320ed7e2c3e))
+* **server:** allow cors origin extension ([dc38658](https://gitlab.coko.foundation/cokoapps/server/commit/dc38658ed10876a2b79843575507cf0ad0c30f87))
+
 ## [4.4.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.3.0...v4.4.0) (2025-02-05)
 
 
