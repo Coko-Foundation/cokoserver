@@ -1,0 +1,20 @@
+import Tag from '../../../src/components/Tag'
+
+# Apollo GraphQL Explorer
+
+<Tag>Added in 4.5.0</Tag>
+
+:::info
+This feature will only be on if your `NODE_ENV` is `development` and 
+`useGraphQLServer` config option is set to `true`.
+:::
+
+When running a GraphQL server in development, you can go to the `/graphql`
+endpoint of your server in your browser and access the Apollo Studio Explorer.
+
+This will allow you to 
+* Interact with your GraphQL API without needing a client running
+* Navigate through the entire schema and read its documentation
+
+e.g.  
+If your server is running at `localhost:3000`, go to `localhost:3000/graphql`.

@@ -1,0 +1,98 @@
+import Tag from '../../../src/components/Tag'
+
+# CORS origin
+
+<Tag>Added in 4.5.0</Tag>
+
+The value of CORS origin in coko server is affected by two config values:
+* `clientUrl`
+* `corsOrigin`
+
+The final result of this value will act as a whitelist of urls that the server
+will accept requests from.
+
+If `clientUrl` is given a value, it will always be part of the whitelist.
+
+`corsOrigin` will then act as an extension of the whitelist. Its value can either
+be a string (multiple values can be separated by comma) or an array of strings.
+
+:::tip
+The value of the CORS origin whitelist will be logged as the server starts, so 
+look at the startup logs if unsure.
+:::
+
+## Set up in your app
+
+It is recommended that you set these values up in your app to be read through
+environment variables.
+
+For example:
+```js
+// config/custom-environment-variables.js
+
+module.exports = {
+  // ...other values
+  clientUrl: 'CLIENT_URL',
+  corsOrigin: 'CORS_ORIGIN',
+}
+```
+
+## Recipes
+
+_All recipes assume you are using environment variables to control the values._
+
+:::warning
+If adding values to a docker compose file, omit the quotes around the values.
+:::
+
+### Only allow requests from your client
+
+* Do not pass any value to `CORS_ORIGIN`.  
+* Pass your client url to the `CLIENT_URL` variable.
+
+e.g.  
+If your client is hosted at `https://www.myapp.com`, your environment
+variables should look like
+
+```bash
+CLIENT_URL='https://www.myapp.com'
+```
+
+### You do not have a client, but want to allow specific URLs
+
+* Do not pass any value to `CLIENT_URL`.  
+* Pass one more URLs to `CORS_ORIGIN`.
+
+e.g.  
+If you want to only allow requests from `https://www.mycustomapi.com`, then
+your environment variables should look like
+
+```bash
+CORS_ORIGIN='https://www.mycustomapi.com'
+```
+
+Similarly, if you want to only allow requests from `https://www.mycustomapi1.com`
+and `https://www.mycustomapi2.com`, then
+
+```bash
+CORS_ORIGIN='https://www.mycustomapi1.com, https://www.mycustomapi2.com'
+```
+
+:::tip
+Spaces around commas do not matter.
+:::
+
+### Allow all requests
+
+:::warning
+This is not recommended in production usually, but there are legitimate use 
+cases (eg. if you have a microservice that can be used by an arbitrary amount
+of clients from different deployments). Make sure your server authenticates
+requests in some other fashion if doing this.
+:::
+
+* Do not pass any value to `CLIENT_URL`.  
+* Do not pass any value to `CORS_ORIGIN`.  
+
+You'll end up with no whitelist, effectively allowing all requests to be processed.
+
