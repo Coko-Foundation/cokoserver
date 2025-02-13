@@ -74,6 +74,15 @@ const schema = Joi.object({
     .try(Joi.string(), Joi.array().items(Joi.string()))
     .optional(),
 
+  dbConnectionReporter: Joi.alternatives()
+    .try(
+      Joi.boolean(),
+      Joi.object({
+        interval: Joi.number().integer().positive().optional(),
+      }),
+    )
+    .optional(),
+
   devServerIgnore: Joi.array().items(Joi.string()).optional(),
 
   fileStorage: Joi.when('useFileStorage', {
