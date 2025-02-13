@@ -137,4 +137,7 @@ module.exports = {
   ],
   devServerIgnore: ['./dev/ignoreMe/*'],
   random: true,
+  // dbConnectionReporter: {
+  //   interval: 2000,
+  // },
 }

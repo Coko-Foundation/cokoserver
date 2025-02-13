@@ -24,6 +24,7 @@ const mountStatic = require('./startup/static')
 const registerComponents = require('./startup/registerComponents')
 const cors = require('./startup/cors')
 const { checkConnections } = require('./startup/checkConnections')
+const dbConnectionReporter = require('./startup/dbConnectionReporter')
 
 const {
   runCustomStartupScripts,
@@ -155,6 +156,8 @@ const startServer = async () => {
   logInit(
     `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
   )
+
+  dbConnectionReporter()
 
   return httpServer
 }
