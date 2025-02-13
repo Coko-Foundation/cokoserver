@@ -8,8 +8,37 @@ const { shield } = require('graphql-shield')
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
 
-const { logTask, logTaskItem } = require('../logger/internals')
+const { logReport, logTask, logTaskItem } = require('../logger/internals')
 const tryRequireRelative = require('../utils/tryRequireRelative')
+
+const resolverPerformanceMiddleware = async (
+  resolve,
+  root,
+  args,
+  context,
+  info,
+) => {
+  // Only top level resolver
+  if (!info.path.prev) {
+    const startTime = performance.now()
+
+    const result = await resolve(root, args, context, info)
+
+    const endTime = performance.now()
+    const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
+
+    logReport(
+      'Resolver performance:',
+      `${info.operation.operation} ${
+        info.operation.name?.value || 'anonymous'
+      } took ${durationInSeconds.toPrecision(3)} seconds`,
+    )
+
+    return result
+  }
+
+  return resolve(root, args, context, info)
+}
 
 const generateSchema = () => {
   const typeDefs = [
@@ -49,6 +78,11 @@ const generateSchema = () => {
   const schema = makeExecutableSchema({ typeDefs, resolvers })
 
   const middleware = []
+
+  if (process.env.NODE_ENV === 'development') {
+    middleware.push(resolverPerformanceMiddleware)
+  }
+
   logTask('Register graphql middleware')
 
   /**

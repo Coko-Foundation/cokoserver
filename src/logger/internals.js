@@ -31,6 +31,10 @@ const logNodemon = (str, options = { withLines: false }) => {
   )
 }
 
+const logReport = (header, str) => {
+  logger.info(`${chalk.magenta(header)} ${str}`)
+}
+
 const logSuccess = str => {
   logger.info(chalk.green(str))
 }
@@ -55,6 +59,7 @@ module.exports = {
   logErrorTask,
   logInit,
   logNodemon,
+  logReport,
   logSuccess,
   logSuccessTask,
   logTask,
