@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.6.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.5.0...v4.6.0) (2025-02-13)
+
+
+### Features
+
+* **db:** add db connection count report ([62ad0fb](https://gitlab.coko.foundation/cokoapps/server/commit/62ad0fb11c4c4137e7980bdc0b33a7d89d6c4f78))
+* **graphql:** add resolver performance logs in development ([faed0c2](https://gitlab.coko.foundation/cokoapps/server/commit/faed0c2d1d92e8b79edaf5fa4309cd3571bebce9))
+* validate db connection reporter config ([878b5b0](https://gitlab.coko.foundation/cokoapps/server/commit/878b5b05dcf8e5843fbc241849a850c23662babb))
+
 ## [4.5.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.4.0...v4.5.0) (2025-02-12)
 
 
