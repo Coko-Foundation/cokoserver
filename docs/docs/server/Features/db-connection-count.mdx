@@ -1,0 +1,40 @@
+import Tag from '../../../src/components/Tag'
+
+# Measure database connection count
+
+<Tag>Added in 4.6.0</Tag>
+
+The server can be configured to report in the logs the amount of active and total 
+connections that your database is currently handling.
+
+The report will look like this
+
+```
+Database connection count report => DB object id: 69da4799-ea7d-49a4-8628-949f4d1e876a
+Database connection count report => Connections in use: 1
+Database connection count report => Total connections: 10
+```
+
+This report will run at a set interval (every second by default).
+
+To enable, simply add the `dbConnectionReporter` to your desired config:
+
+```js
+{
+  // ...other config options
+  dbConnectionReporter: true,
+}
+```
+
+If you want to adjust the interval, pass an object to the key instead:
+
+```js
+{
+  // ...other config options
+  dbConnectionReporter: {
+    interval: 4000, // report will now run every 4 seconds
+  },
+}
+```
+
+Interval values are in milliseconds.

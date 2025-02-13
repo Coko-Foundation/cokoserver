@@ -1,0 +1,39 @@
+import Tag from '../../../src/components/Tag'
+
+# Measure GraphQL resolver performance
+
+<Tag>Added in 4.6.0</Tag>
+
+:::info
+This feature is only on when `NDDE_ENV` is `development`.
+:::
+
+When running resolvers, the logs will provide a report of the time it took For
+the resolver to execute.
+
+For example
+```
+Resolver performance: query MyUsers took 0.00457 seconds
+```
+
+Make sure your queries are **named**.
+
+e.g.  
+```graphql
+# MyUsers is the name of the query in this example
+query MyUsers {
+  users {
+    result {
+      id
+      username
+    }
+    totalCount
+  }
+}
+```
+
+:::note
+The resolver performance report will only apply to the top-level resolver that
+is executed. i.e. If some of the properties requested have their own resolvers,
+those will not be individually reported.
+:::
