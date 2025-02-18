@@ -1,1 +1,1 @@
-Documentation can be found [here](https://devdocs.coko.app/).
+Documentation can be found [here](https://coko-dev-docs.fly.dev/).
