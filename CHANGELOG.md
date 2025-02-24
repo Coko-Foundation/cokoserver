@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.8.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.7.0...v4.8.0) (2025-02-24)
+
+
+### Features
+
+* expose uuid validate method ([55a9c89](https://gitlab.coko.foundation/cokoapps/server/commit/55a9c899619827b0b3775abe37b815fa047c49df))
+
 ## [4.7.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.6.0...v4.7.0) (2025-02-24)
 
 
