@@ -1,4 +1,4 @@
-const { v4: uuid } = require('uuid')
+const { v4: uuid, validate: uuidValidate } = require('uuid')
 const { withFilter } = require('graphql-subscriptions')
 
 const { sendEmail } = require('./services/sendEmail')
@@ -83,6 +83,7 @@ module.exports = {
   sendEmail,
   withFilter,
   uuid,
+  uuidValidate,
   WaxToDocxConverter,
 
   // file storage
