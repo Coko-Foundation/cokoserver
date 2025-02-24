@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.7.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.6.0...v4.7.0) (2025-02-24)
+
+
+### Features
+
+* **server:** handle base64 data input in write file helper ([a2bc636](https://gitlab.coko.foundation/cokoapps/server/commit/a2bc636605235180950e9a29e339ce560a4fbd99))
+
 ## [4.6.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.5.0...v4.6.0) (2025-02-13)
 
 
