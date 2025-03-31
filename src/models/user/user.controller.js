@@ -380,13 +380,17 @@ const verifyEmail = async (token, options = {}) => {
           { trx: tr },
         )
 
-        const emailVerificationExpiryAmount = config.get(
-          'emailVerificationTokenExpiry.amount',
+        const emailVerificationTokenExpiry = config.has(
+          'emailVerificationTokenExpiry',
         )
-
-        const emailVerificationExpiryUnit = config.get(
-          'emailVerificationTokenExpiry.unit',
-        )
+          ? {
+              amount: config.get('emailVerificationTokenExpiry.amount'),
+              unit: config.get('emailVerificationTokenExpiry.unit'),
+            }
+          : {
+              amount: 24,
+              unit: 'hours',
+            }
 
         if (!identity)
           throw new Error(`${USER_CONTROLLER} verifyEmail: invalid token`)
@@ -405,8 +409,8 @@ const verifyEmail = async (token, options = {}) => {
         if (
           moment()
             .subtract(
-              emailVerificationExpiryAmount,
-              emailVerificationExpiryUnit,
+              emailVerificationTokenExpiry.amount,
+              emailVerificationTokenExpiry.unit,
             )
             .isAfter(identity.verificationTokenTimestamp)
         ) {
@@ -593,21 +597,21 @@ const resetPassword = async (token, password, options = {}) => {
           )
         }
 
-        const passwordResetTokenExpiryAmount =
-          (config.has('passwordResetTokenExpiry.amount') &&
-            config.get('passwordResetTokenExpiry.amount')) ||
-          24
-
-        const passwordResetTokenExpiryUnit =
-          (config.has('passwordResetTokenExpiry.unit') &&
-            config.get('passwordResetTokenExpiry.unit')) ||
-          'hours'
+        const passwordResetTokenExpiry = config.has('passwordResetTokenExpiry')
+          ? {
+              amount: config.get('passwordResetTokenExpiry.amount'),
+              unit: config.get('passwordResetTokenExpiry.unit'),
+            }
+          : {
+              amount: 24,
+              unit: 'hours',
+            }
 
         if (
           moment()
             .subtract(
-              passwordResetTokenExpiryAmount,
-              passwordResetTokenExpiryUnit,
+              passwordResetTokenExpiry.amount,
+              passwordResetTokenExpiry.unit,
             )
             .isAfter(user.passwordResetTimestamp)
         ) {

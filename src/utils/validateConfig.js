@@ -69,6 +69,11 @@ const reservedQueueNames = Object.keys(defaultJobQueueNames).map(
 // reserving email, as it will be implemented
 const predefined = [...reservedQueueNames, 'email']
 
+const momentExpirationObject = {
+  amount: Joi.number().required(),
+  unit: Joi.string().valid('days', 'hours', 'minutes', 'seconds').required(),
+}
+
 const schema = Joi.object({
   corsOrigin: Joi.alternatives()
     .try(Joi.string(), Joi.array().items(Joi.string()))
@@ -84,6 +89,8 @@ const schema = Joi.object({
     .optional(),
 
   devServerIgnore: Joi.array().items(Joi.string()).optional(),
+
+  emailVerificationTokenExpiry: Joi.object(momentExpirationObject).optional(),
 
   fileStorage: Joi.when('useFileStorage', {
     is: true,
@@ -146,6 +153,8 @@ const schema = Joi.object({
     error: Joi.func().required(),
     warn: Joi.func().required(),
   }).optional(),
+
+  passwordResetTokenExpiry: Joi.object(momentExpirationObject).optional(),
 
   useFileStorage: Joi.boolean().optional(),
 }).unknown(true)

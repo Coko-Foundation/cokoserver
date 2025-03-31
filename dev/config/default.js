@@ -140,4 +140,14 @@ module.exports = {
   // dbConnectionReporter: {
   //   interval: 2000,
   // },
+
+  // emailVerificationTokenExpiry: {
+  //   amount: 24,
+  //   unit: 'minutes',
+  // },
+
+  // passwordResetTokenExpiry: {
+  //   amount: '2',
+  //   unit: 'minutes',
+  // },
 }
