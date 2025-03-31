@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.9.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.8.0...v4.9.0) (2025-03-31)
+
+
+### Features
+
+* add default value to email verification token ([a9ea107](https://gitlab.coko.foundation/cokoapps/server/commit/a9ea10769d37545286a02cfec0d33641ce99515a))
+
 ## [4.8.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.7.0...v4.8.0) (2025-02-24)
 
 
