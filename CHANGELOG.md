@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.10.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.9.0...v4.10.0) (2025-05-09)
+
+
+### Features
+
+* **fileStorage:** add getFileContent method ([251e05c](https://gitlab.coko.foundation/cokoapps/server/commit/251e05cee86b210c47bd6385f8fb7cd6bbd023f3))
+
 ## [4.9.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.8.0...v4.9.0) (2025-03-31)
 
 
