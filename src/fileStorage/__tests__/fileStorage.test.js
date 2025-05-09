@@ -138,6 +138,13 @@ describe('File Storage Service', () => {
     expect(content).toBe('This is a dummy text file')
   })
 
+  it('gets the file content', async () => {
+    const file = await uploadOneFile()
+
+    const content = await fileStorage.getFileContent(file.key)
+    expect(content).toBe('This is a dummy text file')
+  })
+
   it('deletes a single file', async () => {
     const file = await uploadOneFile()
 

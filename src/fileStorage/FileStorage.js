@@ -13,6 +13,15 @@ const { writeFileToTemp } = require('../utils/filesystem')
 const envUtils = require('../utils/env')
 const Image = require('./Image')
 
+const streamToString = stream => {
+  const chunks = []
+  return new Promise((resolve, reject) => {
+    stream.on('data', chunk => chunks.push(Buffer.from(chunk)))
+    stream.on('error', err => reject(err))
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+  })
+}
+
 class FileStorage {
   constructor(connectionConfig, properties) {
     const DEFAULT_REGION = 'us-east-1'
@@ -69,6 +78,21 @@ class FileStorage {
       Object.keys(properties).forEach(key => {
         this[key] = properties[key]
       })
+    }
+  }
+
+  async #get(key) {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    })
+
+    try {
+      return this.s3.send(command)
+    } catch (e) {
+      throw new Error(
+        `Cannot retrieve item ${key} from bucket ${this.bucket}: ${e.message}`,
+      )
     }
   }
 
@@ -179,20 +203,7 @@ class FileStorage {
   }
 
   async download(key, localPath) {
-    const command = new GetObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-    })
-
-    let item
-
-    try {
-      item = await this.s3.send(command)
-    } catch (e) {
-      throw new Error(
-        `Cannot retrieve item ${key} from bucket ${this.bucket}: ${e.message}`,
-      )
-    }
+    const item = await this.#get(key, localPath)
 
     try {
       const writeStream = fs.createWriteStream(localPath)
@@ -206,6 +217,11 @@ class FileStorage {
     } catch (e) {
       throw new Error(`Error writing item ${key} to disk. ${e.message}`)
     }
+  }
+
+  async getFileContent(objectKey) {
+    const data = await this.#get(objectKey)
+    return streamToString(data.Body)
   }
 
   async getURL(objectKey, options = {}) {
