@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.11.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.10.0...v4.11.0) (2025-05-15)
+
+
+### Features
+
+* **graphql:** add identityId to UpdateUserInput ([769a07c](https://gitlab.coko.foundation/cokoapps/server/commit/769a07c0dacb7b8228aebb53ab08702039f52e2a))
+
 ## [4.10.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.9.0...v4.10.0) (2025-05-09)
 
 
