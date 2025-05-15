@@ -150,4 +150,55 @@ describe('User API', () => {
     expect(data.totalCount).toBe(1)
     expect(data.result[0].id).toBe(userOne.id)
   })
+
+  it('updates user info', async () => {
+    const u = await User.insert({
+      givenNames: 'Joe',
+      surname: 'Brown',
+    })
+
+    expect(u.givenNames).toBe('Joe')
+    expect(u.surname).toBe('Brown')
+
+    const identity = await Identity.insert({
+      userId: u.id,
+      email: 'test@example.com',
+      isDefault: true,
+    })
+
+    expect(identity.email).toBe('test@example.com')
+
+    const UPDATE_USER_INFO = gql`
+      mutation UpdateUserInfo($id: ID!, $input: UpdateUserInput!) {
+        updateUser(id: $id, input: $input) {
+          id
+          givenNames
+          surname
+          defaultIdentity {
+            id
+            email
+          }
+        }
+      }
+    `
+
+    const response = await gqlServer.executeOperation({
+      query: UPDATE_USER_INFO,
+      variables: {
+        id: u.id,
+        input: {
+          givenNames: 'Jack',
+          surname: 'Black',
+          identityId: identity.id,
+          email: 'jack@example.com',
+        },
+      },
+    })
+
+    const data = response.body.singleResult.data.updateUser
+
+    expect(data.givenNames).toBe('Jack')
+    expect(data.surname).toBe('Black')
+    expect(data.defaultIdentity.email).toBe('jack@example.com')
+  })
 })

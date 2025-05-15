@@ -196,7 +196,7 @@ const updateUser = async (id, data, options = {}) => {
           logger.info(
             `${USER_CONTROLLER} updateUser: updating user with provided info`,
           )
-          return User.patchAndFetchById(id, ...restData, {
+          return User.patchAndFetchById(id, restData, {
             trx: tr,
             ...restOptions,
           })
