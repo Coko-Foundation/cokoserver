@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.11.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.11.0...v4.11.1) (2025-05-15)
+
+
+### Bug Fixes
+
+* **models:** fix invalid spread operator when updating user email ([d79c8c7](https://gitlab.coko.foundation/cokoapps/server/commit/d79c8c7743b3ea0da709d3d4af12fe095dc9318e))
+
 ## [4.11.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.10.0...v4.11.0) (2025-05-15)
 
 
