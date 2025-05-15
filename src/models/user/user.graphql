@@ -98,6 +98,8 @@ input LoginInput {
 input UpdateUserInput {
   "The user's email"
   email: String
+  "Required if updating email"
+  identityId: ID
   "The user's username"
   username: String
   "The user's last/surname"
