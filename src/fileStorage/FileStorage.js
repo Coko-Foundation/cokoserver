@@ -38,6 +38,9 @@ class FileStorage {
       s3SeparateDeleteOperations,
     } = configToUse
 
+    this.url = url
+    this.bucket = bucket
+
     const forcePathStyle = envUtils.isTrue(s3ForcePathStyle) || true
 
     const s3config = {
@@ -61,8 +64,6 @@ class FileStorage {
     }
 
     this.s3 = new S3(s3config)
-
-    this.bucket = bucket
 
     this.separateDeleteOperations = envUtils.isTrue(s3SeparateDeleteOperations)
 
@@ -105,7 +106,7 @@ class FileStorage {
     return this.s3.headObject(params)
   }
 
-  async #handleImageUpload(fileStream, hashedFilename) {
+  async #handleImageUpload(fileStream, hashedFilename, isPublic) {
     const randomHash = crypto.randomBytes(6).toString('hex')
     const tempDir = path.join(tempFolderPath, randomHash)
     await fs.ensureDir(tempDir)
@@ -125,6 +126,7 @@ class FileStorage {
           fs.createReadStream(item.path),
           item.filename,
           item.mimetype,
+          isPublic,
         )
 
         uploaded.imageMetadata = {
@@ -146,13 +148,15 @@ class FileStorage {
     return storedObjects
   }
 
-  async #uploadFileHandler(fileStream, filename, mimetype) {
+  async #uploadFileHandler(fileStream, filename, mimetype, isPublic) {
     const params = {
       Bucket: this.bucket,
       Key: filename, // file name you want to save as
       Body: fileStream,
       ContentType: mimetype,
     }
+
+    if (isPublic) params.ACL = 'public-read'
 
     const upload = new Upload({
       client: this.s3,
@@ -241,6 +245,10 @@ class FileStorage {
     return getSignedUrl(this.s3, command, s3Params)
   }
 
+  getPublicURL(objectKey) {
+    return `${this.url}/${this.bucket}/${objectKey}`
+  }
+
   async healthCheck() {
     return this.s3.headBucket({ Bucket: this.bucket })
   }
@@ -257,18 +265,21 @@ class FileStorage {
     const hash = crypto.randomBytes(6).toString('hex')
     const extension = path.extname(filename).slice(1)
     const hashedFilename = forceObjectKeyValue || `${hash}.${extension}`
+    const isPublic = options.public || false
 
     const shouldConvert =
       !!this.imageConversionToSupportedFormatMapper[extension]
 
     const isImage = mimetype.match(/^image\//) || shouldConvert
 
-    if (isImage) return this.#handleImageUpload(fileStream, hashedFilename)
+    if (isImage)
+      return this.#handleImageUpload(fileStream, hashedFilename, isPublic)
 
     const storedObject = await this.#uploadFileHandler(
       fileStream,
       hashedFilename,
       mimetype,
+      isPublic,
     )
 
     const { ContentLength } = await this.#getFileInfo(storedObject.key)

@@ -33,9 +33,9 @@ services:
       # - MAILER_USER=${MAILER_USER}
       # - MAILER_PASSWORD=${MAILER_PASSWORD}
       - S3_URL=${S3_URL:-http://filehosting:9000}
+      - S3_BUCKET=${S3_BUCKET:-uploads}
       - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-cokoServerUser}
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-superSecretUserPassword}
-      - S3_BUCKET=${S3_BUCKET:-uploads}
       # - MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES=100
       # - S3_SEPARATE_DELETE_OPERATIONS=true
       # - S3_FORCE_PATH_STYLE=true

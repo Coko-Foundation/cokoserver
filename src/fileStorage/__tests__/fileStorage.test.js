@@ -4,13 +4,19 @@ const path = require('path')
 const fileStorage = require('../index')
 const FileStorageConstructor = require('../FileStorage')
 const tempFolderPath = require('../../utils/tempFolderPath')
+const request = require('../../utils/request')
 
 const testFilePath = path.join(__dirname, 'files')
+const textFileContent = 'This is a dummy text file'
 
-const uploadOneFile = async () => {
+const uploadOneFile = async isPublic => {
   const filePath = path.join(testFilePath, 'helloWorld.txt')
   const fileStream = fs.createReadStream(filePath)
-  const file = await fileStorage.upload(fileStream, 'helloWorld.txt')
+
+  const file = await fileStorage.upload(fileStream, 'helloWorld.txt', {
+    public: isPublic,
+  })
+
   return file[0]
 }
 
@@ -30,8 +36,8 @@ const cleanBucket = async () => {
 }
 
 describe('File Storage Service', () => {
-  beforeEach(() => {
-    cleanBucket()
+  beforeEach(async () => {
+    await cleanBucket()
   })
 
   afterAll(async () => {
@@ -135,14 +141,14 @@ describe('File Storage Service', () => {
     expect(fs.existsSync(tempPath)).toBe(true)
 
     const content = await fs.readFile(tempPath, 'utf8')
-    expect(content).toBe('This is a dummy text file')
+    expect(content).toBe(textFileContent)
   })
 
   it('gets the file content', async () => {
     const file = await uploadOneFile()
 
     const content = await fileStorage.getFileContent(file.key)
-    expect(content).toBe('This is a dummy text file')
+    expect(content).toBe(textFileContent)
   })
 
   it('deletes a single file', async () => {
@@ -234,4 +240,42 @@ describe('File Storage Service', () => {
     expect(allFiles.Contents).toHaveLength(1)
     expect(allFiles.Contents[0].Key).toEqual(key)
   })
+
+  it('cannot fails to read a public url for a private file', async () => {
+    const privateFile = await uploadOneFile()
+    const privateFileUrl = await fileStorage.getURL(privateFile.key)
+    expect(privateFileUrl).toBeDefined()
+    const privateFilePublicUrl = fileStorage.getPublicURL(privateFile.key)
+    await expect(request(privateFilePublicUrl)).rejects.toThrow()
+  })
+
+  it('reads a signed url for a public file', async () => {
+    const file = await uploadOneFile(true)
+    const url = await fileStorage.getURL(file.key)
+    const response = await request(url)
+    expect(response.data).toBe(textFileContent)
+  })
+
+  // Doesn't work with minio
+  /* eslint-disable-next-line jest/no-disabled-tests */
+  it.skip('reads a public url for a public file', async () => {
+    const file = await uploadOneFile(true)
+    const url = await fileStorage.getPublicURL(file.key)
+    const response = await request(url)
+    expect(response.data).toBe(textFileContent)
+  })
+
+  // Doesn't work with minio
+  /* eslint-disable-next-line jest/no-disabled-tests */
+  it.skip('reads a public url for a public image', async () => {
+    const filePath = path.join(testFilePath, 'test.png')
+    const fileStream = fs.createReadStream(filePath)
+
+    const storedObjects = await fileStorage.upload(fileStream, 'test.png', {
+      public: true,
+    })
+
+    const url = fileStorage.getPublicURL(storedObjects[0].key)
+    await expect(request(url)).resolves.not.toThrow()
+  }, 10000)
 })
