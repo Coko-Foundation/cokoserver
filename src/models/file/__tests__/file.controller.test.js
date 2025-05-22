@@ -5,6 +5,7 @@ const path = require('path')
 const File = require('../file.model')
 const { deleteFiles, createFile } = require('../file.controller')
 const clearDb = require('../../__tests__/_clearDb')
+const tempFolderPath = require('../../../utils/tempFolderPath')
 
 const testFilePath = path.join(
   __dirname,
@@ -19,9 +20,11 @@ const testFilePath = path.join(
 describe('File Controller', () => {
   beforeEach(() => clearDb())
 
-  afterAll(() => {
+  afterAll(async () => {
     const knex = File.knex()
     knex.destroy()
+
+    await fs.emptyDir(tempFolderPath)
   })
 
   it('creates a file', async () => {

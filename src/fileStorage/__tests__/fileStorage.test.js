@@ -1,5 +1,6 @@
 const fs = require('fs-extra')
 const path = require('path')
+const sharp = require('sharp')
 
 const fileStorage = require('../index')
 const FileStorageConstructor = require('../FileStorage')
@@ -116,6 +117,51 @@ describe('File Storage Service', () => {
     const storedObject = await fileStorage.upload(fileStream, 'test.eps')
 
     expect(storedObject).toHaveLength(4)
+  })
+
+  it('creates an image file and rotates it if needed', async () => {
+    const rotatedFileName = 'rotated-test.png'
+
+    const rotatedFilePath = path.join(testFilePath, 'exif-rotate.png')
+    const rotatedFileStream = fs.createReadStream(rotatedFilePath)
+
+    const rotatedStoredObjects = await fileStorage.upload(
+      rotatedFileStream,
+      rotatedFileName,
+    )
+
+    expect(rotatedStoredObjects).toHaveLength(4)
+
+    const rotatedOutputPath = path.join(tempFolderPath, rotatedFileName)
+
+    await fileStorage.download(rotatedStoredObjects[0].key, rotatedOutputPath)
+
+    const downloadedRotatedImage = sharp(rotatedOutputPath)
+    const rotatedMetadata = await downloadedRotatedImage.metadata()
+
+    expect(rotatedMetadata.orientation).toBeUndefined()
+    expect(rotatedMetadata.width).toBeGreaterThan(rotatedMetadata.height)
+
+    const standardFileName = 'test.jpg'
+
+    const standardFilePath = path.join(testFilePath, 'test.jpg')
+    const standardFileStream = fs.createReadStream(standardFilePath)
+
+    const standardStoredObjects = await fileStorage.upload(
+      standardFileStream,
+      standardFileName,
+    )
+
+    expect(standardStoredObjects).toHaveLength(4)
+
+    const standardOutputPath = path.join(tempFolderPath, standardFileName)
+
+    await fileStorage.download(standardStoredObjects[0].key, standardOutputPath)
+
+    const downloadedStandardImage = sharp(standardOutputPath)
+    const standardMetadata = await downloadedStandardImage.metadata()
+
+    expect(standardMetadata.width).toBeGreaterThan(standardMetadata.height)
   })
 
   it('provides signed URLs for given operation and object key', async () => {
