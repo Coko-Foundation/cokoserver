@@ -34,14 +34,17 @@ const createFile = async (
       public: isPublic,
     })
 
-    return File.query(trx).insert({
-      name,
-      alt,
-      caption,
-      tags,
-      objectId,
-      storedObjects,
-    })
+    return File.insert(
+      {
+        name,
+        alt,
+        caption,
+        tags,
+        objectId,
+        storedObjects,
+      },
+      { trx },
+    )
   } catch (e) {
     logger.error(`${FILE_CONTROLLER} createFile: ${e.message}`)
     throw e

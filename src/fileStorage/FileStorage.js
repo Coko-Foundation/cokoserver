@@ -211,13 +211,13 @@ class FileStorage {
 
     try {
       const writeStream = fs.createWriteStream(localPath)
-      item.Body.pipe(writeStream)
 
-      await new Promise(resolve => {
-        writeStream.on('finish', resolve)
+      await new Promise((resolve, reject) => {
+        item.Body.on('error', reject) // catch stream download errors
+          .pipe(writeStream)
+          .on('error', reject) // catch disk write errors
+          .on('finish', resolve)
       })
-
-      writeStream.end()
     } catch (e) {
       throw new Error(`Error writing item ${key} to disk. ${e.message}`)
     }

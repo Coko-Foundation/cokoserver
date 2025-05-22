@@ -7,6 +7,7 @@ const sharp = require('sharp')
 const commandExists = require('command-exists').sync
 const fs = require('fs-extra')
 const config = require('config')
+const exifr = require('exifr')
 
 const logger = require('../logger')
 
@@ -41,6 +42,17 @@ const imageSizeConversionMapper = {
     medium: 'jpeg',
     full: 'png',
   },
+}
+
+const orientationMap = {
+  'Horizontal (normal)': 1,
+  'Mirror horizontal': 2,
+  'Rotate 180': 3,
+  'Mirror vertical': 4,
+  'Mirror horizontal and rotate 270 CW': 5,
+  'Rotate 90 CW': 6,
+  'Mirror horizontal and rotate 90 CW': 7,
+  'Rotate 270 CW': 8,
 }
 // #endregion helpers
 
@@ -95,6 +107,48 @@ class Image {
     })
   }
 
+  /* eslint-disable class-methods-use-this */
+  async #rotate(fileBuffer, filePath, metadata) {
+    if (!metadata.exif) return
+
+    let exifMetadata
+
+    try {
+      exifMetadata = await exifr.parse(metadata.exif)
+    } catch (e) {
+      logger.error(
+        `FILE_STORAGE: generateVersions: failed to get exif metadata`,
+        e.message,
+      )
+    }
+
+    if (!exifMetadata) return
+
+    const orientationString = exifMetadata?.Orientation
+    const orientation = orientationMap[orientationString] ?? 1
+
+    if ([3, 6, 8].includes(orientation)) {
+      const image = sharp(fileBuffer)
+
+      switch (orientation) {
+        case 3:
+          image.rotate(180)
+          break
+        case 6:
+          image.rotate(90)
+          break
+        case 8:
+          image.rotate(270)
+          break
+        default:
+      }
+
+      // replace original file with rotated original
+      const updatedFileBuffer = await image.toBuffer()
+      await sharp(updatedFileBuffer).toFile(filePath)
+    }
+  }
+
   async generateVersions() {
     let filePath = this.path
     if (this.shouldConvert) filePath = await this.#createConvertedFile()
@@ -104,6 +158,8 @@ class Image {
 
     const metadata = await getMetadata(fileBuffer)
     const originalImageWidth = metadata.width
+
+    this.#rotate(fileBuffer, filePath, metadata)
 
     const sizes = ['small', 'medium', 'full']
 
