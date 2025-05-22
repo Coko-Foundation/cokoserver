@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.12.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.11.1...v4.12.0) (2025-05-22)
+
+
+### Features
+
+* **fileStorage:** allow uploading of public-read files ([8793748](https://gitlab.coko.foundation/cokoapps/server/commit/87937480d336dbe04bd6f746b17db4c48f3a7c55))
+
 ### [4.11.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.11.0...v4.11.1) (2025-05-15)
 
 
