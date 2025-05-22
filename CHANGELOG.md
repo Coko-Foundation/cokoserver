@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.13.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.12.0...v4.13.0) (2025-05-22)
+
+
+### Features
+
+* **models:** add public option to createFile controller ([1ac8055](https://gitlab.coko.foundation/cokoapps/server/commit/1ac8055ce733612347ea72ac5c75680688a33cee))
+
 ## [4.12.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.11.1...v4.12.0) (2025-05-22)
 
 
