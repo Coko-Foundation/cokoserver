@@ -1,5 +1,4 @@
 const { v4: uuid } = require('uuid')
-const find = require('lodash/find')
 
 const logger = require('../../logger')
 const BaseModel = require('../base.model')
@@ -126,7 +125,7 @@ class File extends BaseModel {
 
   getStoredObjectBasedOnType(type) {
     try {
-      const found = find(this.storedObjects, { type })
+      const found = this.storedObjects.find(o => o.type === type)
 
       if (!found) {
         throw new Error('Unknown type of stored object provided')

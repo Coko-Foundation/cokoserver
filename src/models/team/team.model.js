@@ -1,4 +1,3 @@
-const find = require('lodash/find')
 const { ValidationError } = require('objection')
 
 const logger = require('../../logger')
@@ -79,14 +78,14 @@ class Team extends BaseModel {
     const { global, role, displayName } = json
 
     if (global) {
-      validTeamChoice = find(globalTeams, { role })
+      validTeamChoice = globalTeams.find(t => t.role === role)
 
       if (displayName && validTeamChoice) {
         validCombinationOfRoleAndName =
           validTeamChoice.displayName === displayName
       }
     } else {
-      validTeamChoice = find(nonGlobalTeams, { role })
+      validTeamChoice = nonGlobalTeams.find(t => t.role === role)
 
       if (displayName && validTeamChoice) {
         validCombinationOfRoleAndName =

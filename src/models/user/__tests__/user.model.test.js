@@ -1,4 +1,3 @@
-const find = require('lodash/find')
 const clone = require('lodash/clone')
 
 const { db, migrationManager } = require('../../../db')
@@ -243,8 +242,8 @@ describe('User model', () => {
 
     const dbUser = await User.findById(newUser.id, { related: 'identities' })
 
-    const found1 = find(dbUser.identities, { id: identity1.id })
-    const found2 = find(dbUser.identities, { id: identity2.id })
+    const found1 = dbUser.identities.find(i => i.id === identity1.id)
+    const found2 = dbUser.identities.find(i => i.id === identity2.id)
 
     expect(dbUser.identities).toHaveLength(2)
     expect(found1).not.toBe(undefined)

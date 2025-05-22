@@ -1,7 +1,6 @@
 const axios = require('axios')
 const config = require('config')
 const { URLSearchParams: UnpackedParams } = require('url')
-const find = require('lodash/find')
 const flattenDeep = require('lodash/flattenDeep')
 
 const {
@@ -243,7 +242,9 @@ describe('Identity Controller', () => {
 
     expect(oauthRefreshTokenExpiration).toEqual(foreverDate)
     expect(
-      find(flattenDeep(jobManager.sendToQueue.mock.calls), { userId: user.id }),
+      flattenDeep(jobManager.sendToQueue.mock.calls).find(
+        i => i.userId === user.id,
+      ),
     ).toBeUndefined()
   })
 })

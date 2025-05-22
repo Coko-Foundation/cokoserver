@@ -1,7 +1,6 @@
 const config = require('config')
 const crypto = require('crypto')
 const moment = require('moment')
-const find = require('lodash/find')
 
 const {
   AuthorizationError,
@@ -665,7 +664,7 @@ const setDefaultIdentity = async (userId, identityId, options = {}) => {
         )
 
         const { identities } = user
-        const previouslyDefault = find(identities, { isDefault: true })
+        const previouslyDefault = identities.find(i => i.isDefault)
 
         if (previouslyDefault && previouslyDefault.id === identityId) {
           return user
