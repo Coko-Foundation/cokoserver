@@ -25,12 +25,13 @@ const createFile = async (
   options = {},
 ) => {
   try {
-    const { trx, forceObjectKeyValue, s3 } = options
+    const { trx, forceObjectKeyValue, s3, public: isPublic } = options
 
     const storage = getStorage(s3)
 
     const storedObjects = await storage.upload(fileStream, name, {
       forceObjectKeyValue,
+      public: isPublic,
     })
 
     return File.query(trx).insert({
