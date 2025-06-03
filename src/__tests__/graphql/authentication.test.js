@@ -1,7 +1,7 @@
 const gql = require('graphql-tag')
 const { v4: uuid } = require('uuid')
 
-const clearDb = require('../../models/__tests__/_clearDb')
+const clearDb = require('../../models/_helpers/clearDb')
 const { User } = require('../../models')
 const { db } = require('../../db')
 const gqlServer = require('../../utils/createGraphqlTestServer')()

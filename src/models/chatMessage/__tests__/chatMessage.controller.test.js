@@ -15,7 +15,7 @@ const {
   deleteMessage,
 } = require('../chatMessage.controller')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 describe('ChatChannel Controller', () => {
   beforeAll(async () => {

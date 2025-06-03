@@ -1,7 +1,7 @@
 const gql = require('graphql-tag')
 
 const { User } = require('../../models')
-const clearDb = require('../../models/__tests__/_clearDb')
+const clearDb = require('../../models/_helpers/clearDb')
 const { db } = require('../../db')
 const gqlServer = require('../../utils/createGraphqlTestServer')()
 const subscriptionManager = require('../../graphql/pubsub')

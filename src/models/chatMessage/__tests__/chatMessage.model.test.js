@@ -9,7 +9,7 @@ const {
 
 const { ChatMessage, ChatChannel, User } = require('../../index')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 describe('ChatMessage model', () => {
   beforeAll(async () => {

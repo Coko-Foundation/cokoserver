@@ -2,7 +2,7 @@ const { v4: uuid } = require('uuid')
 
 const Fake = require('./helpers/fake/fake.model')
 const { createUser } = require('./helpers/users')
-const clearDb = require('./_clearDb')
+const clearDb = require('../_helpers/clearDb')
 
 describe('Base model', () => {
   beforeEach(() => clearDb())

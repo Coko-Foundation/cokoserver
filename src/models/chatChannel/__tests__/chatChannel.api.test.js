@@ -2,7 +2,7 @@ const gql = require('graphql-tag')
 
 const { db, migrationManager } = require('../../../db')
 const subscriptionManager = require('../../../graphql/pubsub')
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 const gqlServer = require('../../../utils/createGraphqlTestServer')()
 const Fake = require('../../__tests__/helpers/fake/fake.model')
 

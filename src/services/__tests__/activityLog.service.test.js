@@ -1,7 +1,7 @@
 const activityLog = require('../activityLog')
 
 const { createUser } = require('../../models/__tests__/helpers/users')
-const clearDb = require('../../models/__tests__/_clearDb')
+const clearDb = require('../../models/_helpers/clearDb')
 const ActivityLog = require('../../models/activityLog/activityLog.model')
 const { actionTypes } = require('../../models/activityLog/constants')
 const { db } = require('../../db')

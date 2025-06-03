@@ -13,7 +13,7 @@ const {
   createLocalTeamWithUsers,
 } = require('../../__tests__/helpers/teams')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 const {
   user,

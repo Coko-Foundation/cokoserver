@@ -7,7 +7,7 @@ const defaultJobQueueNames = require('../defaultJobQueueNames')
 const { boss, start, stop } = require('../boss')
 const JobManagerOptionsError = require('../JobManagerOptionsError')
 
-const N = 2500
+const N = 3000
 
 /**
  * Note:
@@ -82,7 +82,7 @@ describe('Job queues', () => {
       await wait(4000)
       const newSize = await boss.getQueueSize(name)
       expect(newSize).toBe(0)
-    }, 7000)
+    }, 10000)
 
     it('cannot accept invalid options when sending a job', async () => {
       const name = 'test-me'

@@ -2,7 +2,7 @@ const { v4: uuid } = require('uuid')
 
 const { db, migrationManager } = require('../../../db')
 const subscriptionManager = require('../../../graphql/pubsub')
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 const User = require('../../user/user.model')
 const Team = require('../../team/team.model')

@@ -4,7 +4,7 @@ const path = require('path')
 
 const File = require('../file.model')
 const { deleteFiles, createFile } = require('../file.controller')
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 const tempFolderPath = require('../../../utils/tempFolderPath')
 
 const testFilePath = path.join(

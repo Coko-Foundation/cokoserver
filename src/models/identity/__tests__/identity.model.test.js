@@ -8,7 +8,7 @@ const {
   identityWithProfileData,
 } = require('../../__tests__/fixtures/identities')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 describe('Identity model', () => {
   beforeEach(async () => {

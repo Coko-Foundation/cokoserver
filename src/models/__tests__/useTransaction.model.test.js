@@ -1,7 +1,7 @@
 const { Team } = require('../index')
 
 const useTransaction = require('../useTransaction')
-const clearDb = require('./_clearDb')
+const clearDb = require('../_helpers/clearDb')
 
 const createValidTeams = async trx =>
   Team.insert(

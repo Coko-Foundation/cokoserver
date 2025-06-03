@@ -15,7 +15,7 @@ const { createGlobalTeamWithUsers } = require('../../__tests__/helpers/teams')
 
 const { createUser } = require('../../__tests__/helpers/users')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 describe('Team Controller', () => {
   beforeEach(() => clearDb())

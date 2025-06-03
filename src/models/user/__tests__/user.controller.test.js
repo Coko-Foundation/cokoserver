@@ -29,7 +29,7 @@ const {
   updatePassword,
 } = require('../user.controller')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 jest.mock('../../../services/notify.js')
 jest.mock('../../_helpers/emailTemplates.js')

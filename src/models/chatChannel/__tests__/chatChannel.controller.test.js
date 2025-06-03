@@ -6,7 +6,7 @@ const subscriptionManager = require('../../../graphql/pubsub')
 const ChatChannel = require('../chatChannel.model')
 const { getChatChannels, getChatChannel } = require('../chatChannel.controller')
 
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 describe('ChatChannel Controller', () => {
   beforeAll(async () => {

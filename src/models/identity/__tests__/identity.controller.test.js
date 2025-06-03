@@ -17,7 +17,7 @@ const { foreverDate } = require('../../../utils/time')
 const Identity = require('../identity.model')
 
 const { createUser } = require('../../__tests__/helpers/users')
-const clearDb = require('../../__tests__/_clearDb')
+const clearDb = require('../../_helpers/clearDb')
 
 jest.mock('../../../jobManager', () => {
   return {

@@ -22,6 +22,7 @@ const {
 } = require('./models')
 
 const modelJsonSchemaTypes = require('./models/_helpers/types')
+const clearDb = require('./models/_helpers/clearDb')
 const tempFolderPath = require('./utils/tempFolderPath')
 const fileStorage = require('./fileStorage')
 
@@ -85,6 +86,7 @@ module.exports = {
   uuid,
   uuidValidate,
   WaxToDocxConverter,
+  clearDb,
 
   // file storage
   createFile,
