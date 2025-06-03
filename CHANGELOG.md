@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.15.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.14.0...v4.15.0) (2025-06-03)
+
+
+### Features
+
+* export clearDb util ([c1beefe](https://gitlab.coko.foundation/cokoapps/server/commit/c1beefe8298aeb6eee09035b856232fc48382a25))
+
 ## [4.14.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.13.0...v4.14.0) (2025-05-22)
 
 
