@@ -114,7 +114,8 @@ class Image {
     let exifMetadata
 
     try {
-      exifMetadata = await exifr.parse(metadata.exif)
+      // more reliable to use fileBuffer, but we still want to see if metadata.exif exists or not
+      exifMetadata = await exifr.parse(fileBuffer)
     } catch (e) {
       logger.error(
         `FILE_STORAGE: generateVersions: failed to get exif metadata`,
@@ -159,7 +160,7 @@ class Image {
     const metadata = await getMetadata(fileBuffer)
     const originalImageWidth = metadata.width
 
-    this.#rotate(fileBuffer, filePath, metadata)
+    await this.#rotate(fileBuffer, filePath, metadata)
 
     const sizes = ['small', 'medium', 'full']
 
