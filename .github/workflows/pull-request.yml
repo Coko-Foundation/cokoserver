@@ -1,0 +1,9 @@
+name: Pull request pipeline
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint & Test
+    uses: ./.github/workflows/lint-and-test.yml
