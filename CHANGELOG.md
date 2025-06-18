@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.15.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.15.0...v4.15.1) (2025-06-18)
+
+
+### Bug Fixes
+
+* **fileStorage:** await image rotation ([ac10452](https://gitlab.coko.foundation/cokoapps/server/commit/ac10452d8747c897e223b9742e9dac3d44d2a8da))
+
 ## [4.15.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.14.0...v4.15.0) (2025-06-03)
 
 
