@@ -29,6 +29,10 @@ jobs:
         id: build_server
         run: docker compose build
 
+      - name: Pull containers
+        id: pull_containers
+        run: docker compose pull
+
       - name: Test server
         id: test_server
         run: docker compose run server yarn test --colors
