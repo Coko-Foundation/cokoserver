@@ -5,4 +5,5 @@ on:
 
 jobs:
   lint:
+    name: Lint & Test
     uses: ./.github/workflows/lint.yml
