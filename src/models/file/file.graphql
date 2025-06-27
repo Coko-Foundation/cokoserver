@@ -41,6 +41,7 @@ input UpdateFileInput {
   id: ID!
   name: String
   alt: String
+  caption: String
   description: String
   tags: [String!]!
 }
