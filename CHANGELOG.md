@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.15.2](https://gitlab.coko.foundation/cokoapps/server/compare/v4.15.1...v4.15.2) (2025-06-27)
+
+
+### Bug Fixes
+
+* **graphql:** add caption to UpdateFileInput ([92e5fb8](https://gitlab.coko.foundation/cokoapps/server/commit/92e5fb8881a96739f327ed62a2fe779c7c22ec15))
+
 ### [4.15.1](https://gitlab.coko.foundation/cokoapps/server/compare/v4.15.0...v4.15.1) (2025-06-18)
 
 
