@@ -16,7 +16,7 @@ const { Upload } = require('@aws-sdk/lib-storage')
 const useTransaction = require('../../useTransaction')
 const File = require('../file.model')
 const tempFolderPath = require('../../../utils/tempFolderPath')
-const fileStorage = require('../../../fileStorage')
+const { fileStorage } = require('../../../fileStorage')
 
 const imageSizeConversionMapper = {
   tiff: {

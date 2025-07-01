@@ -3,17 +3,11 @@ const logger = require('../../logger')
 const File = require('./file.model')
 const useTransaction = require('../useTransaction')
 
-const fileStorage = require('../../fileStorage')
-const FileStorageConstructor = require('../../fileStorage/FileStorage')
+const { getFileStorage } = require('../../fileStorage')
 
 const {
   labels: { FILE_CONTROLLER },
 } = require('./constants')
-
-const getStorage = connectionConfig => {
-  if (!connectionConfig) return fileStorage
-  return new FileStorageConstructor(connectionConfig)
-}
 
 const createFile = async (
   fileStream,
@@ -27,7 +21,7 @@ const createFile = async (
   try {
     const { trx, forceObjectKeyValue, s3, public: isPublic } = options
 
-    const storage = getStorage(s3)
+    const storage = getFileStorage(s3)
 
     const storedObjects = await storage.upload(fileStream, name, {
       forceObjectKeyValue,
@@ -55,7 +49,7 @@ const deleteFiles = async (ids, removeFromFileServer = true, options = {}) => {
   try {
     const { trx, s3 } = options
 
-    const storage = getStorage(s3)
+    const storage = getFileStorage(s3)
 
     logger.info(
       `${FILE_CONTROLLER} deleteFiles: deleting files with ids ${ids}`,

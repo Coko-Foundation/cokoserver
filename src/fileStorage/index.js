@@ -1,9 +1,5 @@
-/* eslint-disable max-classes-per-file */
-
-const config = require('config')
-
-const FileStorage = require('./FileStorage')
-const FileStorageNoop = require('./FileStorageNoop')
+const fileStorage = require('./helpers/fileStorage')
+const getFileStorage = require('./helpers/getFileStorage')
 
 /**
  * PREVIOUSLY EXPORTED FUNCTIONS
@@ -19,9 +15,4 @@ const FileStorageNoop = require('./FileStorageNoop')
 //   list,
 // }
 
-const exportedClass =
-  config.has('useFileStorage') && config.get('useFileStorage')
-    ? new FileStorage()
-    : new FileStorageNoop()
-
-module.exports = exportedClass
+module.exports = { fileStorage, getFileStorage }

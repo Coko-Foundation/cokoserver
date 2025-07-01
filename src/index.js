@@ -24,7 +24,7 @@ const {
 const modelJsonSchemaTypes = require('./models/_helpers/types')
 const clearDb = require('./models/_helpers/clearDb')
 const tempFolderPath = require('./utils/tempFolderPath')
-const fileStorage = require('./fileStorage')
+const { fileStorage, getFileStorage } = require('./fileStorage')
 
 const WaxToDocxConverter = require('./services/docx/docx.service')
 
@@ -77,6 +77,7 @@ module.exports = {
   migrationManager,
   subscriptionManager,
   fileStorage,
+  getFileStorage,
 
   /* UTILS */
   isEnvVariableTrue,

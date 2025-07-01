@@ -2,7 +2,7 @@ const config = require('config')
 
 const db = require('../db/db')
 const { logTask, logTaskItem, logErrorTask } = require('../logger/internals')
-const fileStorage = require('../fileStorage')
+const { fileStorage } = require('../fileStorage')
 
 const sleep = ms =>
   new Promise(resolve => {

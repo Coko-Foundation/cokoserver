@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const sharp = require('sharp')
 
-const fileStorage = require('../index')
+const { fileStorage } = require('../index')
 const FileStorageConstructor = require('../FileStorage')
 const tempFolderPath = require('../../utils/tempFolderPath')
 const request = require('../../utils/request')
