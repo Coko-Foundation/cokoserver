@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.16.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.15.2...v4.16.0) (2025-07-08)
+
+
+### Features
+
+* **fileStorage:** export file storage constructor ([31e43f2](https://gitlab.coko.foundation/cokoapps/server/commit/31e43f20f202517dc2ca09588115f98210ea3aea))
+
 ### [4.15.2](https://gitlab.coko.foundation/cokoapps/server/compare/v4.15.1...v4.15.2) (2025-06-27)
 
 
