@@ -25,6 +25,7 @@ const modelJsonSchemaTypes = require('./models/_helpers/types')
 const clearDb = require('./models/_helpers/clearDb')
 const tempFolderPath = require('./utils/tempFolderPath')
 const fileStorage = require('./fileStorage')
+const FileStorageConstructor = require('./fileStorage/FileStorage')
 
 const WaxToDocxConverter = require('./services/docx/docx.service')
 
@@ -76,7 +77,6 @@ module.exports = {
   jobManager,
   migrationManager,
   subscriptionManager,
-  fileStorage,
 
   /* UTILS */
   isEnvVariableTrue,
@@ -89,8 +89,10 @@ module.exports = {
   clearDb,
 
   // file storage
+  fileStorage,
   createFile,
   deleteFiles,
+  FileStorageConstructor,
 
   // jwt
   createJWT,
