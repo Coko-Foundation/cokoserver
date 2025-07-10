@@ -109,12 +109,12 @@ class Image {
 
   /* eslint-disable class-methods-use-this */
   async #rotate(fileBuffer, filePath, metadata) {
-    if (!metadata.exif) return
+    if (!metadata.exif) return fileBuffer
 
     let exifMetadata
 
     try {
-      // more reliable to use fileBuffer, but we still want to see if metadata.exif exists or not
+      // more reliable to use fileBuffer with exifr, but we still want to see if metadata.exif exists or not
       exifMetadata = await exifr.parse(fileBuffer)
     } catch (e) {
       logger.error(
@@ -123,7 +123,7 @@ class Image {
       )
     }
 
-    if (!exifMetadata) return
+    if (!exifMetadata) return fileBuffer
 
     const orientationString = exifMetadata?.Orientation
     const orientation = orientationMap[orientationString] ?? 1
@@ -147,7 +147,11 @@ class Image {
       // replace original file with rotated original
       const updatedFileBuffer = await image.toBuffer()
       await sharp(updatedFileBuffer).toFile(filePath)
+
+      return updatedFileBuffer
     }
+
+    return fileBuffer
   }
 
   async generateVersions() {
@@ -155,12 +159,12 @@ class Image {
     if (this.shouldConvert) filePath = await this.#createConvertedFile()
 
     const fileReadStream = fs.createReadStream(filePath)
-    const fileBuffer = await buffer(fileReadStream)
+    let fileBuffer = await buffer(fileReadStream)
 
     const metadata = await getMetadata(fileBuffer)
     const originalImageWidth = metadata.width
 
-    await this.#rotate(fileBuffer, filePath, metadata)
+    fileBuffer = await this.#rotate(fileBuffer, filePath, metadata)
 
     const sizes = ['small', 'medium', 'full']
 
