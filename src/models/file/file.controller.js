@@ -25,13 +25,7 @@ const createFile = async (
   options = {},
 ) => {
   try {
-    const {
-      trx,
-      forceObjectKeyValue,
-      s3,
-      public: isPublic,
-      referenceId = null,
-    } = options
+    const { trx, forceObjectKeyValue, s3, public: isPublic, meta } = options
 
     const storage = getStorage(s3)
 
@@ -48,7 +42,7 @@ const createFile = async (
         tags,
         objectId,
         storedObjects,
-        referenceId,
+        meta,
       },
       { trx },
     )
