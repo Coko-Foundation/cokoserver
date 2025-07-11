@@ -43,7 +43,7 @@ input UpdateFileInput {
   alt: String
   caption: String
   description: String
-  tags: [String!]!
+  tags: [String!]
 }
 
 "The signed url of a file"
