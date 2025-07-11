@@ -62,6 +62,11 @@ const object = {
   type: 'object',
 }
 
+const objectDefaultEmpty = {
+  type: 'object',
+  default: {},
+}
+
 const objectNullable = {
   type: ['object', 'null'],
   default: null,
@@ -136,6 +141,7 @@ module.exports = {
   idNullable,
   integerPositive,
   object,
+  objectDefaultEmpty,
   objectNullable,
   password,
   string,
