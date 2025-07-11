@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.17.1](https://github.com/Coko-Foundation/cokoserver/compare/v4.17.0...v4.17.1) (2025-07-11)
+
+
+### Bug Fixes
+
+* **models:** tags should be optional in UpdateFileInput ([ba550e4](https://github.com/Coko-Foundation/cokoserver/commit/ba550e46ed973193d37ec52d0a8358ed6c481c40))
+
 ## [4.17.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.16.0...v4.17.0) (2025-07-11)
 
 
