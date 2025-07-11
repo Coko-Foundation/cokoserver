@@ -11,6 +11,7 @@ const {
   idNullable,
   integerPositive,
   id,
+  objectDefaultEmpty,
 } = require('../_helpers/types')
 
 // Type declaration
@@ -69,6 +70,7 @@ class File extends BaseModel {
       properties: {
         alt: stringNullable,
         caption: stringNullable,
+        meta: objectDefaultEmpty,
         name: stringNotEmpty,
         objectId: idNullable,
         storedObjects: arrayOfStoredObjects,
