@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.17.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.16.0...v4.17.0) (2025-07-11)
+
+
+### Features
+
+* **fileStorage:** pass meta to createfile ([ac31b4a](https://gitlab.coko.foundation/cokoapps/server/commit/ac31b4a3a938eb8a2a83efef9f9da1d426affaaf))
+* **models:** add meta column to file model ([12e5e3f](https://gitlab.coko.foundation/cokoapps/server/commit/12e5e3f35c0144ce0a140b1fe1d098a0e8fe2bbe))
+* **models:** add objectDefaultEmpty to json schema types ([a032ada](https://gitlab.coko.foundation/cokoapps/server/commit/a032ada11cd7928b4651a8f3887d0bf2b7f65877))
+
+
+### Bug Fixes
+
+* **fileStorage:** return rotated image buffer ([3ce9f53](https://gitlab.coko.foundation/cokoapps/server/commit/3ce9f53f5736f53f79d439e3c1dd8e3be3a1750b))
+
 ## [4.16.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.15.2...v4.16.0) (2025-07-08)
 
 
