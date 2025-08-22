@@ -58,6 +58,11 @@ const integerPositive = {
   minimum: 1,
 }
 
+const integerZeroOrPositive = {
+  type: 'integer',
+  minimum: 0,
+}
+
 const object = {
   type: 'object',
 }
@@ -140,6 +145,7 @@ module.exports = {
   id,
   idNullable,
   integerPositive,
+  integerZeroOrPositive,
   object,
   objectDefaultEmpty,
   objectNullable,
