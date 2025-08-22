@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.18.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.17.0...v4.18.0) (2025-08-22)
+
+
+### Features
+
+* **models:** add integerZeroOrPositive type ([28b1c1f](https://github.com/Coko-Foundation/cokoserver/commit/28b1c1fc2f23d6b27bf3b80408eb7115c58db607))
+
+
+### Bug Fixes
+
+* **models:** tags should be optional in UpdateFileInput ([ba550e4](https://github.com/Coko-Foundation/cokoserver/commit/ba550e46ed973193d37ec52d0a8358ed6c481c40))
+
 ## [4.17.0](https://gitlab.coko.foundation/cokoapps/server/compare/v4.16.0...v4.17.0) (2025-07-11)
 
 
