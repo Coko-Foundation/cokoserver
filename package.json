@@ -13,7 +13,7 @@
   "author": "Yannis Barlas",
   "main": "src/index.js",
   "bin": {
-    "coko-server": "./src/cli/coko-server.js"
+    "coko-server": "./src/cli/coko-server.mjs"
   },
   "files": [
     "src",
@@ -37,6 +37,7 @@
     "@aws-sdk/lib-storage": "^3.806.0",
     "@aws-sdk/s3-request-presigner": "^3.806.0",
     "@graphql-tools/schema": "^10.0.4",
+    "@types/node": "^24.8.1",
     "ajv-formats": "^3.0.1",
     "axios": "^1.7.2",
     "axios-retry": "^4.3.0",
@@ -85,6 +86,8 @@
     "pg-boss": "^9.0.3",
     "pg-ipc": "^1.0.5",
     "sharp": "^0.34.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
     "umzug": "^3.8.0",
     "uuid": "^9.0.1",
     "ws": "^8.18.0"

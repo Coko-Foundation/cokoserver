@@ -1,4 +1,4 @@
-FROM cokoapps/base-dev:22
+FROM cokoapps/base:22
 
 RUN corepack enable
 
@@ -11,5 +11,7 @@ COPY yarn.lock .
 RUN chown -R node:node .
 USER node
 
-RUN yarn install --immutable && yarn cache clean && rm -rf ~/.npm
+RUN yarn workspaces focus --production && yarn cache clean && rm -rf ~/.npm
 COPY --chown=node:node . .
+
+RUN yarn coko-server build

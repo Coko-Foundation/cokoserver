@@ -1,31 +1,63 @@
 #!/usr/bin/env node
 
-const path = require('path')
+/* eslint-disable import/extensions */
 
-const { program } = require('commander')
-const madge = require('madge')
-const output = require('madge/lib/output')
-const ora = require('ora')
-const nodemon = require('nodemon')
-const config = require('config')
+import path from 'path'
+import { execSync } from 'child_process'
 
-const pkg = require('../../package.json')
-const logger = require('../logger')
-const { logNodemon } = require('../logger/internals')
-const { migrationManager } = require('../db')
-const { startServer } = require('../startServer')
+import { program } from 'commander'
+import madge from 'madge'
+import output from 'madge/lib/output.js'
+import ora from 'ora'
+import nodemon from 'nodemon'
 
-const devServerIgnore =
-  (config.has('devServerIgnore') && config.get('devServerIgnore')) || []
+import logger from '../logger/index.js'
+import { logNodemon } from '../logger/internals.js'
+import loadBuilderConfig from './loadBuilderConfig.mjs'
+import generateTsConfig from './generateTsConfig.mjs'
 
-const inspectorPort =
-  (config.has('inspectorPort') && config.get('inspectorPort')) || 9229
+const { default: pkg } = await import('../../package.json', {
+  with: { type: 'json' },
+})
+
+async function ensureTsSupport() {
+  const { buildPath } = loadBuilderConfig()
+  const tsConfigPath = generateTsConfig(buildPath)
+
+  const { register } = await import('ts-node')
+
+  register({
+    transpileOnly: true,
+    project: tsConfigPath,
+  })
+}
+
+const outDir = path.join(process.cwd(), 'dist')
+
+program
+  .command('build')
+  .description('Build production server')
+  .showHelpAfterError()
+  .action(() => {
+    logger.info('🛠  Building TypeScript...')
+
+    const { buildPath } = loadBuilderConfig()
+    const tsConfigPath = generateTsConfig(buildPath)
+
+    execSync(`tsc --project ${tsConfigPath} --outDir ${outDir}`, {
+      stdio: 'inherit',
+    })
+
+    logger.info('✅ Build completed successfully.')
+  })
 
 program
   .command('start')
   .description('Start server')
   .showHelpAfterError()
-  .action(() => {
+  .action(async () => {
+    const serverPath = path.join(outDir, 'src', 'startServer.js')
+    const { startServer } = await import(serverPath)
     startServer()
   })
 
@@ -34,11 +66,21 @@ program
   .description('Start development server')
   .showHelpAfterError()
   .action(() => {
-    const scriptPath = path.join(__dirname, '..', 'init')
+    const {
+      buildPath,
+      devServer: { inspectorPort, ignore },
+    } = loadBuilderConfig()
+
+    const tsConfigPath = generateTsConfig(buildPath)
+    const scriptPath = path.join(import.meta.dirname, '..', 'init.js')
+
+    const nodeOptions = `NODE_OPTIONS="--inspect=0.0.0.0:${inspectorPort}"`
+    const configOption = `--project ${tsConfigPath}`
+    const exec = `${nodeOptions} ts-node ${configOption} ${scriptPath}`
 
     nodemon({
-      exec: `node --inspect=0.0.0.0:${inspectorPort} "${scriptPath}"`,
-      ignore: ['./tmp/*', ...devServerIgnore],
+      exec,
+      ignore,
       ext: '*',
     })
 
@@ -60,6 +102,13 @@ program
 const migrateCommand = program
   .command('migrate')
   .description('Run or roll back migrations')
+  .hook('preAction', async () => {
+    /**
+     * We want to register ts-node and import migration manager on the fly, to
+     * make sure that typescript code will work without a pre-compile step.
+     */
+    await ensureTsSupport()
+  })
   .showHelpAfterError()
 
 migrateCommand
@@ -72,6 +121,8 @@ migrateCommand
   .description('Run migrations')
   .alias('run')
   .action(async options => {
+    const { migrationManager } = await import('../db/index.js')
+
     try {
       const optionsToPass = {}
 
@@ -101,6 +152,8 @@ migrateCommand
   .description('Roll back migrations')
   .alias('rollback')
   .action(async options => {
+    const { migrationManager } = await import('../db/index.js')
+
     const optionsToPass = {}
     const lastSuccessfulRun = options.lastSuccessfulRun === true
     const step = parseInt(options.step, 10)
@@ -124,6 +177,8 @@ migrateCommand
   .command('pending')
   .description('Display pending migrations')
   .action(async () => {
+    const { migrationManager } = await import('../db/index.js')
+
     try {
       await migrationManager.pending()
       process.exit(0)
@@ -137,6 +192,8 @@ migrateCommand
   .command('executed')
   .description('Display executed migrations')
   .action(async () => {
+    const { migrationManager } = await import('../db/index.js')
+
     try {
       await migrationManager.executed()
       process.exit(0)

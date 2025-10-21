@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "outDir": "./dist",
+    "strict": false,
+    "target": "es2022"
+  },
+  "include": ["../../src/**/*"],
+  "exclude": ["../../src/cli/**/*"]
+}

@@ -1,7 +1,9 @@
-const permissions = require('./permissions')
-const jobHandler = require('../scripts/jobHandler')
+import typescriptTest from './testme'
 
-module.exports = {
+import permissions from './permissions'
+import jobHandler from '../scripts/jobHandler'
+
+export default {
   components: [
     './src/models/__tests__/helpers/fake',
     './src/models/activityLog',
@@ -102,6 +104,12 @@ module.exports = {
     //     })
     //   },
     // },
+    {
+      label: 'Test typescript',
+      execute: () => {
+        typescriptTest('Yannis')
+      },
+    },
   ],
   // onShutdown: [
   //   {

@@ -2,18 +2,18 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-production
     depends_on:
       - db
       - filehosting
       - createbucket
-    command: ['yarn', 'coko-server', 'start-dev']
+    command: ['yarn', 'coko-server', 'start']
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
       - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - NODE_CONFIG_DIR=./dev/config
+      - NODE_ENV=production
+      - NODE_CONFIG_DIR=./dist/dev/config
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_DB=${POSTGRES_DB:-test}
@@ -41,11 +41,6 @@ services:
       # - S3_FORCE_PATH_STYLE=true
       - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
       # - CORS_ORIGIN=https://studio.apollographql.com
-    volumes:
-      - ./dev:/home/node/app/dev
-      - ./src:/home/node/app/src
-      - ./authorization.js:/home/node/app/authorization.js
-      - ./builder.json:/home/node/app/builder.json
     tty: true
 
   db:
