@@ -1,3 +1,3 @@
-import { stylelint } from '@coko/lint'
+import stylelint from '@coko/lint/src/stylelint'
 
 export default stylelint

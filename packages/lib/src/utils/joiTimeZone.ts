@@ -4,7 +4,17 @@
  */
 
 import Joi from 'joi'
-import { IANAZone } from 'luxon'
+
+const isValidTimezone = (zone: string): boolean => {
+  if (!zone) return false
+
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: zone }).format()
+    return true
+  } catch (e) {
+    return false
+  }
+}
 
 const joiTimeZone = {
   type: 'timezone',
@@ -14,7 +24,7 @@ const joiTimeZone = {
   },
   rules: {},
   validate(value, helpers) {
-    if (!IANAZone.isValidZone(value)) {
+    if (!isValidTimezone(value)) {
       return { value, errors: helpers.error('timezone') }
     }
 

@@ -13,4 +13,4 @@ const permissions = {
   },
 }
 
-export default permissions
+module.exports = permissions
