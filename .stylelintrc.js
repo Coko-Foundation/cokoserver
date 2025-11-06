@@ -1,3 +1,3 @@
-const { stylelint } = require('@coko/lint')
+import { stylelint } from '@coko/lint'
 
-module.exports = stylelint
+export default stylelint

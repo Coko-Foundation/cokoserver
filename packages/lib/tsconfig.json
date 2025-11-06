@@ -1,0 +1,17 @@
+// Used when building the coko server dist folder
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "es2022"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/__tests__"]
+}

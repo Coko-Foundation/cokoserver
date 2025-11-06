@@ -7,13 +7,12 @@ services:
       - db
       - filehosting
       - createbucket
-    command: ['yarn', 'coko-server', 'start-dev']
+    command: ['yarn', 'workspace', 'dev', 'coko-server', 'start-dev']
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
       - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-      - NODE_CONFIG_DIR=./dev/config
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_DB=${POSTGRES_DB:-test}
@@ -25,8 +24,8 @@ services:
       - SECRET=${SECRET:-secret}
       - SERVER_PORT=${SERVER_PORT:-3000}
       - ALLOW_CONFIG_MUTATIONS=${ALLOW_CONFIG_MUTATIONS:-''}
-      # - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
-      # - SERVER_URL=http://www.google.com///
+      - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
+      - SERVER_URL=http://localhost:3000
       # - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
       # - MAILER_HOSTNAME=${MAILER_HOSTNAME}
       # - MAILER_PORT=${MAILER_PORT}
@@ -36,16 +35,21 @@ services:
       - S3_BUCKET=${S3_BUCKET:-uploads}
       - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-accessKeyId}
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-password}
-      # - MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES=100
-      # - S3_SEPARATE_DELETE_OPERATIONS=true
-      # - S3_FORCE_PATH_STYLE=true
-      - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
+      # - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
       # - CORS_ORIGIN=https://studio.apollographql.com
+      - SUPPRESS_LOGGER_IN_TEST_ENV=true
     volumes:
-      - ./dev:/home/node/app/dev
-      - ./src:/home/node/app/src
-      - ./authorization.js:/home/node/app/authorization.js
-      - ./builder.json:/home/node/app/builder.json
+      - ./packages/dev/ignoreMe:/home/node/app/packages/dev/ignoreMe
+      - ./packages/dev/scripts:/home/node/app/packages/dev/scripts
+      - ./packages/dev/static:/home/node/app/packages/dev/static
+      - ./packages/dev/config.ts:/home/node/app/packages/dev/config.ts
+      - ./packages/dev/permissions.js:/home/node/app/packages/dev/permissions.js
+      - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts
+      - ./vitest.config.ts:/home/node/app/vitest.config.ts
+      - ./tsconfig.json:/home/node/app/tsconfig.json
+      - ./packages/lib/src:/home/node/app/packages/lib/src
+    #   - ./src:/home/node/app/node_modules/@coko/server/src
+    #   - ./authorization.js:/home/node/app/node_modules/@coko/server/authorization.js
     tty: true
 
   db:

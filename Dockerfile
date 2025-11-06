@@ -4,12 +4,17 @@ RUN corepack enable
 
 WORKDIR /home/node/app
 
-COPY .yarnrc.yml .
 COPY package.json .
 COPY yarn.lock .
+COPY .yarnrc.yml .
+COPY .yarn .yarn
 
-RUN chown -R node:node .
-USER node
+COPY packages/dev/package.json ./packages/dev/package.json
+COPY packages/lib/package.json ./packages/lib/package.json
 
-RUN yarn install --immutable && yarn cache clean && rm -rf ~/.npm
-COPY --chown=node:node . .
+RUN yarn install --immutable
+
+COPY packages/dev ./packages/dev
+COPY packages/lib ./packages/lib
+
+# RUN yarn workspace @coko/server build

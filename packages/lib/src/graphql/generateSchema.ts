@@ -1,0 +1,111 @@
+// @ts-nocheck
+
+import isEmpty from 'lodash/isEmpty'
+import merge from 'lodash/merge'
+
+import { applyMiddleware } from 'graphql-middleware'
+import { shield } from 'graphql-shield'
+
+import { makeExecutableSchema } from '@graphql-tools/schema'
+
+import config from '../configManager/config'
+import { logReport, logTask, logTaskItem } from '../logger/internals'
+import loadComponent from '../utils/tryRequireRelative'
+
+/* eslint-disable-next-line import/extensions */
+const GraphQLUpload = require('graphql-upload/GraphQLUpload.js')
+
+const resolverPerformanceMiddleware = async (
+  resolve,
+  root,
+  args,
+  context,
+  info,
+) => {
+  // Only top level resolver
+  if (!info.path.prev) {
+    const startTime = performance.now()
+
+    const result = await resolve(root, args, context, info)
+
+    const endTime = performance.now()
+    const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
+
+    logReport(
+      'Resolver performance:',
+      `${info.operation.operation} ${
+        info.operation.name?.value || 'anonymous'
+      } took ${durationInSeconds.toPrecision(3)} seconds`,
+    )
+
+    return result
+  }
+
+  return resolve(root, args, context, info)
+}
+
+const generateSchema = async () => {
+  const typeDefs = [
+    `type Query, type Mutation, type Subscription, scalar Upload`,
+  ]
+
+  const resolvers = merge(
+    {},
+    {
+      Upload: GraphQLUpload,
+    },
+  )
+
+  if (config.has('components')) {
+    await Promise.all(
+      config.get('components').map(async componentName => {
+        const component = await loadComponent(componentName)
+
+        if (component.typeDefs) {
+          typeDefs.push(component.typeDefs)
+        }
+
+        if (component.resolvers) {
+          merge(resolvers, component.resolvers)
+        }
+      }),
+    )
+  }
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+  // console.log(schema)
+
+  const middleware = []
+
+  if (process.env.NODE_ENV === 'development') {
+    middleware.push(resolverPerformanceMiddleware)
+  }
+
+  logTask('Register graphql middleware')
+
+  /**
+   * Authorization middleware
+   */
+
+  const permissions = config.has('permissions') && config.get('permissions')
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  if (!isEmpty(permissions)) {
+    const authorizationMiddleware = shield(permissions, {
+      allowExternalErrors: true,
+      debug: !isProduction,
+    })
+
+    middleware.push(authorizationMiddleware)
+    // logRegistration('authorization')
+    logTaskItem('Registered permissions middleware')
+  } else {
+    logTaskItem('No permissions middleware')
+  }
+
+  const schemaWithMiddleWare = applyMiddleware(schema, ...middleware)
+  return schemaWithMiddleWare
+}
+
+export default generateSchema

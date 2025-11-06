@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   collectCoverage: false,
   maxWorkers: 1,
   globalSetup: '<rootDir>/src/models/__tests__/_setup.js',
@@ -6,3 +6,5 @@ module.exports = {
   testEnvironment: 'node',
   testRegex: '(/src/.*\\.test\\.js$|/__tests__/.*\\.test\\.js$)',
 }
+
+export default config

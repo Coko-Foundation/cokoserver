@@ -26,6 +26,7 @@ app.pid
 
 # app
 _build/
+dist/
 config/local*
 data/
 coverage/

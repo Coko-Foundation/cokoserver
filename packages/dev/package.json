@@ -1,0 +1,9 @@
+{
+  "name": "dev",
+  "scripts": {
+    "test": "node -v"
+  },
+  "dependencies": {
+    "@coko/server": "workspaces:*"
+  }
+}

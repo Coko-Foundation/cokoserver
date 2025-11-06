@@ -1,0 +1,42 @@
+import logger from '../../logger'
+import { labels } from './constants'
+import { getChatChannel, getChatChannels } from './chatChannel.controller'
+
+const { CHAT_CHANNEL_RESOLVER } = labels
+
+const chatChannelResolver = async (_, { id }, ctx) => {
+  try {
+    logger.info(`${CHAT_CHANNEL_RESOLVER} getChatChannel`)
+    return getChatChannel(id)
+  } catch (e) {
+    logger.error(`${CHAT_CHANNEL_RESOLVER} getChatChannel: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const chatChannelsResolver = async (_, { filter }, ctx) => {
+  try {
+    logger.info(`${CHAT_CHANNEL_RESOLVER} getChatChannels`)
+    return getChatChannels(filter)
+  } catch (e) {
+    logger.error(`${CHAT_CHANNEL_RESOLVER} getChatChannels: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const resolvers = {
+  Query: {
+    chatChannel: chatChannelResolver,
+    chatChannels: chatChannelsResolver,
+  },
+  ChatChannel: {
+    async messages(chatChannel, _, ctx) {
+      const { id } = chatChannel
+      return ctx.loaders.ChatMessage.messagesBasedOnChatChannelIdsLoader.load(
+        id,
+      )
+    },
+  },
+}
+
+export default resolvers
