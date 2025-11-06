@@ -1,3 +1,4 @@
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import clone from 'lodash/clone'
 
 import { db, migrationManager } from '../../../db'

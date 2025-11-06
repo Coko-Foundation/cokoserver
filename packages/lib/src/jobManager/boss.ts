@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import PgBoss from 'pg-boss'
 import cronstrue from 'cronstrue'
 

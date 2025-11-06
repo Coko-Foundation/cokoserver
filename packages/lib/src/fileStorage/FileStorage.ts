@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import fs from 'fs-extra'
 import crypto from 'crypto'
 import path from 'path'
@@ -12,8 +10,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import config from '../configManager/config'
 import tempFolderPath from '../utils/tempFolderPath'
 import { writeFileToTemp } from '../utils/filesystem'
-import * as envUtils from '../utils/env'
 import Image from './Image'
+import { FileStorageConfig } from '../configManager/configSchema'
 
 const streamToString = stream => {
   const chunks = []
@@ -28,7 +26,8 @@ class FileStorage {
   constructor(connectionConfig, properties) {
     const DEFAULT_REGION = 'us-east-1'
 
-    const configToUse = connectionConfig || config.get('fileStorage')
+    const configToUse: FileStorageConfig =
+      connectionConfig || config.get('fileStorage')
 
     const {
       accessKeyId,
@@ -43,7 +42,7 @@ class FileStorage {
     this.url = url
     this.bucket = bucket
 
-    const forcePathStyle = envUtils.isTrue(s3ForcePathStyle) || true
+    const forcePathStyle = s3ForcePathStyle ?? true
 
     const s3config = {
       forcePathStyle,
@@ -67,7 +66,7 @@ class FileStorage {
 
     this.s3 = new S3(s3config)
 
-    this.separateDeleteOperations = envUtils.isTrue(s3SeparateDeleteOperations)
+    this.separateDeleteOperations = s3SeparateDeleteOperations
 
     this.imageConversionToSupportedFormatMapper = {
       eps: 'svg',

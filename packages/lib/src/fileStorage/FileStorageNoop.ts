@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 class FileStorageNoop {
   static error() {
     throw new Error(

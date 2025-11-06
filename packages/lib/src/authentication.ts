@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import jwt from 'jsonwebtoken'
 
 import { Strategy as BearerStrategy } from 'passport-http-bearer'

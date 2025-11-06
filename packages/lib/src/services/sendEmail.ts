@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import nodemailer from 'nodemailer'
 
 import config from '../configManager/config'

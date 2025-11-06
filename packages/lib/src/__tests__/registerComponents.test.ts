@@ -14,7 +14,7 @@ vi.mock('../configManager/config', async () => {
 
   const config = new Config()
   config.init({
-    components: ['./packages/lib/src/__tests__/helpers/mockComponent.ts'],
+    components: ['./src/__tests__/helpers/mockComponent.ts'],
   })
 
   return { default: config }

@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios'
 import makeCall from './makeCall'
 import { getAccessToken } from './tokens'
 
@@ -23,7 +24,10 @@ import { getAccessToken } from './tokens'
  * Other errors will be thrown and should be handled by your app logic.
  */
 
-const callMicroservice = async (serviceName, callParameters) => {
+const callMicroservice = async (
+  serviceName: string,
+  callParameters: any,
+): Promise<AxiosResponse> => {
   try {
     if (!callParameters)
       throw new Error(

@@ -1,3 +1,4 @@
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import gql from 'graphql-tag'
 
 import { db, migrationManager } from '../../../db'

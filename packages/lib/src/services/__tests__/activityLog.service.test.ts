@@ -1,3 +1,4 @@
+import { describe, beforeEach, afterAll, it, expect } from 'vitest'
 import activityLog from '../activityLog'
 
 import { createUser } from '../../models/__tests__/helpers/users'

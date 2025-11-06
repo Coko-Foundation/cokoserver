@@ -1,3 +1,4 @@
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 
 import { db, migrationManager } from '../../../db'

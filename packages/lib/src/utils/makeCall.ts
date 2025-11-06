@@ -1,7 +1,10 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import clone from 'lodash/clone'
 
-const makeCall = async (callParameters, token) => {
+const makeCall = async (
+  callParameters: any,
+  token: string,
+): Promise<AxiosResponse> => {
   const axiosParams = clone(callParameters)
   const { headers } = axiosParams
 

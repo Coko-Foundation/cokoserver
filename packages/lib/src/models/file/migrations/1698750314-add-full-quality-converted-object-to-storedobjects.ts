@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import path from 'path'
 import { buffer } from 'stream/consumers'
 

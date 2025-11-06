@@ -1,3 +1,3 @@
-import prettier from '@coko/lint/src/prettier.js'
+import prettier from '@coko/lint/src/prettier'
 
 export default prettier

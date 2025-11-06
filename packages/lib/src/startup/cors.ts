@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import cors from 'cors'
 
 import config from '../configManager/config'

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import union from 'lodash/union'
 import uniq from 'lodash/uniq'
 

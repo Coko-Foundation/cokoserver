@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import nodemailer from 'nodemailer'
 
 import TestConfig from '../../utils/TestConfig'

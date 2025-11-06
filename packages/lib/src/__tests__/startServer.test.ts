@@ -1,5 +1,4 @@
-// @ts-nocheck
-
+import { describe, it, expect } from 'vitest'
 import { startServer, shutdownFn } from '../startServer'
 
 describe('Starting the server', () => {
@@ -8,10 +7,10 @@ describe('Starting the server', () => {
       const server = await startServer({
         mailer: false,
         components: [
-          './packages/lib/src/models/user',
-          './packages/lib/src/models/identity',
-          './packages/lib/src/models/teamMember',
-          './packages/lib/src/models/team',
+          './src/models/user',
+          './src/models/identity',
+          './src/models/teamMember',
+          './src/models/team',
         ],
       })
 

@@ -1,11 +1,10 @@
-// @ts-nocheck
-
 import { useServer } from 'graphql-ws/lib/use/ws'
 import { WebSocketServer } from 'ws'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServer } from '@apollo/server'
 import jwt from 'jsonwebtoken'
 
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 
@@ -15,9 +14,6 @@ import logger from '../logger'
 
 import loaders from './loaders'
 import generateSchema from './generateSchema'
-
-/* eslint-disable-next-line import/extensions */
-const graphqlUploadExpress = require('graphql-upload/graphqlUploadExpress.js')
 
 const setup = async (httpServer, app, passport) => {
   // it is important that this runs before generateSchema (applyMiddleware specifically),

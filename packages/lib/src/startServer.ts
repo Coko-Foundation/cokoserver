@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import express from 'express'
 import { promisify } from 'util'
 import http from 'http'
@@ -39,7 +37,9 @@ let server
  * startServer is run with no parameters, but we allow a testConfig so that
  * tests can run the server in a specified setup.
  */
-export const startServer = async (testConfig?: Partial<ConfigType>): void => {
+export const startServer = async (
+  testConfig?: Partial<ConfigType>,
+): Promise<void> => {
   if (server) return server
 
   const startTime = performance.now()
@@ -50,9 +50,6 @@ export const startServer = async (testConfig?: Partial<ConfigType>): void => {
   await config.init(testConfig)
   config.validate()
   logTaskItem('Configuration valid!')
-  // console.log(config.get('db'))
-
-  // console.log(x.values)
 
   await ensureTempFolderExists()
   await checkConnections()
@@ -62,7 +59,7 @@ export const startServer = async (testConfig?: Partial<ConfigType>): void => {
 
   const app = express()
 
-  const port = config.port || 3000
+  const port = config.get('port') || 3000
   app.set('port', port)
   const httpServer = http.createServer(app)
   httpServer.app = app

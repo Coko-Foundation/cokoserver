@@ -1,11 +1,9 @@
-// @ts-nocheck
-
 import config from '../configManager/config'
 import { logTask, logTaskItem } from '../logger/internals'
 import useTransaction from '../models/useTransaction'
 import Team from '../models/team/team.model'
 
-const seedGlobalTeams = async () => {
+const seedGlobalTeams = async (): Promise<void> => {
   logTask('Seed global teams')
 
   if (!config.has('teams.global')) {

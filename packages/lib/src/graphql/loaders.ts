@@ -1,18 +1,14 @@
-// @ts-nocheck
-
 import DataLoader from 'dataloader'
 
 import config from '../configManager/config'
-import tryRequireRelative from '../utils/tryRequireRelative'
+import loadComponent from '../utils/loadComponent'
 
 // Require components here so that the requires are done only once per app runtime
 let components = []
 
 if (config.has('components') && Array.isArray(config.get('components'))) {
   components = config.get('components')
-  components = components.map(componentName =>
-    tryRequireRelative(componentName),
-  )
+  components = components.map(componentName => loadComponent(componentName))
 }
 
 const defaultLoader = model =>

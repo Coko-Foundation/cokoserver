@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import BaseModel from '../base.model'
 import User from '../user/user.model'
 

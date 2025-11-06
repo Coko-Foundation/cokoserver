@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { db } from '../../db'
 
 const dbCleaner = async () => {

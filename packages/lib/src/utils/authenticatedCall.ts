@@ -1,9 +1,14 @@
+import { AxiosResponse } from 'axios'
 import { invalidateProviderAccessToken } from '../models/identity/identity.controller'
 
 import makeCall from './makeCall'
 import { getAuthTokens } from './tokens'
 
-const authenticatedCall = async (userId, providerLabel, callParameters) => {
+const authenticatedCall = async (
+  userId: string,
+  providerLabel: string,
+  callParameters: any,
+): Promise<AxiosResponse> => {
   try {
     if (!callParameters) throw new Error(`Call parameters are required`)
 

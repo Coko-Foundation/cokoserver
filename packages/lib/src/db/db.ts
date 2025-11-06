@@ -1,6 +1,5 @@
 import knex, { Knex } from 'knex'
 import { knexSnakeCaseMappers } from 'objection'
-import { v4 as uuid } from 'uuid'
 
 import config from '../configManager/config'
 import getDbConnectionConfig from './connectionConfig'
@@ -21,8 +20,6 @@ if (!db) {
     acquireConnectionTimeout,
     asyncStackTraces: true,
   })
-
-  db.id = uuid()
 }
 
 export default db

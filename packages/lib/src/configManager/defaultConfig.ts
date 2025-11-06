@@ -1,6 +1,9 @@
 import { env } from '../utils/env'
 
 export default {
+  /**
+   * DATABASE
+   */
   db: {
     host: env('POSTGRES_HOST')!,
     port: env('POSTGRES_PORT', { type: 'number' })!,
@@ -29,6 +32,13 @@ export default {
   },
   // pool
   acquireConnectionTimeout: 5000,
+
+  /**
+   * OTHER
+   */
+  clientUrl: env('CLIENT_URL'),
+  components: [],
+  corsOrigin: env('CORS_ORIGIN'),
 
   fileStorage: {
     accessKeyId: env('S3_ACCESS_KEY_ID')!,
@@ -62,27 +72,16 @@ export default {
     },
   },
 
-  port: env('SERVER_PORT', { type: 'number' }) || 3000,
-  secret: env('SECRET')!,
-  serverUrl: env('SERVER_URL')!,
-  clientUrl: env('CLIENT_URL'),
-  corsOrigin: env('CORS_ORIGIN'),
-
-  useGraphQLServer: true,
-  // useFileStorage: true,
-
-  tokenExpiresIn: 24 * 3600,
-  emailVerificationTokenExpiry: {
-    amount: 24,
-    unit: 'hours' as const,
-  },
-  passwordResetTokenExpiry: {
-    amount: 24,
-    unit: 'hours' as const,
-  },
   passwordReset: {
     path: env('PASSWORD_RESET_PATH') || '/password-reset',
   },
+
+  port: env('SERVER_PORT', { type: 'number' }) || 3000,
+  secret: env('SECRET')!,
+  serverUrl: env('SERVER_URL')!,
+  staticFolders: [],
+  suppressLoggerInTestEnv:
+    env('SUPPRESS_LOGGER_IN_TEST_ENV', { type: 'boolean' }) || false,
 
   teams: {
     global: [
@@ -93,17 +92,14 @@ export default {
     ],
     nonGlobal: [],
   },
-  components: [],
-  staticFolders: [],
-  suppressLoggerInTestEnv:
-    env('SUPPRESS_LOGGER_IN_TEST_ENV', { type: 'boolean' }) || false,
+
+  tokenExpiresIn: 24 * 3600,
+  useGraphQLServer: true,
 
   // not typed yet
-  // schema
   // integrations
   // services
   // chatGPT
-  // dbConnectionReporter
 
   // move out
   // jobQueues

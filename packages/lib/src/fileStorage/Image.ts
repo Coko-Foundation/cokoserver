@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import path from 'path'
 import { exec } from 'child_process'
 import { buffer } from 'stream/consumers'

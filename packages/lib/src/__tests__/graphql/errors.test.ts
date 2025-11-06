@@ -15,10 +15,10 @@ vi.mock('../../configManager/config', async () => {
   const config = new Config()
   config.init({
     components: [
-      './packages/lib/src/models/user',
-      './packages/lib/src/models/identity',
-      './packages/lib/src/models/team',
-      './packages/lib/src/models/teamMember',
+      './src/models/user',
+      './src/models/identity',
+      './src/models/team',
+      './src/models/teamMember',
     ],
   })
 

@@ -1,9 +1,14 @@
+import { Express, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
 import logger from '../logger'
 
-const errorStatuses = app => {
-  app.use((err, req, res, next) => {
+interface HttpError extends Error {
+  status?: number
+}
+
+const errorStatuses = (app: Express): void => {
+  app.use((err: HttpError, _req: Request, res: Response): Response => {
     // Development error handler, will print stacktrace
     if (app.get('env') === 'development' || app.get('env') === 'test') {
       logger.error(err)

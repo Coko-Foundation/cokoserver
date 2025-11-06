@@ -8,8 +8,7 @@
     "cz": "lint-staged && ./node_modules/.bin/git-cz",
     "lint": "yarn coko-lint run --skip-stylelint",
     "release": "standard-version",
-    "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=1 yarn jest --verbose",
-    "test:vite": "NODE_ENV=test vitest run --reporter=tree"
+    "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=1 yarn jest --verbose"
   },
   "config": {
     "commitizen": {
@@ -17,11 +16,9 @@
     }
   },
   "devDependencies": {
-    "@coko/lint": "3.0.0-alpha.3",
-    "eslint-import-resolver-exports": "^1.0.0-beta.5",
+    "@coko/lint": "3.0.0-alpha.7",
     "lint-staged": "^15.2.8",
-    "standard-version": "^7.1.0",
-    "vitest": "^4.0.6"
+    "standard-version": "^7.1.0"
   },
   "packageManager": "yarn@4.9.2"
 }

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import config from '../configManager/config'
 import db from '../db/db'
 import { logTask, logTaskItem, logErrorTask } from '../logger/internals'

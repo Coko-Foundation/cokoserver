@@ -1,7 +1,3 @@
-// @ts-nocheck
-
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import get from 'lodash/get'
 import axios from 'axios'
 import moment from 'moment'
@@ -20,11 +16,19 @@ import { getUser } from '../models/user/user.controller'
 
 import { invalidateProviderTokens } from '../models/identity/identity.controller'
 
-import envUtils from './env'
+import { isValidPositiveIntegerOrZero } from './number'
 
 const { USER_UPDATED } = subscriptions
 
-const getAuthTokens = async (userId, providerLabel) => {
+type RequestTokensFromProviderOptions = {
+  checkAccessToken?: boolean
+  returnAccessToken?: boolean
+}
+
+const getAuthTokens = async (
+  userId: string,
+  providerLabel: string,
+): Promise<string | boolean> => {
   return requestTokensFromProvider(userId, providerLabel, {
     checkAccessToken: true,
     returnAccessToken: true,
@@ -32,10 +36,10 @@ const getAuthTokens = async (userId, providerLabel) => {
 }
 
 const requestTokensFromProvider = async (
-  userId,
-  providerLabel,
-  options = {},
-) => {
+  userId: string,
+  providerLabel: string,
+  options: RequestTokensFromProviderOptions = {},
+): Promise<string | boolean> => {
   const { checkAccessToken, returnAccessToken } = options
 
   const providerUserIdentity = await Identity.findOne({
@@ -130,7 +134,7 @@ const requestTokensFromProvider = async (
     throw new Error('Missing access_token from response!')
   }
 
-  if (envUtils.isValidPositiveIntegerOrZero(expires_in)) {
+  if (isValidPositiveIntegerOrZero(expires_in)) {
     throw new Error('Missing expires_in from response!')
   }
 
@@ -138,7 +142,7 @@ const requestTokensFromProvider = async (
     throw new Error('Missing refresh_token from response!')
   }
 
-  if (envUtils.isValidPositiveIntegerOrZero(refresh_expires_in)) {
+  if (isValidPositiveIntegerOrZero(refresh_expires_in)) {
     throw new Error('Missing refresh_expires_in from response!')
   }
 
@@ -160,10 +164,16 @@ const requestTokensFromProvider = async (
   return true
 }
 
-const renewAuthTokens = async (userId, providerLabel) =>
+const renewAuthTokens = async (
+  userId: string,
+  providerLabel: string,
+): Promise<string | boolean> =>
   requestTokensFromProvider(userId, providerLabel, { checkAccessToken: false })
 
-const getAccessToken = async (serviceName, renew = false) => {
+const getAccessToken = async (
+  serviceName: string,
+  renew: boolean = false,
+): Promise<string> => {
   try {
     const services = config.has('services') && config.get('services')
 

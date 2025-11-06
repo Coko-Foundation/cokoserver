@@ -1,12 +1,10 @@
-// @ts-nocheck
-
 import path from 'path'
-import express from 'express'
+import express, { Express } from 'express'
 
 import config from '../configManager/config'
 import { logTask, logTaskItem } from '../logger/internals'
 
-const mountStatic = app => {
+const mountStatic = (app: Express): void => {
   logTask('Mounting static folders')
 
   const staticFolders =

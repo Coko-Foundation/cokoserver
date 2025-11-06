@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import config from '../configManager/config'
 import mailer from './sendEmail'
 import logger from '../logger'

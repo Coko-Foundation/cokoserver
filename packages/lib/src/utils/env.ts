@@ -30,16 +30,3 @@ export function env(
   if (typeof value === 'string' && value.length === 0) return
   return value
 }
-
-export function isEnvVariableTrue(variable: any): boolean | string {
-  return variable === true || variable === 'true' || variable === '1'
-}
-
-export function isTrue(value: any): boolean | string {
-  return isEnvVariableTrue(value)
-}
-
-export function isValidPositiveIntegerOrZero(n: any): boolean {
-  const value = Number(n)
-  return Number.isInteger(value) && n >= 0
-}

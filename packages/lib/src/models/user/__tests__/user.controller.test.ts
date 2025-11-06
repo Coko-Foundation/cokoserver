@@ -1,3 +1,4 @@
+import { describe, beforeEach, afterAll, it, expect } from 'vitest'
 import User from '../user.model'
 import Identity from '../../identity/identity.model'
 

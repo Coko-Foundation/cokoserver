@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 import path from 'path'
+import { describe, it, expect } from 'vitest'
 
 import config from 'config'
 import winston from 'winston'

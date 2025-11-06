@@ -29,7 +29,6 @@ function arrayCustomizer(objValue, srcValue) {
     return objValue.concat(srcValue)
   }
 
-  /* eslint-disable-next-line no-undefined */
   return undefined
 }
 

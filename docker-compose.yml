@@ -45,9 +45,8 @@ services:
       - ./packages/dev/config.ts:/home/node/app/packages/dev/config.ts
       - ./packages/dev/permissions.js:/home/node/app/packages/dev/permissions.js
       - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts
-      - ./vitest.config.ts:/home/node/app/vitest.config.ts
-      - ./tsconfig.json:/home/node/app/tsconfig.json
       - ./packages/lib/src:/home/node/app/packages/lib/src
+      - ./packages/lib/vitest.config.ts:/home/node/app/packages/lib/vitest.config.ts
     #   - ./src:/home/node/app/node_modules/@coko/server/src
     #   - ./authorization.js:/home/node/app/node_modules/@coko/server/authorization.js
     tty: true

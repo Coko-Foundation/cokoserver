@@ -1,11 +1,19 @@
 import path from 'path'
 import { buffer } from 'stream/consumers'
 
-import fs from 'fs-extra'
+import fs, { ReadStream } from 'fs-extra'
 
 import tempFolderPath from './tempFolderPath'
 
-const findConfigurationFile = (filename, options = {}) => {
+type FindConfigurationFileOptions = {
+  extensions?: string[]
+  basePath?: string
+}
+
+const findConfigurationFile = (
+  filename: string,
+  options: FindConfigurationFileOptions = {},
+): string => {
   const extensions = options.extensions || ['js', 'ts']
   const basePath = options.basePath
     ? path.join(process.cwd(), options.basePath)
@@ -30,21 +38,26 @@ const findConfigurationFile = (filename, options = {}) => {
   return foundFiles[0]
 }
 
-const writeFileToTemp = async (readStream, filePath) => {
+const writeFileToTemp = async (
+  readStream: ReadStream | string,
+  filePath: string,
+): Promise<void> => {
   const outputPath = path.join(tempFolderPath, filePath)
   await fs.ensureFile(outputPath)
 
+  const isString = typeof readStream === 'string'
   const isBase64 =
-    typeof readStream === 'string' &&
-    readStream.match(/[^:]\w+\/[\w\-+.]+(?=;base64,)/)
+    isString && readStream.match(/[^:]\w+\/[\w\-+.]+(?=;base64,)/)
 
-  let dataBuffer
+  let dataBuffer: Buffer
 
   if (isBase64) {
     dataBuffer = Buffer.from(
       readStream.replace(/^data:.*;base64,/, ''),
       'base64',
     )
+  } else if (isString) {
+    dataBuffer = Buffer.from(readStream, 'utf8')
   } else {
     dataBuffer = await buffer(readStream)
   }
@@ -52,12 +65,12 @@ const writeFileToTemp = async (readStream, filePath) => {
   await fs.outputFile(outputPath, dataBuffer)
 }
 
-const deleteFileFromTemp = async filePath => {
+const deleteFileFromTemp = async (filePath: string): Promise<void> => {
   const deletePath = path.join(tempFolderPath, filePath)
   await fs.remove(deletePath)
 }
 
-const emptyTemp = async () => {
+const emptyTemp = async (): Promise<void> => {
   await fs.emptyDir(tempFolderPath)
 }
 

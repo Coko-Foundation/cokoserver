@@ -1,36 +1,25 @@
-// @ts-nocheck
-
+import { Express } from 'express'
 import config from '../configManager/config'
 import logger from '../logger'
 import { logTask, logTaskItem } from '../logger/internals'
-import tryRequireRelative from '../utils/tryRequireRelative'
+import loadComponent from '../utils/loadComponent'
 
-const registerRecursively = async (app, componentName): void => {
-  // console.log(componentName)
-  const component = await tryRequireRelative(componentName)
-  logTaskItem(`Registered component ${componentName}`)
-  const serverComponent = component.server || component.backend
-
-  if (serverComponent) {
-    serverComponent()(app)
-    logger.info('Registered server component', componentName)
-  }
-
-  if (component.extending) {
-    registerRecursively(app, component.extending)
-  }
-}
-
-const registerComponents = async (app): Promise<void> => {
+const registerComponents = async (app: Express): Promise<void> => {
   logTask('Register components')
+  const components = config.get('components') || []
 
-  if (config.has('components')) {
-    await Promise.all(
-      config.get('components').map(async componentName => {
-        await registerRecursively(app, componentName)
-      }),
-    )
-  }
+  await Promise.all(
+    components.map(async (componentName: string) => {
+      const component = await loadComponent(componentName)
+      logTaskItem(`Registered component ${componentName}`)
+      const serverComponent = component.server
+
+      if (serverComponent) {
+        serverComponent()(app)
+        logger.info('Registered server component', componentName)
+      }
+    }),
+  )
 }
 
 export default registerComponents

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Model, AjvValidator } from 'objection'
 import merge from 'lodash/merge'
 import { v4 as uuid } from 'uuid'

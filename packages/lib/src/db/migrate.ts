@@ -210,7 +210,9 @@ export const executed = async passedConfig => {
 // #endregion commmands
 
 export const migrationManager = {
-  migrate: async (options): Promise<void> => migrate(config, options),
+  migrate: async (options?: UpOptions): Promise<void> => {
+    await migrate(config, options)
+  },
   rollback: async (options): Promise<void> => rollback(config, options),
   pending: async () => pending(config),
   executed: async () => executed(config),

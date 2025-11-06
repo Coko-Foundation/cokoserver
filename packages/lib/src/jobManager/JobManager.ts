@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import Joi from 'joi'
 
 import { boss } from './boss'

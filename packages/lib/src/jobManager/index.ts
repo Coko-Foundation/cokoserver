@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import config from '../configManager/config'
 import { start, stop } from './boss'
 import { jobManager } from './JobManager'

@@ -1,8 +1,7 @@
-// @ts-nocheck
-
 import isEmpty from 'lodash/isEmpty'
 import merge from 'lodash/merge'
 
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.js'
 import { applyMiddleware } from 'graphql-middleware'
 import { shield } from 'graphql-shield'
 
@@ -10,10 +9,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 
 import config from '../configManager/config'
 import { logReport, logTask, logTaskItem } from '../logger/internals'
-import loadComponent from '../utils/tryRequireRelative'
-
-/* eslint-disable-next-line import/extensions */
-const GraphQLUpload = require('graphql-upload/GraphQLUpload.js')
+import loadComponent from '../utils/loadComponent'
 
 const resolverPerformanceMiddleware = async (
   resolve,

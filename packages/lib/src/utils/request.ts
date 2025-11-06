@@ -1,8 +1,17 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import axiosRetry from 'axios-retry'
 
-const request = (options = {}) => {
-  const { retries, retryDelay } = options
+type RequestOptions = {
+  retries?: number
+  retryDelay?: number
+}
+
+type CombinedRequestOptions = AxiosRequestConfig & RequestOptions
+
+const request = (
+  options: CombinedRequestOptions = {},
+): Promise<AxiosResponse> => {
+  const { retries, retryDelay, ...restOptions } = options
 
   axiosRetry(axios, {
     retries: retries || 0,
@@ -16,7 +25,7 @@ const request = (options = {}) => {
     },
   })
 
-  return axios(options)
+  return axios(restOptions)
 }
 
 export default request

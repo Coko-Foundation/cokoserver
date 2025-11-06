@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { isValidCron } from 'cron-validator'
 
+import defaultJobQueueNames from '../jobManager/defaultJobQueueNames'
+
 const cron = z
   .string()
   .refine(val => isValidCron(val, { alias: true, seconds: false }), {
@@ -66,11 +68,6 @@ const MailerConfigSchema = z.strictObject({
   transport: MailerTransportSchema,
 })
 
-const TokenExpirySchema = z.strictObject({
-  amount: z.number().int().nonnegative(),
-  unit: z.enum(['minutes', 'hours', 'days']),
-})
-
 const PasswordResetConfigSchema = z.strictObject({
   path: z.string(),
 })
@@ -96,52 +93,78 @@ const IntegrationConfigSchema = z.object({
   tokenUrl: z.url(),
 })
 
-const LifeCycleScript = z.object({
-  label: z.string(),
-  execute: z.function(),
-})
+const JobQueueName = z.string().refine(
+  val => {
+    const reservedQueueNames = Object.keys(defaultJobQueueNames).map(
+      key => defaultJobQueueNames[key],
+    )
+
+    // reserving email, as it will be implemented
+    const disallowed = [...reservedQueueNames, 'email']
+
+    return !disallowed.includes(val.toLowerCase())
+  },
+  {
+    message:
+      'The provided string is a reserved job queue name and is not allowed.',
+  },
+)
+
+const Timezone = z
+  .string()
+  .optional()
+  .refine(
+    val => {
+      if (!val) return false
+
+      try {
+        new Intl.DateTimeFormat('en-US', { timeZone: val }).format()
+        return true
+      } catch (e) {
+        return false
+      }
+    },
+    {
+      message: 'Not a valid timezone.',
+    },
+  )
 
 const JobQueue = z.object({
-  name: z.string(),
+  name: JobQueueName,
   handler: z.function(),
   teamSize: z.number().int().positive().optional(),
   teamConcurrency: z.number().int().positive().optional(),
   schedule: cron.optional(),
-  scheduleTimezone: z.string().optional(),
+  scheduleTimezone: Timezone,
 })
 
 export const ConfigSchema = z.strictObject({
+  // database
   db: DatabaseConfigSchema,
   subscriptionsDb: SubscriptionsDatabaseConfigSchema.optional(),
   // pool: KnexPoolConfigSchema.optional(),
   acquireConnectionTimeout: z.number().int().nonnegative().optional(),
 
+  clientUrl: z.url().optional(),
+  components: z.array(z.string()),
+  corsOrigin: z.union([z.string(), z.array(z.string())]).optional(),
   fileStorage: z.union([FileStorageConfigSchema, z.literal(false)]),
   mailer: z.union([MailerConfigSchema, z.literal(false)]),
-
+  passwordReset: PasswordResetConfigSchema.optional(),
   port: z.number().int().positive(),
   secret: z.string(),
   serverUrl: z.url(),
-  clientUrl: z.url().optional(),
-  corsOrigin: z.string().optional(),
-
-  useGraphQLServer: z.boolean(),
-  suppressLoggerInTestEnv: z.boolean(),
-
-  tokenExpiresIn: z.number().int().nonnegative(),
-  emailVerificationTokenExpiry: TokenExpirySchema,
-  passwordResetTokenExpiry: TokenExpirySchema,
-  passwordReset: PasswordResetConfigSchema.optional(),
-
-  teams: TeamsConfigSchema,
-  components: z.array(z.string()),
   staticFolders: z.array(StaticFolderSchema),
+  suppressLoggerInTestEnv: z.boolean(),
+  teams: TeamsConfigSchema,
+  tokenExpiresIn: z.number().int().nonnegative(),
+  useGraphQLServer: z.boolean(),
 
+  // drop
   integrations: z.record(z.string(), IntegrationConfigSchema).optional(),
-  onStartup: z.array(LifeCycleScript).optional(),
-  onShutdown: z.array(LifeCycleScript).optional(),
   jobQueues: z.array(JobQueue).optional(),
   permissions: z.object().optional(),
 })
 
+export type FileStorageConfig = z.infer<typeof FileStorageConfigSchema>
 export type ConfigType = z.infer<typeof ConfigSchema>

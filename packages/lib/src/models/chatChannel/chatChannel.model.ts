@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import BaseModel from '../base.model'
 
 import ChatMessage from '../chatMessage/chatMessage.model'

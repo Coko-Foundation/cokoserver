@@ -1,3 +1,4 @@
+import { describe, beforeEach, afterAll, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 
 import Identity from '../identity.model'

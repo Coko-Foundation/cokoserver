@@ -30,7 +30,7 @@ import WaxToDocxConverter from './services/docx/docx.service'
 import { jobManager } from './jobManager'
 
 import activityLog from './services/activityLog'
-import { isEnvVariableTrue } from './utils/env'
+import { env } from './utils/env'
 import request from './utils/request'
 
 import { callMicroservice } from './utils/microservices'
@@ -76,7 +76,7 @@ export {
   subscriptionManager,
 
   /* UTILS */
-  isEnvVariableTrue,
+  env,
   request,
   sendEmail,
   withFilter,

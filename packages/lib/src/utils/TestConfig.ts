@@ -1,56 +1,56 @@
-import has from 'lodash/has'
-import get from 'lodash/get'
+// import has from 'lodash/has'
+// import get from 'lodash/get'
 
-import validateConfig from './validateConfig'
+// import validateConfig from './validateConfig'
 
-class TestConfig {
-  constructor(configObject = {}, optionOverrides = {}) {
-    const options = {
-      useDb: false,
-      suppressLogs: true,
-      ...optionOverrides,
-    }
+// class TestConfig {
+//   constructor(configObject = {}, optionOverrides = {}) {
+//     const options = {
+//       useDb: false,
+//       suppressLogs: true,
+//       ...optionOverrides,
+//     }
 
-    const dbData = options.useDb
-      ? {
-          db: {
-            user: process.env.POSTGRES_USER,
-            password: process.env.POSTGRES_PASSWORD,
-            host: process.env.POSTGRES_HOST,
-            database: process.env.POSTGRES_DB,
-            port: process.env.POSTGRES_PORT,
-          },
-        }
-      : {}
+//     const dbData = options.useDb
+//       ? {
+//           db: {
+//             user: process.env.POSTGRES_USER,
+//             password: process.env.POSTGRES_PASSWORD,
+//             host: process.env.POSTGRES_HOST,
+//             database: process.env.POSTGRES_DB,
+//             port: process.env.POSTGRES_PORT,
+//           },
+//         }
+//       : {}
 
-    const suppressedLogs = options.suppressLogs
-      ? {
-          logger: {
-            info: () => {},
-            error: () => {},
-            debug: () => {},
-            warn: () => {},
-          },
-        }
-      : {}
+//     const suppressedLogs = options.suppressLogs
+//       ? {
+//           logger: {
+//             info: () => {},
+//             error: () => {},
+//             debug: () => {},
+//             warn: () => {},
+//           },
+//         }
+//       : {}
 
-    const data = {
-      ...dbData,
-      ...suppressedLogs,
-      ...configObject,
-    }
+//     const data = {
+//       ...dbData,
+//       ...suppressedLogs,
+//       ...configObject,
+//     }
 
-    this.config = data
-    validateConfig(this.config)
-  }
+//     this.config = data
+//     validateConfig(this.config)
+//   }
 
-  get(key) {
-    return get(this.config, key)
-  }
+//   get(key) {
+//     return get(this.config, key)
+//   }
 
-  has(key) {
-    return has(this.config, key)
-  }
-}
+//   has(key) {
+//     return has(this.config, key)
+//   }
+// }
 
-export default TestConfig
+// export default TestConfig

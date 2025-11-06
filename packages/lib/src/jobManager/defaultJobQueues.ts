@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import moment from 'moment'
 
 import Identity from '../models/identity/identity.model'

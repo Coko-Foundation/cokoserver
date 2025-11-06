@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import config from '../configManager/config'
 import PostgresPubSub from './PostgresPubSub'
 import PostgresPubSubNoop from './PostgresPubSubNoop'

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import config from '../configManager/config'
 import FileStorage from './FileStorage'
 import FileStorageNoop from './FileStorageNoop'

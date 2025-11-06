@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import crypto from 'crypto'
 import moment from 'moment'
 
@@ -377,17 +375,10 @@ const verifyEmail = async (token, options = {}) => {
           { trx: tr },
         )
 
-        const emailVerificationTokenExpiry = config.has(
-          'emailVerificationTokenExpiry',
-        )
-          ? {
-              amount: config.get('emailVerificationTokenExpiry.amount'),
-              unit: config.get('emailVerificationTokenExpiry.unit'),
-            }
-          : {
-              amount: 24,
-              unit: 'hours',
-            }
+        const emailVerificationTokenExpiry = {
+          amount: 24,
+          unit: 'hours',
+        }
 
         if (!identity)
           throw new Error(`${USER_CONTROLLER} verifyEmail: invalid token`)
@@ -594,15 +585,10 @@ const resetPassword = async (token, password, options = {}) => {
           )
         }
 
-        const passwordResetTokenExpiry = config.has('passwordResetTokenExpiry')
-          ? {
-              amount: config.get('passwordResetTokenExpiry.amount'),
-              unit: config.get('passwordResetTokenExpiry.unit'),
-            }
-          : {
-              amount: 24,
-              unit: 'hours',
-            }
+        const passwordResetTokenExpiry = {
+          amount: 24,
+          unit: 'hours',
+        }
 
         if (
           moment()

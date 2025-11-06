@@ -1,3 +1,4 @@
+import { describe, beforeEach, afterAll, it, expect } from 'vitest'
 import fs from 'fs-extra'
 import path from 'path'
 import sharp from 'sharp'

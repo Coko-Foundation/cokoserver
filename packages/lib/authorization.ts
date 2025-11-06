@@ -10,11 +10,11 @@ import {
   race,
 } from 'graphql-shield'
 
-const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+const isAuthenticated = rule()(async (_parent, _args, ctx) => {
   return !!ctx.userId
 })
 
-const isAdmin = rule()(async (parent, args, ctx, info) => {
+const isAdmin = rule()(async (_parent, _args, ctx) => {
   if (!ctx.userId) return false
 
   const { default: User } = await import('./src/models/user/user.model')

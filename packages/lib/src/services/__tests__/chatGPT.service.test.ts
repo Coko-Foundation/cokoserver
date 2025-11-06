@@ -1,5 +1,7 @@
 /* eslint-disable jest/no-disabled-tests */
 
+import { describe, afterAll, it, expect } from 'vitest'
+
 /**
  * Nested requires because the tests are skipped, so the after all is never
  * run to clean up hanging connections.
