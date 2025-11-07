@@ -1,4 +1,4 @@
-export const cleanUndefined = object =>
+export const cleanUndefined = (object: object): object =>
   Object.keys(object)
     .filter(k => object[k] !== undefined)
     .reduce((acc, k) => {
@@ -6,7 +6,11 @@ export const cleanUndefined = object =>
       return acc
     }, {})
 
-export const displayNameConstructor = (givenNames, surname, username) => {
+export const displayNameConstructor = (
+  givenNames: string,
+  surname: string,
+  username: string,
+): string => {
   if (givenNames && surname) return `${givenNames} ${surname}`
   if (username) return username
 

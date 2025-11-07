@@ -1,3 +1,5 @@
+import { MigrationMeta } from 'umzug'
+
 import {
   logTask,
   logTaskItem,
@@ -24,7 +26,7 @@ export type UpOptions = {
 const META_ID = '1715865523-create-coko-server-meta.js'
 
 // #region helpers
-const updateCheckpoint = async () => {
+const updateCheckpoint = async (): Promise<void> => {
   const baseMsg = 'Last successful migrate checkpoint:'
 
   if (!(await migrationsMeta.exists())) {
@@ -102,7 +104,7 @@ export const migrate = async (
   await updateCheckpoint()
 }
 
-export const rollback = async (passedConfig, options = {}) => {
+export const rollback = async (passedConfig, options = {}): Promise<void> => {
   if (!(await migrationsMeta.exists())) throw new RollbackUnavailableError()
 
   const migrationRows = await migrations.getRows()
@@ -165,8 +167,9 @@ export const rollback = async (passedConfig, options = {}) => {
   await migrationsMeta.clearCheckpoint()
 
   try {
-    const umzug = await getUmzug(passedConfig)
-    await umzug.down(downOptions)
+    const migrationRunner = new MigrationRunner(passedConfig.get('components'))
+    await migrationRunner.init()
+    await migrationRunner.down(downOptions)
     logger.info('Migrate: Migration rollback successful!')
   } catch (e) {
     logger.error(e)
@@ -180,9 +183,10 @@ export const rollback = async (passedConfig, options = {}) => {
   await updateCheckpoint()
 }
 
-export const pending = async passedConfig => {
-  const umzug = await getUmzug(passedConfig)
-  const pendingMigrations = await umzug.pending()
+export const pending = async (passedConfig): Promise<MigrationMeta[]> => {
+  const migrationRunner = new MigrationRunner(passedConfig.get('components'))
+  await migrationRunner.init()
+  const pendingMigrations = await migrationRunner.pending()
 
   if (pendingMigrations.length === 0) {
     logger.info('Migrate: There are no pending migrations.')
@@ -194,9 +198,10 @@ export const pending = async passedConfig => {
   return pendingMigrations
 }
 
-export const executed = async passedConfig => {
-  const umzug = await getUmzug(passedConfig)
-  const executedMigrations = await umzug.executed()
+export const executed = async (passedConfig): Promise<MigrationMeta[]> => {
+  const migrationRunner = new MigrationRunner(passedConfig.get('components'))
+  await migrationRunner.init()
+  const executedMigrations = await migrationRunner.executed()
 
   if (executedMigrations.length === 0) {
     logger.info('Migrate: There are no executed migrations.')
@@ -214,6 +219,6 @@ export const migrationManager = {
     await migrate(config, options)
   },
   rollback: async (options): Promise<void> => rollback(config, options),
-  pending: async () => pending(config),
-  executed: async () => executed(config),
+  pending: async (): Promise<MigrationMeta[]> => pending(config),
+  executed: async (): Promise<MigrationMeta[]> => executed(config),
 }

@@ -216,7 +216,7 @@ class WaxToDocxConverter {
     }
   }
 
-  error = e => {
+  error = (e): void => {
     throw new Error(`${this.baseMessage} ${e}`)
   }
 

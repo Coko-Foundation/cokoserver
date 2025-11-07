@@ -1,5 +1,6 @@
+import { SentMessageInfo } from 'nodemailer'
 import config from '../configManager/config'
-import mailer from './sendEmail'
+import { sendEmail as mailerSendEmail } from './sendEmail'
 import logger from '../logger'
 
 import { labels, notificationTypes } from './constants'
@@ -7,7 +8,7 @@ import { labels, notificationTypes } from './constants'
 const { NOTIFY_SERVICE } = labels
 const { EMAIL } = notificationTypes
 
-const sendEmail = async data => {
+const sendEmail = async (data): Promise<SentMessageInfo> => {
   const { subject, to, content, text } = data
 
   const emailData = {
@@ -22,10 +23,10 @@ const sendEmail = async data => {
     `${NOTIFY_SERVICE} sendEmail: email will be sent with subject ${subject}`,
   )
 
-  return mailer.sendEmail(emailData)
+  return mailerSendEmail(emailData)
 }
 
-const notify = (type, data) => {
+const notify = (type, data): SentMessageInfo => {
   logger.info(
     `${NOTIFY_SERVICE} notify: notification of type ${type} will be sent`,
   )

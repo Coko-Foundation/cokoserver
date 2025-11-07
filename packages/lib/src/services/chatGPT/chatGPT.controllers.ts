@@ -3,7 +3,7 @@ import axios from 'axios'
 import config from '../../configManager/config'
 import logger from '../../logger'
 
-const chatGPT = async input => {
+const chatGPT = async (input): Promise<string> => {
   try {
     const CHAT_GPT_URL = 'https://api.openai.com/v1/chat/completions'
     // const CHAT_GPT_URL = config.has('chatGPT.url') && config.get('chatGPT.url')

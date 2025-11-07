@@ -3,7 +3,7 @@ import fs from 'fs-extra'
 
 const base = require('./tsConfig.json')
 
-function generateTsConfig(buildPath) {
+function generateTsConfig(buildPath: string): string {
   const modified = { ...base }
 
   // const existingAbsolutePaths = modified.include.map(p => {

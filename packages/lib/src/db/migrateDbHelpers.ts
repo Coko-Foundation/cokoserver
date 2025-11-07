@@ -3,6 +3,17 @@ import db from './db'
 const MIGRATIONS_TABLE = 'migrations'
 const META_TABLE = 'coko_server_meta'
 
+type MigrationRow = {
+  id: string
+  runAt: string
+}
+
+type MetaRow = {
+  id: string
+  created: string
+  lastSuccessfulMigrateCheckpoint?: string
+}
+
 const migrations = {
   createTable: async (): Promise<void> =>
     db.raw(`
@@ -21,10 +32,10 @@ const migrations = {
     return row.id
   },
 
-  getRows: async () => db(MIGRATIONS_TABLE).orderBy('runAt', 'asc'),
+  getRows: async (): Promise<MigrationRow[]> =>
+    db(MIGRATIONS_TABLE).orderBy('runAt', 'asc'),
 
   logMigration: async (migrationName: string): Promise<void> => {
-    console.log('huh', migrationName)
     await db.raw(`INSERT INTO ${MIGRATIONS_TABLE} (id) VALUES (?)`, [
       migrationName,
     ])
@@ -50,7 +61,7 @@ const migrationsMeta = {
     return row.lastSuccessfulMigrateCheckpoint
   },
 
-  getData: async () => {
+  getData: async (): Promise<MetaRow> => {
     const rows = await db(META_TABLE)
     return rows[0] // this table always has one row only
   },

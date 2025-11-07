@@ -3,12 +3,12 @@ import db from '../db/db'
 import { logTask, logTaskItem, logErrorTask } from '../logger/internals'
 import fileStorage from '../fileStorage'
 
-const sleep = ms =>
+const sleep = (ms: number): Promise<void> =>
   new Promise(resolve => {
     setTimeout(resolve, ms)
   })
 
-const checkDbConnection = async () => {
+const checkDbConnection = async (): Promise<void> => {
   const retries = 5
   const iterable = Array.from({ length: retries }, (_, i) => i + 1)
 
@@ -37,7 +37,7 @@ const checkDbConnection = async () => {
   }
 }
 
-const checkConnections = async () => {
+const checkConnections = async (): Promise<void> => {
   logTask('Checking external connections')
 
   await checkDbConnection()

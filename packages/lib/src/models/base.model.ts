@@ -1,9 +1,15 @@
-import { Model, AjvValidator } from 'objection'
+import {
+  Model,
+  AjvValidator,
+  ColumnRefOrOrderByDescriptor,
+  Transaction,
+  QueryBuilder,
+} from 'objection'
+
 import merge from 'lodash/merge'
 import { v4 as uuid } from 'uuid'
 import addFormats from 'ajv-formats'
 
-import config from '../configManager/config'
 import { db } from '../db'
 import logger from '../logger'
 import useTransaction from './useTransaction'
@@ -12,38 +18,56 @@ import { dateNotNullable } from './_helpers/types'
 
 Model.knex(db)
 
+type QueryResult<T> = {
+  result: T[]
+  totalCount: number
+}
+
+type FindOptions = {
+  trx?: Transaction
+  related?: string | string[]
+  orderBy?: ColumnRefOrOrderByDescriptor[]
+  page?: number
+  pageSize?: number
+}
+
+type TrxOption = {
+  trx?: Transaction
+}
+
+type TrxAndRelatedOptions = {
+  trx?: Transaction
+  related?: string | string[]
+}
+
 class BaseModel extends Model {
-  static createValidator() {
+  id: string
+  created: string
+  updated: string
+  type: string
+
+  static createValidator(): AjvValidator {
     return new AjvValidator({
-      onCreateAjv: ajv => {
+      onCreateAjv: (ajv): void => {
         addFormats(ajv)
       },
     })
   }
 
-  static get jsonSchema() {
-    let schema
+  static get jsonSchema(): object {
+    let schema: object
 
-    const mergeSchema = additionalSchema => {
+    const mergeSchema = (additionalSchema): void => {
       if (additionalSchema) {
         schema = merge(schema, additionalSchema)
       }
     }
 
-    // Crawls up the prototype chain to collect schema
-    // information from models and extended models
-    const getSchemasRecursively = object => {
+    // Crawls up the prototype chain to collect schema information from models and extended models
+    const getSchemasRecursively = (object): void => {
       mergeSchema(object.schema)
-
-      if (config.has('schema')) {
-        mergeSchema(config.schema[object.name])
-      }
-
       const proto = Object.getPrototypeOf(object)
-
-      if (proto.name !== 'BaseModel') {
-        getSchemasRecursively(proto)
-      }
+      if (proto.name !== 'BaseModel') getSchemasRecursively(proto)
     }
 
     getSchemasRecursively(this)
@@ -66,17 +90,20 @@ class BaseModel extends Model {
     return baseSchema
   }
 
-  $beforeInsert() {
+  $beforeInsert(): void {
     this.id = this.id || uuid()
     this.created = new Date().toISOString()
     this.updated = this.created
   }
 
-  $beforeUpdate() {
+  $beforeUpdate(): void {
     this.updated = new Date().toISOString()
   }
 
-  static async find(data, options = {}) {
+  static async find<T extends BaseModel>(
+    data,
+    options: FindOptions = {},
+  ): Promise<QueryResult<T>> {
     try {
       const { trx, related, orderBy, page, pageSize } = options
 
@@ -137,7 +164,10 @@ class BaseModel extends Model {
     }
   }
 
-  static async findByIds(ids, options = {}) {
+  static async findByIds<T extends BaseModel>(
+    ids: string[],
+    options: TrxAndRelatedOptions = {},
+  ): Promise<QueryResult<T>> {
     try {
       const { trx, related } = options
 
@@ -173,7 +203,10 @@ class BaseModel extends Model {
     }
   }
 
-  static async findById(id, options = {}) {
+  static async findById<T extends BaseModel>(
+    id,
+    options: TrxAndRelatedOptions = {},
+  ): Promise<T> {
     try {
       const { trx, related } = options
 
@@ -198,7 +231,10 @@ class BaseModel extends Model {
     }
   }
 
-  static async findOne(data, options = {}) {
+  static async findOne<T extends BaseModel>(
+    data,
+    options: TrxAndRelatedOptions = {},
+  ): Promise<T> {
     try {
       const { trx, related } = options
 
@@ -223,9 +259,13 @@ class BaseModel extends Model {
     }
   }
 
-  static async insert(data, options = {}) {
+  static async insert<T extends BaseModel>(
+    data,
+    options: TrxAndRelatedOptions = {},
+  ): Promise<T> {
     try {
       const { trx, related } = options
+      // console.log('insert trx', trx)
 
       return useTransaction(
         async tr => {
@@ -250,7 +290,7 @@ class BaseModel extends Model {
   }
 
   // INSTANCE METHOD
-  async patch(data, options = {}) {
+  async patch<T extends BaseModel>(data, options: TrxOption = {}): Promise<T> {
     try {
       const { trx } = options
 
@@ -268,7 +308,12 @@ class BaseModel extends Model {
     }
   }
 
-  static async patchAndFetchById(id, data, options = {}) {
+  static async patchAndFetchById<M extends typeof BaseModel>(
+    this: M,
+    id,
+    data: Partial<InstanceType<M>>,
+    options: TrxAndRelatedOptions = {},
+  ): Promise<InstanceType<M>> {
     try {
       const { trx, related } = options
 
@@ -280,7 +325,11 @@ class BaseModel extends Model {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          return queryBuilder.patchAndFetchById(id, data).throwIfNotFound()
+          const x = await queryBuilder
+            .patchAndFetchById(id, data)
+            .throwIfNotFound()
+
+          return x as Promise<InstanceType<M>>
         },
         {
           trx,
@@ -294,7 +343,7 @@ class BaseModel extends Model {
   }
 
   // INSTANCE METHOD
-  async update(data, options = {}) {
+  async update<T extends BaseModel>(data, options: TrxOption = {}): Promise<T> {
     try {
       const { trx } = options
 
@@ -312,7 +361,11 @@ class BaseModel extends Model {
     }
   }
 
-  static async updateAndFetchById(id, data, options = {}) {
+  static async updateAndFetchById<T extends BaseModel>(
+    id,
+    data,
+    options: TrxAndRelatedOptions = {},
+  ): Promise<T> {
     try {
       const { trx, related } = options
 
@@ -337,7 +390,7 @@ class BaseModel extends Model {
     }
   }
 
-  static async deleteById(id, options = {}) {
+  static async deleteById(id, options: TrxOption = {}): Promise<number> {
     try {
       return this.query(options.trx).deleteById(id).throwIfNotFound()
     } catch (e) {
@@ -346,7 +399,7 @@ class BaseModel extends Model {
     }
   }
 
-  static async deleteByIds(ids, options = {}) {
+  static async deleteByIds(ids, options: TrxOption = {}): Promise<number> {
     try {
       const rows = await this.query(options.trx).findByIds(ids)
 

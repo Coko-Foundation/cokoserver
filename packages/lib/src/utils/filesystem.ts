@@ -74,4 +74,14 @@ const emptyTemp = async (): Promise<void> => {
   await fs.emptyDir(tempFolderPath)
 }
 
-export { findConfigurationFile, deleteFileFromTemp, emptyTemp, writeFileToTemp }
+const ensureTempFolderExists = async (): Promise<void> => {
+  await fs.ensureDir(tempFolderPath)
+}
+
+export {
+  findConfigurationFile,
+  deleteFileFromTemp,
+  emptyTemp,
+  writeFileToTemp,
+  ensureTempFolderExists,
+}

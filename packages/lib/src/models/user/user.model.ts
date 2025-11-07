@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import { RelationMappings } from 'objection'
 
 import { ValidationError } from '../../errors'
 import logger from '../../logger'
@@ -22,19 +23,22 @@ import {
 const BCRYPT_COST = process.env.NODE_ENV === 'test' ? 1 : 12
 
 class User extends BaseModel {
-  constructor(properties) {
-    super(properties)
+  password: string
+  passwordHash: string
+
+  constructor() {
+    super()
     this.type = 'user'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'users'
   }
 
   // Username & password are not required to allow for scenarios where a user
   // has been created (eg. reviewer invitation), but they have not signed up yet.
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: [],
@@ -56,7 +60,7 @@ class User extends BaseModel {
     }
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       identities: {
         relation: BaseModel.HasManyRelation,
@@ -73,7 +77,7 @@ class User extends BaseModel {
           from: 'users.id',
           to: 'identities.userId',
         },
-        filter: builder => {
+        filter: (builder): void => {
           builder.where('isDefault', true)
         },
       },

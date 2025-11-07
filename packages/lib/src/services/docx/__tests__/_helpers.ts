@@ -1,6 +1,6 @@
 import path from 'path'
 
-const getTestFilePath = filename =>
+const getTestFilePath = (filename: string): string =>
   path.join(__dirname, '..', '..', '..', 'tmp', filename)
 
 export default {

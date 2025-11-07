@@ -11,15 +11,22 @@ const PICKAXE = '\u26CF'
 
 const SEPARATOR = `${HORIZONTAL_BOX.repeat(80)}`
 
-const logErrorTask = str => {
+const logErrorTask = (str: string): void => {
   logger.error(`${chalk.red(CROSS)} ${str}`)
 }
 
-const logInit = str => {
+const logInit = (str: string): void => {
   logger.info(chalk.yellow(`\n${PICKAXE}   ${str}  ${PICKAXE}`))
 }
 
-const logNodemon = (str, options = { withLines: false }) => {
+type LogNodemonOptions = {
+  withLines: boolean
+}
+
+const logNodemon = (
+  str: string,
+  options: LogNodemonOptions = { withLines: false },
+): void => {
   const { withLines } = options
 
   logger.info(
@@ -31,27 +38,27 @@ const logNodemon = (str, options = { withLines: false }) => {
   )
 }
 
-const logReport = (header, str) => {
+const logReport = (header: string, str: string): void => {
   logger.info(`${chalk.magenta(header)} ${str}`)
 }
 
-const logSuccess = str => {
+const logSuccess = (str: string): void => {
   logger.info(chalk.green(str))
 }
 
-const logSuccessTask = str => {
+const logSuccessTask = (str: string): void => {
   logger.info(`${chalk.cyan(BULLET)} ${chalk.green(str)} ${chalk.green(CHECK)}`)
 }
 
-const logTask = str => {
+const logTask = (str: string): void => {
   logger.info(`\n${SEPARATOR}\n\n${chalk.cyan('Task:')} ${str}\n`)
 }
 
-const logTaskItem = str => {
+const logTaskItem = (str: string): void => {
   logger.info(`${chalk.cyan(BULLET)} ${str}`)
 }
 
-const logTaskSubItem = str => {
+const logTaskSubItem = (str: string): void => {
   logger.info(`  ${chalk.cyan(CHECK)} ${str}`)
 }
 

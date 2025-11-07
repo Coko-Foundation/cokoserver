@@ -1,14 +1,26 @@
-import { Model } from 'objection'
+import { Model, Transaction } from 'objection'
 import { db } from '../db'
 
 Model.knex(db)
 
-const useTransaction = async (callback, options = {}) => {
+export type TransactionCallback<T> = (trx?: Transaction) => Promise<T>
+
+type TransactionOptions = {
+  passedTrxOnly?: boolean
+  trx?: Transaction
+}
+
+export default async function useTransaction<T>(
+  callback: TransactionCallback<T>,
+  options: TransactionOptions = {},
+): Promise<T> {
+  // console.log('im in')
   const { passedTrxOnly = false, trx } = options
 
   if (!callback) {
     throw new Error('Use transaction: Invalid arguments!')
   }
+
   /**
    * Most common case (eg. useTransaction(callback))
    * No pre-defined transaction was provided.
@@ -24,7 +36,9 @@ const useTransaction = async (callback, options = {}) => {
    * None was. Just run function without a transaction.
    */
 
-  if (!trx && passedTrxOnly) return callback()
+  if (!trx && passedTrxOnly) {
+    return callback()
+  }
 
   /**
    * Transaction was passed from a parent.
@@ -33,5 +47,3 @@ const useTransaction = async (callback, options = {}) => {
 
   return callback(trx)
 }
-
-export default useTransaction

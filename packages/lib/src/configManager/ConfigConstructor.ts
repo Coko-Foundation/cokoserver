@@ -1,5 +1,3 @@
-/* eslint-disable no-undefined */
-
 import get from 'lodash/get'
 import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
@@ -42,6 +40,7 @@ export default class Config {
     }
 
     this.#values = mergeWith(
+      {},
       defaultConfig,
       providedConfig,
       overrideValues,
@@ -49,6 +48,10 @@ export default class Config {
     )
 
     Object.freeze(this)
+  }
+
+  reset(): void {
+    this.#values = defaultConfig
   }
 
   get values(): ConfigType {

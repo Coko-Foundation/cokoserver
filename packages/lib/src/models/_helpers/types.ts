@@ -1,5 +1,3 @@
-import { rolesEnum, displayNamesEnum } from './teams'
-
 const alphaNumericStringNotNullable = {
   type: 'string',
   pattern: '^[a-zA-Z0-9]+',
@@ -119,16 +117,6 @@ const arrayOfStrings = {
   default: [],
 }
 
-const teamRoles = {
-  type: 'string',
-  enum: rolesEnum,
-}
-
-const teamDisplayNames = {
-  type: 'string',
-  enum: displayNamesEnum,
-}
-
 export {
   alphaNumericStringNotNullable,
   arrayOfIds,
@@ -153,6 +141,4 @@ export {
   string,
   stringNotEmpty,
   stringNullable,
-  teamRoles,
-  teamDisplayNames,
 }

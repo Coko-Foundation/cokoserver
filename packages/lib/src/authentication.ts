@@ -35,7 +35,7 @@ const verifyToken = (token, done) => {
   })
 }
 
-const verifyPassword = (username, password, done) => {
+const verifyPassword = (username: string, password: string, done) => {
   const errorMessage = 'Wrong username or password.'
   logger.debug('User finding:', username)
 

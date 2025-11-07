@@ -12,7 +12,7 @@ describe('token management', () => {
     } = authentication
     const token = createToken({ id: 1, username: 'test' })
 
-    const callback = (err, id, user) => {
+    const callback = (err, id, user): void => {
       if (err) {
         throw new Error()
       }
@@ -30,7 +30,7 @@ describe('token management', () => {
     } = authentication
     const token = createToken({ id: 1, username: 'test' })
 
-    const callback = (err, id, user) => {
+    const callback = (err, id, user): void => {
       if (err) {
         throw new Error()
       }
@@ -66,12 +66,12 @@ describe('token management', () => {
 
     const token = createToken({ id: 1, username: 'test' })
 
-    const tokenValidCallback = (err, id, user) => {
+    const tokenValidCallback = (err, id, user): void => {
       if (err) throw new Error()
       expect(user.token).toEqual(token)
     }
 
-    const tokenErrorCallback = (err, id, user) => {
+    const tokenErrorCallback = (err, id, user): void => {
       if (err) throw new Error()
       expect(user).not.toBeDefined()
     }

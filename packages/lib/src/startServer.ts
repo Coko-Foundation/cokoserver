@@ -16,13 +16,12 @@ import setupGraphqlServer from './graphql/setup'
 import subscriptionManager from './graphql/pubsub'
 
 import seedGlobalTeams from './startup/seedGlobalTeams'
-import ensureTempFolderExists from './startup/ensureTempFolderExists'
+import { ensureTempFolderExists } from './utils/filesystem'
 import errorStatuses from './startup/errorStatuses'
 import mountStatic from './startup/static'
 import registerComponents from './startup/registerComponents'
 import cors from './startup/cors'
 import { checkConnections } from './startup/checkConnections'
-import dbConnectionReporter from './startup/dbConnectionReporter'
 import config from './configManager/config'
 import { ConfigType } from './configManager/configSchema'
 
@@ -51,7 +50,10 @@ export const startServer = async (
   config.validate()
   logTaskItem('Configuration valid!')
 
+  logTask(`Ensure tmp folder exists`)
   await ensureTempFolderExists()
+  logTaskItem(`tmp folder now exists`)
+
   await checkConnections()
   await migrationManager.migrate()
   await seedGlobalTeams()
@@ -158,12 +160,10 @@ export const startServer = async (
     `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
   )
 
-  dbConnectionReporter()
-
   return httpServer
 }
 
-export const shutdownFn = async () => {
+export const shutdownFn = async (): Promise<void> => {
   await runCustomShutdownScripts()
 
   logTask('Shut down http server')
@@ -184,7 +184,7 @@ export const shutdownFn = async () => {
   logTaskItem('Database connection successfully shut down')
 }
 
-const shutdown = async signal => {
+const shutdown = async (signal: string): Promise<void> => {
   logInit(`Coko server graceful shutdown after receiving signal ${signal}`)
   const startTime = performance.now()
 

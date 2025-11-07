@@ -3,9 +3,6 @@ import { z } from 'zod'
 import { logTask, logTaskItem, logErrorTask } from '../logger/internals'
 import { findConfigurationFile } from '../utils/filesystem'
 
-const STARTUP_KEY = 'onStartup'
-const SHUTDOWN_KEY = 'onShutdown'
-
 const LifeCycleScriptSchema = z.object({
   label: z.string(),
   execute: z.function(),
@@ -13,10 +10,7 @@ const LifeCycleScriptSchema = z.object({
 
 const LifeCycleArraySchema = z.array(LifeCycleScriptSchema)
 
-const runCustomScripts = async (
-  name: string,
-  configKey: string,
-): Promise<void> => {
+const runCustomScripts = async (name: string): Promise<void> => {
   logTask(`Run custom ${name} functions`)
 
   const filePath = findConfigurationFile(name)
@@ -60,9 +54,9 @@ const runCustomScripts = async (
 }
 
 const runCustomStartupScripts = async (): Promise<void> =>
-  runCustomScripts('startup', STARTUP_KEY)
+  runCustomScripts('startup')
 
 const runCustomShutdownScripts = async (): Promise<void> =>
-  runCustomScripts('shutdown', SHUTDOWN_KEY)
+  runCustomScripts('shutdown')
 
 export { runCustomStartupScripts, runCustomShutdownScripts }

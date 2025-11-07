@@ -64,7 +64,7 @@ const MailerTransportSchema = z.strictObject({
 })
 
 const MailerConfigSchema = z.strictObject({
-  from: z.string().email(),
+  from: z.email(),
   transport: MailerTransportSchema,
 })
 
@@ -120,7 +120,7 @@ const Timezone = z
       try {
         new Intl.DateTimeFormat('en-US', { timeZone: val }).format()
         return true
-      } catch (e) {
+      } catch (_error) {
         return false
       }
     },
@@ -166,5 +166,7 @@ export const ConfigSchema = z.strictObject({
   permissions: z.object().optional(),
 })
 
+export type Teams = z.infer<typeof TeamsConfigSchema>
+export type MailerTransport = z.infer<typeof MailerTransportSchema>
 export type FileStorageConfig = z.infer<typeof FileStorageConfigSchema>
 export type ConfigType = z.infer<typeof ConfigSchema>

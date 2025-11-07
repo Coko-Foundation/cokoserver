@@ -7,7 +7,6 @@ import {
   ConflictError,
 } from '../../errors'
 
-import config from '../../configManager/config'
 import logger from '../../logger'
 import authentication from '../../authentication'
 import User from './user.model'

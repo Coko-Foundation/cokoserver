@@ -1,20 +1,26 @@
-import nodemailer from 'nodemailer'
+import nodemailer, { SentMessageInfo } from 'nodemailer'
 
 import config from '../configManager/config'
 import logger from '../logger'
 
 import SendEmailError from './SendEmailError'
+import { MailerTransport } from '../configManager/configSchema'
+
+type TransportConfig = {
+  transportConfig: MailerTransport
+  testTransportUsed: boolean
+}
 
 const makeTransportConfig = async (
   configObject,
   mailerConfigOverrides = {},
-) => {
+): Promise<TransportConfig> => {
   const isProduction = process.env.NODE_ENV === 'production'
 
   const globalConfig =
     configObject.has('mailer.transport') && configObject.get('mailer.transport')
 
-  let configToUse
+  let configToUse: MailerTransport
 
   const foundConfig = {
     ...globalConfig,
@@ -51,7 +57,10 @@ const makeTransportConfig = async (
   }
 }
 
-const sendEmail = async (mailData, mailerConfigOverrides = {}) => {
+const sendEmail = async (
+  mailData,
+  mailerConfigOverrides = {},
+): Promise<SentMessageInfo> => {
   const { transportConfig, testTransportUsed } = await makeTransportConfig(
     config,
     mailerConfigOverrides,

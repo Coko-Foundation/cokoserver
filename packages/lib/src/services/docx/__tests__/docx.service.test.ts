@@ -1,9 +1,11 @@
+import { describe, test, expect } from 'vitest'
+
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 
-import { v4: uuid } from 'uuid'
+import { v4 as uuid } from 'uuid'
 
 import WaxToDocxConverter from '../docx.service'
 import { getTestFilePath } from './_helpers'
@@ -14,7 +16,7 @@ const imageUrl =
   'https://i.picsum.photos/id/100/700/400.jpg?hmac=HNlX5PySEOvbt1FPUSu-t3jeUbXs1k1q04XSk7f5yLY' // scale down
 // 'https://i.picsum.photos/id/774/200/300.jpg?hmac=HLVTa6awH1Il_dvZGTiqNsqGiyR5RgPXTkD_pBW9L48' // center
 
-const saveImage = async url => {
+const saveImage = async (url: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     const p = path.join(__dirname, '..', '..', '..', 'tmp', 'test')
 
@@ -30,8 +32,8 @@ const saveImage = async url => {
         resolve(p)
       })
 
-      writeStream.on('error', e => {
-        console.error(e)
+      writeStream.on('error', () => {
+        // console.error(e)
         reject(p)
       })
     })

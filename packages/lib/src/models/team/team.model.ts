@@ -1,4 +1,4 @@
-import { ValidationError } from 'objection'
+import { ValidationError, RelationMappings } from 'objection'
 
 import logger from '../../logger'
 import BaseModel from '../base.model'
@@ -9,25 +9,34 @@ import {
   booleanDefaultFalse,
   idNullable,
   stringNullable,
-  teamRoles,
-  teamDisplayNames,
 } from '../_helpers/types'
 
-import { globalTeams, nonGlobalTeams } from '../_helpers/teams'
+import config from '../../configManager/config'
+import { type Teams } from '../../configManager/configSchema'
+
 import useTransaction from '../useTransaction'
 
-class Team extends BaseModel {
-  constructor(properties) {
-    super(properties)
+function createEnumFromConfig(teamsConfig: Teams, key: string): string[] {
+  return Array.from(
+    new Set(
+      Object.values(teamsConfig)
+        .flat()
+        .map(t => t[key]),
+    ),
+  )
+}
 
+class Team extends BaseModel {
+  constructor() {
+    super()
     this.type = 'team'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'teams'
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       members: {
         relation: BaseModel.HasManyRelation,
@@ -53,15 +62,25 @@ class Team extends BaseModel {
     }
   }
 
-  static get schema() {
+  static get schema(): object {
+    const cfg = config.get('teams')
+    const rolesEnum = createEnumFromConfig(cfg, 'role')
+    const displayNamesEnum = createEnumFromConfig(cfg, 'displayName')
+
     return {
       type: 'object',
       required: ['role', 'displayName'],
       properties: {
         objectId: idNullable,
         objectType: stringNullable,
-        displayName: teamDisplayNames,
-        role: teamRoles,
+        displayName: {
+          type: 'string',
+          enum: displayNamesEnum,
+        },
+        role: {
+          type: 'string',
+          enum: rolesEnum,
+        },
         global: booleanDefaultFalse,
       },
     }
@@ -74,6 +93,7 @@ class Team extends BaseModel {
     const { global, role, displayName } = json
 
     if (global) {
+      const globalTeams = config.get('teams.global')
       validTeamChoice = globalTeams.find(t => t.role === role)
 
       if (displayName && validTeamChoice) {
@@ -81,6 +101,7 @@ class Team extends BaseModel {
           validTeamChoice.displayName === displayName
       }
     } else {
+      const nonGlobalTeams = config.get('teams.nonGlobal')
       validTeamChoice = nonGlobalTeams.find(t => t.role === role)
 
       if (displayName && validTeamChoice) {

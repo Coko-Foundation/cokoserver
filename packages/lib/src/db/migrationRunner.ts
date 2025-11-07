@@ -2,7 +2,16 @@ import fs from 'fs-extra'
 import path from 'path'
 
 import { glob } from 'glob'
-import { Umzug, MigrationParams, MigrationFn, MigrateUpOptions } from 'umzug'
+
+import {
+  Umzug,
+  MigrationParams,
+  MigrationFn,
+  MigrateUpOptions,
+  MigrateDownOptions,
+  MigrationMeta,
+} from 'umzug'
+
 import sortBy from 'lodash/sortBy'
 import isFunction from 'lodash/isFunction'
 
@@ -165,5 +174,17 @@ export default class MigrationRunner {
 
   async up(options: MigrateUpOptions): Promise<void> {
     await this.umzug.up(options)
+  }
+
+  async down(options: MigrateDownOptions): Promise<void> {
+    await this.umzug.down(options)
+  }
+
+  async pending(): Promise<MigrationMeta[]> {
+    return await this.umzug.pending()
+  }
+
+  async executed(): Promise<MigrationMeta[]> {
+    return await this.umzug.executed()
   }
 }

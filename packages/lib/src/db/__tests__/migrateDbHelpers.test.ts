@@ -1,4 +1,4 @@
-import { describe, beforeAll, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
 import TestConfig from '../../utils/TestConfig'
 
 import db from '../db'

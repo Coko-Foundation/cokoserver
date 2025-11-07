@@ -1,3 +1,4 @@
+import { RequestHandler } from 'express'
 import cors from 'cors'
 
 import config from '../configManager/config'
@@ -5,7 +6,12 @@ import { clientUrl } from '../utils/urls'
 
 import { logTask, logTaskItem } from '../logger/internals'
 
-const createCORSConfig = () => {
+type CorsConfig = {
+  origin: string[]
+  credentials: boolean
+}
+
+const createCORSConfig = (): CorsConfig => {
   logTask('Setting CORS origin')
 
   const fromConfig = config.has('corsOrigin') && config.get('corsOrigin')
@@ -29,7 +35,7 @@ const createCORSConfig = () => {
   }
 }
 
-const middleware = () => {
+const middleware = (): RequestHandler => {
   const corsConfig = createCORSConfig()
   logTaskItem(`CORS origin set to: ${corsConfig?.origin?.toString() || 'null'}`)
   return cors(corsConfig)

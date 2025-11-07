@@ -1,6 +1,6 @@
 import chatGPT from './chatGPT.controllers'
 
-const chatGPTResolver = async (_, { input }) => {
+const chatGPTResolver = async (_, { input }): Promise<string> => {
   return chatGPT(input)
 }
 

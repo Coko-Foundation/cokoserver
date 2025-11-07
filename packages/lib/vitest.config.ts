@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    silent: true,
+    // silent: true,
     fileParallelism: false,
 
     // coverage: {

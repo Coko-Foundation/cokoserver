@@ -1,5 +1,5 @@
 class SendEmailError extends Error {
-  constructor(message, max) {
+  constructor(message: string) {
     super(message)
 
     this.message = `Failed to send email. ${message}`

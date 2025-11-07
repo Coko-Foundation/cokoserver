@@ -24,7 +24,7 @@ const DEFAULT_CONFIG = {
   },
 }
 
-function arrayCustomizer(objValue, srcValue) {
+function arrayCustomizer(objValue, srcValue): any[] | undefined {
   if (Array.isArray(objValue) && Array.isArray(srcValue)) {
     return objValue.concat(srcValue)
   }

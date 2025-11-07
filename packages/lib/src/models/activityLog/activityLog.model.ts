@@ -31,7 +31,7 @@ class ActivityLog extends BaseModel {
     this.type = 'activityLog'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'activityLogs'
   }
 
