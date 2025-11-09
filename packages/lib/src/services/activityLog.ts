@@ -1,3 +1,5 @@
+import { Transaction } from 'objection'
+
 import logger from '../logger'
 import useTransaction from '../models/useTransaction'
 import ActivityLog from '../models/activityLog/activityLog.model'
@@ -5,7 +7,14 @@ import { labels } from '../models/activityLog/constants'
 
 const { ACTIVITY_LOG_SERVICE } = labels
 
-const activityLog = async (data, options = {}) => {
+type ActivityLogOptions = {
+  trx?: Transaction
+}
+
+const activityLog = async (
+  data,
+  options: ActivityLogOptions = {},
+): Promise<ActivityLog> => {
   try {
     const { trx } = options
 

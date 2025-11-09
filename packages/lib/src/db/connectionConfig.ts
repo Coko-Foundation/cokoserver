@@ -1,6 +1,9 @@
+import { type ClientConfig } from 'pg'
+
 import config from '../configManager/config'
 
-const getDbConnectionConfig = (key = 'db') => {
+const getDbConnectionConfig = (key = 'db'): ClientConfig => {
+  /* eslint-disable-next-line prefer-const */
   let { allowSelfSignedCertificates, caCert, ...connectionConfig } =
     (config.has(key) && config.get(key)) || {}
 
@@ -19,7 +22,7 @@ const getDbConnectionConfig = (key = 'db') => {
       ...connectionConfigDefault,
       ...Object.fromEntries(
         // make sure empty properties do not overwrite existing properties
-        Object.entries(connection).filter(([k, v]) => {
+        Object.entries(connection).filter(([_k, v]) => {
           return !!v
         }),
       ),

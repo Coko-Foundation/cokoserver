@@ -1,9 +1,20 @@
-import fs from 'fs-extra'
-import crypto from 'crypto'
+import { Readable } from 'stream'
 import path from 'path'
+import crypto from 'crypto'
+
+import fs from 'fs-extra'
 import mime from 'mime-types'
 
-import { S3, GetObjectCommand } from '@aws-sdk/client-s3'
+import {
+  S3,
+  GetObjectCommand,
+  GetObjectCommandOutput,
+  HeadObjectCommandOutput,
+  DeleteObjectCommandOutput,
+  HeadBucketCommandOutput,
+  ListObjectsCommandOutput,
+  PutObjectCommandInput,
+} from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
@@ -13,7 +24,13 @@ import { writeFileToTemp } from '../utils/filesystem'
 import Image from './Image'
 import { FileStorageConfig } from '../configManager/configSchema'
 
-const streamToString = stream => {
+import {
+  StoredObject,
+  FileStorageUploadOptions,
+  FileStorageGetUrlOptions,
+} from './types'
+
+const streamToString = (stream): Promise<string> => {
   const chunks = []
   return new Promise((resolve, reject) => {
     stream.on('data', chunk => chunks.push(Buffer.from(chunk)))
@@ -23,11 +40,19 @@ const streamToString = stream => {
 }
 
 class FileStorage {
-  constructor(connectionConfig, properties) {
+  bucket: string
+  imageConversionToSupportedFormatMapper = { eps: 'svg' }
+  s3: S3
+  separateDeleteOperations: boolean
+  url: string
+
+  constructor(
+    connectionConfig?: FileStorageConfig,
+    properties?: Partial<FileStorageConfig>,
+  ) {
     const DEFAULT_REGION = 'us-east-1'
 
-    const configToUse: FileStorageConfig =
-      connectionConfig || config.get('fileStorage')
+    const configToUse = connectionConfig || config.get('fileStorage')
 
     const {
       accessKeyId,
@@ -45,6 +70,7 @@ class FileStorage {
     const forcePathStyle = s3ForcePathStyle ?? true
 
     const s3config = {
+      credentials: null,
       forcePathStyle,
       endpoint: url,
       region: region || DEFAULT_REGION,
@@ -68,10 +94,6 @@ class FileStorage {
 
     this.separateDeleteOperations = s3SeparateDeleteOperations
 
-    this.imageConversionToSupportedFormatMapper = {
-      eps: 'svg',
-    }
-
     /**
      * Override some values only for testing purposes.
      * This is fine, as we're not exporting the contructor from the lib.
@@ -83,7 +105,7 @@ class FileStorage {
     }
   }
 
-  async #get(key) {
+  async #get(key: string): Promise<GetObjectCommandOutput> {
     const command = new GetObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -98,7 +120,7 @@ class FileStorage {
     }
   }
 
-  async #getFileInfo(key) {
+  async #getFileInfo(key: string): Promise<HeadObjectCommandOutput> {
     const params = {
       Bucket: this.bucket,
       Key: key,
@@ -107,7 +129,11 @@ class FileStorage {
     return this.s3.headObject(params)
   }
 
-  async #handleImageUpload(fileStream, hashedFilename, isPublic) {
+  async #handleImageUpload(
+    fileStream,
+    hashedFilename,
+    isPublic,
+  ): Promise<StoredObject[]> {
     const randomHash = crypto.randomBytes(6).toString('hex')
     const tempDir = path.join(tempFolderPath, randomHash)
     await fs.ensureDir(tempDir)
@@ -123,23 +149,26 @@ class FileStorage {
 
     const storedObjects = await Promise.all(
       dataToUpload.map(async item => {
-        const uploaded = await this.#uploadFileHandler(
+        const uploadedKey = await this.#uploadFileHandler(
           fs.createReadStream(item.path),
           item.filename,
           item.mimetype,
           isPublic,
         )
 
-        uploaded.imageMetadata = {
-          density: item.imageMetadata.density,
-          height: item.imageMetadata.height,
-          space: item.imageMetadata.space,
-          width: item.imageMetadata.width,
+        const uploaded = {
+          key: uploadedKey,
+          imageMetadata: {
+            density: item.imageMetadata.density,
+            height: item.imageMetadata.height,
+            space: item.imageMetadata.space,
+            width: item.imageMetadata.width,
+          },
+          size: item.size,
+          extension: item.extension,
+          type: item.type,
+          mimetype: item.mimetype,
         }
-        uploaded.size = item.size
-        uploaded.extension = item.extension
-        uploaded.type = item.type
-        uploaded.mimetype = item.mimetype
 
         return uploaded
       }),
@@ -149,8 +178,13 @@ class FileStorage {
     return storedObjects
   }
 
-  async #uploadFileHandler(fileStream, filename, mimetype, isPublic) {
-    const params = {
+  async #uploadFileHandler(
+    fileStream,
+    filename,
+    mimetype,
+    isPublic?: boolean,
+  ): Promise<string> {
+    const params: PutObjectCommandInput = {
       Bucket: this.bucket,
       Key: filename, // file name you want to save as
       Body: fileStream,
@@ -169,13 +203,13 @@ class FileStorage {
     // })
 
     const data = await upload.done()
-
-    const { Key } = data
-    return { key: Key }
+    return data.Key
   }
 
   // object keys is an array
-  async delete(objectKeys) {
+  async delete(
+    objectKeys,
+  ): Promise<DeleteObjectCommandOutput | DeleteObjectCommandOutput[]> {
     if (!objectKeys || (Array.isArray(objectKeys) && objectKeys.length === 0)) {
       throw new Error('No keys provided. Nothing to delete.')
     }
@@ -207,35 +241,46 @@ class FileStorage {
     return this.s3.deleteObjects(params)
   }
 
-  async download(key, localPath) {
-    const item = await this.#get(key, localPath)
+  async download(key, localPath): Promise<void> {
+    const item = await this.#get(key)
+    const body = item.Body
+
+    if (!body) {
+      throw new Error(`Item ${key} has no body.`)
+    }
+
+    if (!(body instanceof Readable)) {
+      throw new Error(`Item ${key} body is not a Node.js Readable stream.`)
+    }
 
     try {
       const writeStream = fs.createWriteStream(localPath)
 
       await new Promise((resolve, reject) => {
-        item.Body.on('error', reject) // catch stream download errors
+        body
+          .on('error', reject) // catch stream download errors
           .pipe(writeStream)
           .on('error', reject) // catch disk write errors
-          .on('finish', resolve)
+          .on('finish', () => resolve(undefined))
       })
     } catch (e) {
       throw new Error(`Error writing item ${key} to disk. ${e.message}`)
     }
   }
 
-  async getFileContent(objectKey) {
+  async getFileContent(objectKey): Promise<string> {
     const data = await this.#get(objectKey)
     return streamToString(data.Body)
   }
 
-  async getURL(objectKey, options = {}) {
+  async getURL(
+    objectKey: string,
+    options: FileStorageGetUrlOptions = {},
+  ): Promise<string> {
     const { expiresIn } = options
 
     const s3Params = {
-      Bucket: this.bucket,
-      Key: objectKey,
-      Expires: expiresIn || parseInt(86400, 10), // 1 day lease
+      expiresIn: expiresIn || 24 * 3600, // 1 day
     }
 
     const command = new GetObjectCommand({
@@ -246,19 +291,23 @@ class FileStorage {
     return getSignedUrl(this.s3, command, s3Params)
   }
 
-  getPublicURL(objectKey) {
+  getPublicURL(objectKey): string {
     return `${this.url}/${this.bucket}/${objectKey}`
   }
 
-  async healthCheck() {
+  async healthCheck(): Promise<HeadBucketCommandOutput> {
     return this.s3.headBucket({ Bucket: this.bucket })
   }
 
-  async list() {
+  async list(): Promise<ListObjectsCommandOutput> {
     return this.s3.listObjects({ Bucket: this.bucket })
   }
 
-  async upload(fileStream, filename, options = {}) {
+  async upload(
+    fileStream,
+    filename,
+    options: FileStorageUploadOptions = {},
+  ): Promise<StoredObject[]> {
     if (!filename) throw new Error('filename is required')
 
     const mimetype = mime.lookup(filename) || 'application/octet-stream'
@@ -276,18 +325,22 @@ class FileStorage {
     if (isImage)
       return this.#handleImageUpload(fileStream, hashedFilename, isPublic)
 
-    const storedObject = await this.#uploadFileHandler(
+    const storedObjectKey = await this.#uploadFileHandler(
       fileStream,
       hashedFilename,
       mimetype,
       isPublic,
     )
+    const { ContentLength } = await this.#getFileInfo(storedObjectKey)
 
-    const { ContentLength } = await this.#getFileInfo(storedObject.key)
-    storedObject.type = 'original'
-    storedObject.size = ContentLength
-    storedObject.extension = extension
-    storedObject.mimetype = mimetype
+    const storedObject = {
+      key: storedObjectKey,
+      type: 'original',
+      size: ContentLength,
+      extension: extension,
+      mimetype: mimetype,
+    }
+
     return [storedObject]
   }
 }

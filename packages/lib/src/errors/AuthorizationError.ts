@@ -1,9 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
 
 class AuthorizationError extends Error {
-  constructor(message, status) {
+  status: number
+
+  constructor(message: string, status?: number) {
     super(message)
-    Error.captureStackTrace(this, 'AuthorizationError')
+    Error.captureStackTrace(this, AuthorizationError)
     this.name = 'AuthorizationError'
     this.message = message
     this.status = status || StatusCodes.FORBIDDEN

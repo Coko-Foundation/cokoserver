@@ -1,40 +1,46 @@
+/* eslint-disable class-methods-use-this */
+
 class FileStorageNoop {
-  static error() {
+  static error(): void {
     throw new Error(
       'Cannot use the FileStorage class when useFileStorage is false in the config',
     )
   }
 
-  delete() {
-    this.error()
+  delete(): void {
+    FileStorageNoop.error()
   }
 
-  download() {
-    this.error()
+  download(): void {
+    FileStorageNoop.error()
   }
 
-  getFileInfo() {
-    this.error()
+  getFileInfo(): void {
+    FileStorageNoop.error()
   }
 
-  getUrl() {
-    this.error()
+  getURL(): void {
+    FileStorageNoop.error()
   }
 
-  handleImageUpload() {
-    this.error()
+  getPublicURL(): void {
+    FileStorageNoop.error()
   }
 
-  healthCheck() {
-    this.error()
+  handleImageUpload(): void {
+    FileStorageNoop.error()
   }
 
-  list() {
-    this.error()
+  healthCheck(): void {
+    FileStorageNoop.error()
   }
 
-  upload() {
-    this.error()
+  list(): void {
+    FileStorageNoop.error()
+  }
+
+  upload(): void {
+    FileStorageNoop.error()
   }
 }
 

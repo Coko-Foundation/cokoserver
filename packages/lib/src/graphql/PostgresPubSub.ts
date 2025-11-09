@@ -6,38 +6,48 @@
  */
 
 import { PubSub } from 'graphql-subscriptions'
-import { Client } from 'pg'
+import { Client, type ClientConfig } from 'pg'
 import pgIPC from 'pg-ipc'
 
 import { eventEmitterAsyncIterator } from './event-emitter-to-async-iterator'
 
-const defaultCommonMessageHandler = message => message
+const defaultCommonMessageHandler = (message: string): string => message
+
+type OptionsClientExtension = {
+  client?: Client
+}
+
+type PostgresPubSubOptions = ClientConfig & OptionsClientExtension
 
 class PostgresPubSub extends PubSub {
-  constructor(options = {}) {
-    const { commonMessageHandler, client, ...pgOptions } = options
-    super()
-    this.client = client || new Client(pgOptions)
+  client: Client
+  commonMessageHandler = defaultCommonMessageHandler
+  subscriptions = {}
+  subIdCounter: number = 0
 
-    if (!client) {
-      this.client.connect()
-    }
+  constructor(options: PostgresPubSubOptions = {}) {
+    const { client, ...pgOptions } = options
+    super()
+
+    this.client = client || new Client(pgOptions)
+    if (!client) this.client.connect()
 
     /* eslint-disable-next-line new-cap */
     this.ee = new pgIPC(this.client)
-    this.subscriptions = {}
-    this.subIdCounter = 0
-    this.commonMessageHandler =
-      commonMessageHandler || defaultCommonMessageHandler
   }
 
-  publish(triggerName, payload) {
+  // @ts-ignore
+  publish(triggerName: string, payload: any): boolean {
+    // @ts-ignore
     this.ee.notify(triggerName, payload)
     return true
   }
 
-  subscribe(triggerName, onMessage) {
-    const callback = message => {
+  subscribe(
+    triggerName: string,
+    onMessage: (...args: any[]) => void,
+  ): Promise<number> {
+    const callback = (message): void => {
       onMessage(
         message instanceof Error
           ? message
@@ -51,12 +61,13 @@ class PostgresPubSub extends PubSub {
     return Promise.resolve(this.subIdCounter)
   }
 
-  unsubscribe(subId) {
+  unsubscribe(subId: number): void {
     const [triggerName, onMessage] = this.subscriptions[subId]
     delete this.subscriptions[subId]
     this.ee.removeListener(triggerName, onMessage)
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   asyncIterator(triggers) {
     return eventEmitterAsyncIterator(
       this.ee,

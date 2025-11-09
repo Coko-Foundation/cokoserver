@@ -41,17 +41,23 @@ const migrations = {
     ])
   },
 
-  unlogMigration: async (migrationName: string): Promise<void> =>
-    db.raw(`DELETE FROM ${MIGRATIONS_TABLE} WHERE id = ?`, [migrationName]),
+  unlogMigration: async (migrationName: string): Promise<void> => {
+    await db.raw(`DELETE FROM ${MIGRATIONS_TABLE} WHERE id = ?`, [
+      migrationName,
+    ])
+  },
 }
 
 const migrationsMeta = {
-  clearCheckpoint: async (): Promise<void> =>
-    db(META_TABLE).update({
+  clearCheckpoint: async (): Promise<void> => {
+    await db(META_TABLE).update({
       lastSuccessfulMigrateCheckpoint: null,
-    }),
+    })
+  },
 
-  exists: async (): Promise<boolean> => db.schema.hasTable(META_TABLE),
+  exists: async (): Promise<boolean> => {
+    return await db.schema.hasTable(META_TABLE)
+  },
 
   getCheckpoint: async (): Promise<string> => {
     const row = await db(META_TABLE)
@@ -66,10 +72,11 @@ const migrationsMeta = {
     return rows[0] // this table always has one row only
   },
 
-  setCheckpoint: async (value): Promise<void> =>
-    db(META_TABLE).update({
+  setCheckpoint: async (value): Promise<void> => {
+    await db(META_TABLE).update({
       lastSuccessfulMigrateCheckpoint: value,
-    }),
+    })
+  },
 }
 
 export { migrations, migrationsMeta, MIGRATIONS_TABLE, META_TABLE }

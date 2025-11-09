@@ -11,8 +11,10 @@ import exifr from 'exifr'
 import config from '../configManager/config'
 import logger from '../logger'
 
+import { GeneratedVersion } from './types'
+
 // #region helpers
-const getMetadata = async fileBuffer => {
+const getMetadata = async (fileBuffer): Promise<sharp.Metadata> => {
   return sharp(fileBuffer, { limitInputPixels: false }).metadata()
 }
 
@@ -57,6 +59,20 @@ const orientationMap = {
 // #endregion helpers
 
 class Image {
+  conversionMapper = { eps: 'svg' }
+  dir: string
+  extension: string
+  filename: string
+  maxWidth: {
+    small: number
+    medium: number
+  }
+  mimetype: string | false
+  name: string
+  outputExtension: string
+  path: string
+  shouldConvert: boolean
+
   // properties: filename, dir
   constructor(properties) {
     this.name = path.parse(properties.filename).name
@@ -64,10 +80,6 @@ class Image {
     this.path = path.join(properties.dir, properties.filename)
     this.filename = properties.filename
     this.dir = properties.dir
-
-    this.conversionMapper = {
-      eps: 'svg',
-    }
 
     const convertTo = this.conversionMapper[this.extension]
     this.shouldConvert = !!convertTo
@@ -88,7 +100,7 @@ class Image {
    * Takes the image file and writes a converted image in the directory.
    * eg. dir/file.eps will generate dir/file.svg
    */
-  async #createConvertedFile() {
+  async #createConvertedFile(): Promise<string> {
     if (!commandExists('magick') && !commandExists('convert')) {
       throw new Error(
         'ImageMagick needs to be installed on your OS or container',
@@ -108,7 +120,7 @@ class Image {
   }
 
   /* eslint-disable class-methods-use-this */
-  async #rotate(fileBuffer, filePath, metadata) {
+  async #rotate(fileBuffer, filePath, metadata): Promise<Buffer> {
     if (!metadata.exif) return fileBuffer
 
     let exifMetadata
@@ -154,7 +166,7 @@ class Image {
     return fileBuffer
   }
 
-  async generateVersions() {
+  async generateVersions(): Promise<GeneratedVersion[]> {
     let filePath = this.path
     if (this.shouldConvert) filePath = await this.#createConvertedFile()
 

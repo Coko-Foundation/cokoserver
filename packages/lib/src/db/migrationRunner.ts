@@ -50,6 +50,15 @@ export default class MigrationRunner {
     this.pattern = `{${pattern}}`
   }
 
+  static stripMigrationExtensionName(filename: string): string {
+    const filenameData = path.parse(filename)
+    if (['.js', '.ts', '.sql'].includes(filenameData.ext)) {
+      return filenameData.name
+    }
+
+    return filename
+  }
+
   /**
    * The threshold represents from which point in time forward the rules will
    * apply (the creation of the meta table, ie. from the moment they upgraded to
@@ -140,13 +149,13 @@ export default class MigrationRunner {
       logMigration: async (
         migration: MigrationParams<object>,
       ): Promise<void> => {
-        migrationsTable.logMigration(migration.name)
+        await migrationsTable.logMigration(migration.name)
       },
 
       unlogMigration: async (
         migration: MigrationParams<object>,
       ): Promise<void> => {
-        migrationsTable.unlogMigration(migration.name)
+        await migrationsTable.unlogMigration(migration.name)
       },
 
       executed: async (): Promise<string[]> => {
@@ -173,10 +182,18 @@ export default class MigrationRunner {
   }
 
   async up(options: MigrateUpOptions): Promise<void> {
+    if (options.to) {
+      options.to = MigrationRunner.stripMigrationExtensionName(options.to)
+    }
+
     await this.umzug.up(options)
   }
 
   async down(options: MigrateDownOptions): Promise<void> {
+    if (options.to) {
+      options.to = MigrationRunner.stripMigrationExtensionName(options.to)
+    }
+
     await this.umzug.down(options)
   }
 

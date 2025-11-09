@@ -1,8 +1,9 @@
-import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
+import { describe, afterAll, beforeEach, it, expect } from 'vitest'
 import { MigrationError } from 'umzug'
 
-import TestConfig from '../../utils/TestConfig'
+import config from '../../configManager/config'
 import db from '../db'
+import DbTestUtils from '../DbTestUtils'
 import { migrate, rollback, pending, executed } from '../migrate'
 import { MIGRATIONS_TABLE } from '../migrateDbHelpers'
 import MigrateOptionIntegrityError from '../errors/MigrateOptionIntegrityError'
@@ -10,57 +11,42 @@ import MigrateSkipLimitError from '../errors/MigrateSkipLimitError'
 import RollbackUnavailableError from '../errors/RollbackUnavailableError'
 import RollbackLimitError from '../errors/RollbackLimitError'
 
-const config = new TestConfig(
-  {
-    components: ['src/db/__tests__/mocks/succeeding'],
-  },
-  { useDb: true },
-)
-
-const failingConfig = new TestConfig(
-  {
-    components: ['src/db/__tests__/mocks/failing'],
-  },
-  { useDb: true },
-)
-
 describe('Migrations', () => {
-  beforeAll(async () => {
-    const tables = await db('pg_tables')
-      .select('tablename')
-      .where('schemaname', 'public')
+  async function setSucceedingConfig(): Promise<void> {
+    config.reset()
+    await config.init({
+      components: ['src/db/__tests__/mocks/succeeding'],
+    })
+  }
 
-    for (const t of tables) {
-      /* eslint-disable-next-line no-await-in-loop */
-      await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-    }
-  })
+  async function setFailingConfig(): Promise<void> {
+    config.reset()
+    await config.init({
+      components: ['src/db/__tests__/mocks/failing'],
+    })
+  }
 
-  afterEach(async () => {
-    const tables = await db('pg_tables')
-      .select('tablename')
-      .where('schemaname', 'public')
-
-    for (const t of tables) {
-      /* eslint-disable-next-line no-await-in-loop */
-      await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-    }
+  beforeEach(async () => {
+    await DbTestUtils.dropAllTables()
+    await setSucceedingConfig()
   })
 
   afterAll(async () => {
+    config.reset()
+    await DbTestUtils.dropAllTables()
     await db.destroy()
   })
 
   it('get pending migrations', async () => {
     await migrate(config, { step: 3 })
     const pend = await pending(config)
-    expect(pend).toHaveLength(3)
+    expect(pend).toHaveLength(4)
   })
 
   it('get executed migrations', async () => {
     await migrate(config)
     const exec = await executed(config)
-    expect(exec).toHaveLength(6)
+    expect(exec).toHaveLength(7)
   })
 
   describe('migrate', () => {
@@ -74,18 +60,21 @@ describe('Migrations', () => {
       expect(migrationsExistAfter).toBe(true)
 
       const exec = await executed(config)
-      expect(exec).toHaveLength(6)
+      expect(exec).toHaveLength(7)
     })
 
     it('fails skipping last migration if options are invalid', async () => {
+      // @ts-ignore
       await expect(migrate(config, { skipLast: 'test' })).rejects.toThrow(
         MigrateOptionIntegrityError,
       )
 
+      // @ts-ignore
       await expect(migrate(config, { skipLast: '' })).rejects.toThrow(
         MigrateOptionIntegrityError,
       )
 
+      // @ts-ignore
       await expect(migrate(config, { skipLast: {} })).rejects.toThrow(
         MigrateOptionIntegrityError,
       )
@@ -128,9 +117,9 @@ describe('Migrations', () => {
     })
 
     it('skips last x migrations', async () => {
-      await migrate(config, { step: 3 }) // from a total of 6
+      await migrate(config, { step: 3 }) // from a total of 7
       let pend = await pending(config)
-      expect(pend).toHaveLength(3)
+      expect(pend).toHaveLength(4)
 
       await migrate(config, { skipLast: 2 })
       pend = await pending(config)
@@ -138,14 +127,15 @@ describe('Migrations', () => {
     })
 
     it('migrates up to a specific migration', async () => {
-      await migrate(config, { to: '1722326234-two.js' })
+      await migrate(config, { to: '1722326234-two.ts' })
       const pend = await pending(config)
-      expect(pend).toHaveLength(1)
+      expect(pend).toHaveLength(2)
     })
 
     it('throws an error when runnning a broken migration', async () => {
-      await migrate(failingConfig, { skipLast: 1 })
-      await expect(migrate(failingConfig)).rejects.toThrow(MigrationError)
+      await setFailingConfig()
+      await migrate(config, { skipLast: 2 })
+      await expect(migrate(config)).rejects.toThrow(MigrationError)
     })
   })
 
@@ -169,31 +159,33 @@ describe('Migrations', () => {
     })
 
     it('rolls back to the last successful run', async () => {
-      await migrate(failingConfig, { step: 3 })
-      let pend = await pending(failingConfig)
-      expect(pend).toHaveLength(4)
+      await setFailingConfig()
+      await migrate(config, { step: 3 })
+      let pend = await pending(config)
+      expect(pend).toHaveLength(5)
 
-      await expect(migrate(failingConfig)).rejects.toThrow()
-      pend = await pending(failingConfig)
-      expect(pend).toHaveLength(1)
+      await expect(migrate(config)).rejects.toThrow()
+      pend = await pending(config)
+      expect(pend).toHaveLength(2)
 
-      await rollback(failingConfig, { lastSuccessfulRun: true })
-      pend = await pending(failingConfig)
-      expect(pend).toHaveLength(4)
+      await rollback(config, { lastSuccessfulRun: true })
+      pend = await pending(config)
+      expect(pend).toHaveLength(5)
     })
 
     it('ignores step if last successful run is true', async () => {
-      await migrate(failingConfig, { step: 3 })
-      let pend = await pending(failingConfig)
-      expect(pend).toHaveLength(4)
+      await setFailingConfig()
+      await migrate(config, { step: 3 })
+      let pend = await pending(config)
+      expect(pend).toHaveLength(5)
 
-      await expect(migrate(failingConfig)).rejects.toThrow()
-      pend = await pending(failingConfig)
-      expect(pend).toHaveLength(1)
+      await expect(migrate(config)).rejects.toThrow()
+      pend = await pending(config)
+      expect(pend).toHaveLength(2)
 
-      await rollback(failingConfig, { lastSuccessfulRun: true, step: 1 })
-      pend = await pending(failingConfig)
-      expect(pend).toHaveLength(4)
+      await rollback(config, { lastSuccessfulRun: true, step: 1 })
+      pend = await pending(config)
+      expect(pend).toHaveLength(5)
     })
 
     it('fails to rollback to last successful run if it is identical to the last migration', async () => {
@@ -205,11 +197,12 @@ describe('Migrations', () => {
     })
 
     it('fails to rollback if checkpoint is before the creation of the meta table', async () => {
-      await migrate(failingConfig, { step: 1 })
-      await expect(migrate(failingConfig)).rejects.toThrow()
+      await setFailingConfig()
+      await migrate(config, { step: 1 })
+      await expect(migrate(config)).rejects.toThrow()
 
       await expect(
-        rollback(failingConfig, { lastSuccessfulRun: true }),
+        rollback(config, { lastSuccessfulRun: true }),
       ).rejects.toThrow(RollbackLimitError)
     })
 

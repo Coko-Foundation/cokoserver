@@ -1,3 +1,6 @@
+// @ts-nocheck
+/* eslint-disable */
+
 /**
  * See comment in PostgresPubSub file
  */

@@ -3,38 +3,32 @@ import fs from 'fs-extra'
 import path from 'path'
 import sharp from 'sharp'
 
-import fileStorage from '../index'
 import FileStorageConstructor from '../FileStorage'
 import tempFolderPath from '../../utils/tempFolderPath'
 import request from '../../utils/request'
+import { StoredObject } from '../types'
 
 const testFilePath = path.join(__dirname, 'files')
 const textFileContent = 'This is a dummy text file'
 
-const uploadOneFile = async isPublic => {
+const fileStorage = new FileStorageConstructor()
+
+const uploadOneFile = async (isPublic?: boolean): Promise<StoredObject> => {
   const filePath = path.join(testFilePath, 'helloWorld.txt')
   const fileStream = fs.createReadStream(filePath)
 
-  const file = await fileStorage.upload(fileStream, 'helloWorld.txt', {
+  const files = await fileStorage.upload(fileStream, 'helloWorld.txt', {
     public: isPublic,
   })
 
-  return file[0]
+  return files[0]
 }
 
-const cleanBucket = async () => {
+const cleanBucket = async (): Promise<void> => {
   const list = await fileStorage.list()
-  const { Contents } = list
-
-  if (!Contents) return true // bucket is empty already
-
-  const fileKeys = Contents.map(file => file.Key)
-
-  if (fileKeys.length > 0) {
-    return fileStorage.delete(fileKeys)
-  }
-
-  return true
+  if (!list.Contents) return // bucket is empty already
+  const fileKeys = list.Contents.map(file => file.Key)
+  if (fileKeys.length > 0) await fileStorage.delete(fileKeys)
 }
 
 describe('File Storage Service', () => {
@@ -141,6 +135,11 @@ describe('File Storage Service', () => {
     const rotatedMetadata = await downloadedRotatedImage.metadata()
 
     expect(rotatedMetadata.orientation).toBeUndefined()
+
+    if (!rotatedMetadata.height || !rotatedMetadata.width) {
+      throw new Error('Rotated metadata incomplete!')
+    }
+
     expect(rotatedMetadata.width).toBeGreaterThan(rotatedMetadata.height)
 
     const standardFileName = 'test.jpg'
@@ -162,6 +161,10 @@ describe('File Storage Service', () => {
     const downloadedStandardImage = sharp(standardOutputPath)
     const standardMetadata = await downloadedStandardImage.metadata()
 
+    if (!standardMetadata.height || !standardMetadata.width) {
+      throw new Error('Standard metadata incomplete!')
+    }
+
     expect(standardMetadata.width).toBeGreaterThan(standardMetadata.height)
   })
 
@@ -176,8 +179,9 @@ describe('File Storage Service', () => {
     const file = await uploadOneFile()
     const { key } = file
     const files = await fileStorage.list()
-    expect(files.Contents).toHaveLength(1)
-    expect(files.Contents[0].Key).toEqual(key)
+    const contents = files.Contents ?? []
+    expect(contents).toHaveLength(1)
+    expect(contents[0].Key).toEqual(key)
   })
 
   it('downloads locally the given file', async () => {
@@ -202,7 +206,7 @@ describe('File Storage Service', () => {
     const file = await uploadOneFile()
 
     const list = await fileStorage.list()
-    expect(list.Contents.length).toBe(1)
+    expect(list.Contents?.length).toBe(1)
 
     await fileStorage.delete(file.key)
 
@@ -218,7 +222,7 @@ describe('File Storage Service', () => {
     )
 
     const list = await fileStorage.list()
-    expect(list.Contents.length).toBe(2)
+    expect(list.Contents?.length).toBe(2)
 
     const keys = files.map(f => f.key)
     await fileStorage.delete(keys)
@@ -228,8 +232,8 @@ describe('File Storage Service', () => {
   })
 
   it('deletes files when separateDeleteOperations is true', async () => {
-    const ModifiedFS = new FileStorageConstructor(null, {
-      separateDeleteOperations: true,
+    const ModifiedFS = new FileStorageConstructor(undefined, {
+      s3SeparateDeleteOperations: true,
     })
 
     const files = await Promise.all(
@@ -239,7 +243,7 @@ describe('File Storage Service', () => {
     )
 
     const list = await ModifiedFS.list()
-    expect(list.Contents.length).toBe(2)
+    expect(list.Contents?.length).toBe(2)
 
     const keys = files.map(f => f.key)
     await ModifiedFS.delete(keys)
@@ -249,6 +253,7 @@ describe('File Storage Service', () => {
   })
 
   it('throws if delete is called with no arguments', async () => {
+    // @ts-ignore
     await expect(fileStorage.delete()).rejects.toThrow(
       'No keys provided. Nothing to delete.',
     )
@@ -284,8 +289,9 @@ describe('File Storage Service', () => {
     })
 
     allFiles = await fileStorage.list()
-    expect(allFiles.Contents).toHaveLength(1)
-    expect(allFiles.Contents[0].Key).toEqual(key)
+    const contents = allFiles.Contents ?? []
+    expect(contents).toHaveLength(1)
+    expect(contents[0].Key).toEqual(key)
   })
 
   it('cannot fails to read a public url for a private file', async () => {
@@ -293,27 +299,25 @@ describe('File Storage Service', () => {
     const privateFileUrl = await fileStorage.getURL(privateFile.key)
     expect(privateFileUrl).toBeDefined()
     const privateFilePublicUrl = fileStorage.getPublicURL(privateFile.key)
-    await expect(request(privateFilePublicUrl)).rejects.toThrow()
+    await expect(request({ url: privateFilePublicUrl })).rejects.toThrow()
   })
 
   it('reads a signed url for a public file', async () => {
     const file = await uploadOneFile(true)
     const url = await fileStorage.getURL(file.key)
-    const response = await request(url)
+    const response = await request({ url })
     expect(response.data).toBe(textFileContent)
   })
 
   // Doesn't work with minio
-  /* eslint-disable-next-line jest/no-disabled-tests */
   it.skip('reads a public url for a public file', async () => {
     const file = await uploadOneFile(true)
     const url = await fileStorage.getPublicURL(file.key)
-    const response = await request(url)
+    const response = await request({ url })
     expect(response.data).toBe(textFileContent)
   })
 
   // Doesn't work with minio
-  /* eslint-disable-next-line jest/no-disabled-tests */
   it.skip('reads a public url for a public image', async () => {
     const filePath = path.join(testFilePath, 'test.png')
     const fileStream = fs.createReadStream(filePath)
@@ -323,6 +327,6 @@ describe('File Storage Service', () => {
     })
 
     const url = fileStorage.getPublicURL(storedObjects[0].key)
-    await expect(request(url)).resolves.not.toThrow()
+    await expect(request({ url })).resolves.not.toThrow()
   }, 10000)
 })

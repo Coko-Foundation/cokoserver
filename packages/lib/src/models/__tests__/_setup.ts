@@ -7,7 +7,7 @@
 // See following article:
 // https://walrus.ai/blog/2020/04/testing-database-interactions-with-jest/
 
-module.exports = async jestConfig => {
-  // const { maxWorkers } = jestConfig
-  // await migrationManager.migrate()
-}
+// module.exports = async jestConfig => {
+// const { maxWorkers } = jestConfig
+// await migrationManager.migrate()
+// }

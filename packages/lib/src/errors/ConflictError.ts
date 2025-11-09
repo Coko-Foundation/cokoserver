@@ -1,9 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
 
 class ConflictError extends Error {
-  constructor(message, status) {
+  status: number
+
+  constructor(message: string, status?: number) {
     super(message)
-    Error.captureStackTrace(this, 'ConflictError')
+    Error.captureStackTrace(this, ConflictError)
     this.name = 'ConflictError'
     this.message = message
     this.status = status || StatusCodes.CONFLICT

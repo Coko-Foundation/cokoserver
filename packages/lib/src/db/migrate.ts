@@ -1,4 +1,4 @@
-import { MigrationMeta } from 'umzug'
+import { MigrationMeta, MigrateUpOptions, MigrateDownOptions } from 'umzug'
 
 import {
   logTask,
@@ -18,12 +18,19 @@ import RollbackUnavailableError from './errors/RollbackUnavailableError'
 
 import MigrationRunner from './migrationRunner'
 
-export type UpOptions = {
+type UpExtension = {
   skipLast?: number
-  step?: number
 }
 
-const META_ID = '1715865523-create-coko-server-meta.js'
+export type MigrateOptions = MigrateUpOptions & UpExtension
+
+type DownExtension = {
+  lastSuccessfulRun?: boolean
+}
+
+export type RollbackOptions = MigrateDownOptions & DownExtension
+
+const META_ID = '1715865523-create-coko-server-meta'
 
 // #region helpers
 const updateCheckpoint = async (): Promise<void> => {
@@ -56,7 +63,7 @@ const updateCheckpoint = async (): Promise<void> => {
 // #region commands
 export const migrate = async (
   passedConfig,
-  options: UpOptions = {},
+  options: MigrateOptions = {},
 ): Promise<void> => {
   logTask(`Run migrations`)
 
@@ -104,11 +111,18 @@ export const migrate = async (
   await updateCheckpoint()
 }
 
-export const rollback = async (passedConfig, options = {}): Promise<void> => {
+export const rollback = async (
+  passedConfig,
+  options: RollbackOptions = {},
+): Promise<void> => {
   if (!(await migrationsMeta.exists())) throw new RollbackUnavailableError()
 
   const migrationRows = await migrations.getRows()
-  const metaPosition = migrationRows.findIndex(item => item.id === META_ID)
+
+  const metaPosition = migrationRows.findIndex(
+    item => MigrationRunner.stripMigrationExtensionName(item.id) === META_ID,
+  )
+
   const metaIsLast = metaPosition === migrationRows.length - 1
 
   if (metaIsLast) {
@@ -117,7 +131,8 @@ export const rollback = async (passedConfig, options = {}): Promise<void> => {
     })
   }
 
-  const downOptions = {}
+  const downOptions = { ...options }
+
   const checkpoint = await migrationsMeta.getCheckpoint()
 
   if (!options.lastSuccessfulRun) {
@@ -130,8 +145,6 @@ export const rollback = async (passedConfig, options = {}): Promise<void> => {
         { metaLimit: true },
       )
     }
-
-    if (options.step && options.step > 1) downOptions.step = options.step
   } else {
     const checkpointPosition = migrationRows.findIndex(
       item => item.id === checkpoint,
@@ -162,25 +175,25 @@ export const rollback = async (passedConfig, options = {}): Promise<void> => {
     downOptions.to = revertTo
   }
 
-  // If we don't clear the checkpoint, we get a reference error, as the checkpoint
-  // is a foreign key to the migrations id column
+  /**
+   * If we don't clear the checkpoint, we get a reference error, as the
+   * checkpoint is a foreign key to the migrations id column.
+   */
   await migrationsMeta.clearCheckpoint()
 
   try {
     const migrationRunner = new MigrationRunner(passedConfig.get('components'))
     await migrationRunner.init()
     await migrationRunner.down(downOptions)
+    await updateCheckpoint()
     logger.info('Migrate: Migration rollback successful!')
   } catch (e) {
-    logger.error(e)
-
     // Restore original cleared checkpoint
     if (checkpoint) await migrationsMeta.setCheckpoint(checkpoint)
 
+    logger.error(e)
     throw e
   }
-
-  await updateCheckpoint()
 }
 
 export const pending = async (passedConfig): Promise<MigrationMeta[]> => {
@@ -215,10 +228,14 @@ export const executed = async (passedConfig): Promise<MigrationMeta[]> => {
 // #endregion commmands
 
 export const migrationManager = {
-  migrate: async (options?: UpOptions): Promise<void> => {
+  migrate: async (options?: MigrateOptions): Promise<void> => {
     await migrate(config, options)
   },
-  rollback: async (options): Promise<void> => rollback(config, options),
+
+  rollback: async (options?: RollbackOptions): Promise<void> => {
+    rollback(config, options)
+  },
+
   pending: async (): Promise<MigrationMeta[]> => pending(config),
   executed: async (): Promise<MigrationMeta[]> => executed(config),
 }
