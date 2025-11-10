@@ -19,8 +19,7 @@ import { Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 import config from '../configManager/config'
-import tempFolderPath from '../utils/tempFolderPath'
-import { writeFileToTemp } from '../utils/filesystem'
+import { writeFileToTemp, tempFolderPath } from '../utils/filesystem'
 import Image from './Image'
 import { FileStorageConfig } from '../configManager/configSchema'
 

@@ -6,7 +6,7 @@ import path from 'path'
 import File from '../file.model'
 import { deleteFiles, createFile } from '../file.controller'
 import clearDb from '../../_helpers/clearDb'
-import tempFolderPath from '../../../utils/tempFolderPath'
+import { tempFolderPath } from '../../../utils/filesystem'
 
 const testFilePath = path.join(
   __dirname,

@@ -19,7 +19,6 @@ describe('Starting the server', () => {
       await shutdownFn()
     })
 
-    /* eslint-disable-next-line jest/no-disabled-tests */
     it.skip('returns the server if it is already running', async () => {
       const server = await startServer()
       server.originalServer = true

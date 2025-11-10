@@ -4,7 +4,7 @@ import path from 'path'
 import sharp from 'sharp'
 
 import FileStorageConstructor from '../FileStorage'
-import tempFolderPath from '../../utils/tempFolderPath'
+import { tempFolderPath } from '../../utils/filesystem'
 import request from '../../utils/request'
 import { StoredObject } from '../types'
 

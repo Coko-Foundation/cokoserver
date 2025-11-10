@@ -21,7 +21,6 @@ import {
 
 import * as modelJsonSchemaTypes from './models/_helpers/types'
 import clearDb from './models/_helpers/clearDb'
-import tempFolderPath from './utils/tempFolderPath'
 import fileStorage from './fileStorage'
 import FileStorageConstructor from './fileStorage/FileStorage'
 
@@ -41,6 +40,7 @@ import {
   deleteFileFromTemp,
   emptyTemp,
   writeFileToTemp,
+  tempFolderPath,
 } from './utils/filesystem'
 
 import { clientUrl, serverUrl } from './utils/urls'

@@ -1,31 +1,33 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import axios from 'axios'
 import { authenticatedCall } from '../authenticatedCall'
 import { invalidateProviderAccessToken } from '../../models/identity/identity.controller'
 import { getAuthTokens } from '../tokens'
 
-jest.mock('../tokens', () => {
+vi.mock('../tokens', () => {
   return {
-    getAuthTokens: jest.fn(() => 'token'),
+    getAuthTokens: vi.fn(() => 'token'),
   }
 })
 
-jest.mock('../../models/identity/identity.controller.js', () => {
+vi.mock('../../models/identity/identity.controller.js', () => {
   return {
-    invalidateProviderAccessToken: jest.fn(),
+    invalidateProviderAccessToken: vi.fn(),
   }
 })
 
-jest.mock('axios')
+vi.mock('axios')
 
 describe('Authenticated call', () => {
   it('calls provider with auth', async () => {
+    // @ts-ignore
     axios.mockResolvedValue(true)
     const res = await authenticatedCall('123', 'lulu', {})
     expect(res).toBe(true)
   })
 
   it('fetches a new token when expired', async () => {
+    // @ts-ignore
     axios.mockResolvedValueOnce({ status: 401 }).mockResolvedValue(true)
 
     const res = await authenticatedCall('123', 'lulu', {})

@@ -2,9 +2,12 @@ import { describe, it, expect } from 'vitest'
 import path from 'path'
 import fs from 'fs-extra'
 
-import { deleteFileFromTemp, emptyTemp, writeFileToTemp } from '../filesystem'
-
-import tempFolderPath from '../tempFolderPath'
+import {
+  deleteFileFromTemp,
+  emptyTemp,
+  writeFileToTemp,
+  tempFolderPath,
+} from '../filesystem'
 
 const filePath = path.join(__dirname, '_helpers', 'test.txt')
 

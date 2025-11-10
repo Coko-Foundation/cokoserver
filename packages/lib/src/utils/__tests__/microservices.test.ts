@@ -1,18 +1,19 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import axios from 'axios'
 
 import { callMicroservice } from '../microservices'
 
-jest.mock('../tokens', () => {
+vi.mock('../tokens', () => {
   return {
-    getAccessToken: jest.fn(() => 'token'),
+    getAccessToken: vi.fn(() => 'token'),
   }
 })
 
-jest.mock('axios')
+vi.mock('axios')
 
 describe('Microservices', () => {
   it('calls microservice successfully with token', async () => {
+    // @ts-ignore
     axios.mockResolvedValue(true)
     const res = await callMicroservice('xsweet', {})
     expect(res).toBe(true)
@@ -20,6 +21,7 @@ describe('Microservices', () => {
 
   it('fetches a new token when expired', async () => {
     axios
+      // @ts-ignore
       .mockRejectedValueOnce({
         response: {
           status: 401,

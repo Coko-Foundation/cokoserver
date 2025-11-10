@@ -9,7 +9,7 @@ import { Upload } from '@aws-sdk/lib-storage'
 import config from '../../../configManager/config'
 import useTransaction from '../../useTransaction'
 import File from '../file.model'
-import tempFolderPath from '../../../utils/tempFolderPath'
+import { tempFolderPath } from '../../../utils/filesystem'
 import fileStorage from '../../../fileStorage'
 
 /**

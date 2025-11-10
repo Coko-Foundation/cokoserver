@@ -3,12 +3,12 @@ import { buffer } from 'stream/consumers'
 
 import fs, { ReadStream } from 'fs-extra'
 
-import tempFolderPath from './tempFolderPath'
-
 type FindConfigurationFileOptions = {
   extensions?: string[]
   basePath?: string
 }
+
+const tempFolderPath = path.join(process.cwd(), 'tmp')
 
 const findConfigurationFile = (
   filename: string,
@@ -84,4 +84,5 @@ export {
   emptyTemp,
   writeFileToTemp,
   ensureTempFolderExists,
+  tempFolderPath,
 }

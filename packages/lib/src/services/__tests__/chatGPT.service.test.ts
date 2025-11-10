@@ -1,5 +1,3 @@
-/* eslint-disable jest/no-disabled-tests */
-
 import { describe, afterAll, it, expect } from 'vitest'
 
 /**

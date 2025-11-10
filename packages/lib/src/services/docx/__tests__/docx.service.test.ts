@@ -2,45 +2,38 @@ import { describe, test, expect } from 'vitest'
 
 import fs from 'fs'
 import path from 'path'
-import axios from 'axios'
 import { faker } from '@faker-js/faker'
 
 import { v4 as uuid } from 'uuid'
 
 import WaxToDocxConverter from '../docx.service'
-import { getTestFilePath } from './_helpers'
+import { WaxDocument } from '../waxDocumentTypes'
+import { ImageData } from '../types'
+import { writeFileToTemp, tempFolderPath } from '../../../utils/filesystem'
+import request from '../../../utils/request'
 
 const imageId = uuid()
 
-const imageUrl =
-  'https://i.picsum.photos/id/100/700/400.jpg?hmac=HNlX5PySEOvbt1FPUSu-t3jeUbXs1k1q04XSk7f5yLY' // scale down
-// 'https://i.picsum.photos/id/774/200/300.jpg?hmac=HLVTa6awH1Il_dvZGTiqNsqGiyR5RgPXTkD_pBW9L48' // center
-
-const saveImage = async (url: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const p = path.join(__dirname, '..', '..', '..', 'tmp', 'test')
-
-    axios({
-      method: 'GET',
-      url,
-      responseType: 'stream',
-    }).then(response => {
-      const writeStream = fs.createWriteStream(p)
-      response.data.pipe(writeStream)
-
-      writeStream.on('finish', () => {
-        resolve(p)
-      })
-
-      writeStream.on('error', () => {
-        // console.error(e)
-        reject(p)
-      })
-    })
-  })
+const getTestFilePath = (filename: string): string => {
+  return path.join(tempFolderPath, filename)
 }
 
-const document = {
+const imageUrl =
+  'https://picsum.photos/id/100/700/400.jpg?hmac=HNlX5PySEOvbt1FPUSu-t3jeUbXs1k1q04XSk7f5yLY' // scale down
+// 'https://picsum.photos/id/774/200/300.jpg?hmac=HLVTa6awH1Il_dvZGTiqNsqGiyR5RgPXTkD_pBW9L48' // center
+
+const saveImage = async (url: string): Promise<string> => {
+  const response = await request({
+    url,
+    responseType: 'stream',
+  })
+
+  const filename = 'test.jpg'
+  await writeFileToTemp(response.data, filename)
+  return path.join(tempFolderPath, filename)
+}
+
+const document: WaxDocument = {
   type: 'doc',
   content: [
     {
@@ -613,22 +606,20 @@ const document = {
   ],
 }
 
-/* eslint-disable-next-line jest/no-disabled-tests */
 describe.skip('Docx service', () => {
   test('Generic document', async () => {
-    const imageData = {}
-    const filepath = getTestFilePath('base.docx')
+    const imageData: ImageData = {}
+    const filePath = getTestFilePath('base.docx')
     const imagePath = await saveImage(imageUrl)
 
     imageData[imageId] = imagePath
 
     const converter = new WaxToDocxConverter(document, imageData)
-    converter.writeToPath(filepath)
+    converter.writeToPath(filePath)
 
-    fs.unlink(imagePath, e => {
-      if (e) throw new Error(e)
-    })
+    fs.unlinkSync(imagePath)
+    // fs.unlinkSync(filePath)
 
     expect(true).toBe(true)
-  })
+  }, 10000)
 })

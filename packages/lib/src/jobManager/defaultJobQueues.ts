@@ -47,7 +47,7 @@ const defaultJobQueues = [
    */
   {
     name: defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
-    handler: async job => {
+    handler: async (job): Promise<void> => {
       const { userId, providerLabel } = job.data
       const user = await User.findById(userId)
 

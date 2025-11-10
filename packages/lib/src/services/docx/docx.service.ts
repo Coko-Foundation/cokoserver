@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import imageSize from 'image-size'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -6,6 +7,7 @@ import {
   AlignmentType,
   Document,
   ExternalHyperlink,
+  FileChild,
   ImageRun,
   LevelFormat,
   Packer,
@@ -21,7 +23,20 @@ import {
   convertMillimetersToTwip,
 } from 'docx'
 
-//
+import { WaxDocument, WaxNode } from './waxDocumentTypes'
+
+import {
+  ImageData,
+  MutableTextRunOptions,
+  WaxToDocxConverterOptions,
+  TextHandlerOptions,
+  ImageType,
+  ParagraphHandlerOptions,
+  WaxToDocxConverterConfig,
+  ContentParserOptions,
+  ParagraphOptions,
+  TableCellHandlerOptions,
+} from './types'
 
 /**
  * TO DO
@@ -34,54 +49,66 @@ import {
  *
  */
 
+// You can further simplify the content field for content nodes like this (optional):
+// type BlockNode = Exclude<TopLevelNode, TextNode | InlineNode>;
+// type ProseMirrorContent = BlockNode | ListItemNode | TableRowNode | TableCellNode | InlineNode;
+
 class WaxToDocxConverter {
-  constructor(doc, imageData, options = {}) {
+  baseFontSize: number
+  baseMessage: string = 'WaxToDocxConverter:'
+  config: WaxToDocxConverterConfig
+  doc: WaxDocument
+  fontFamily: string
+  imageData: ImageData
+  listInstance: number
+  listIndentFirstLevelLeft = convertMillimetersToTwip(12.7)
+  listIndentFirstLevelHanging = convertMillimetersToTwip(6.3)
+  listIndentSecondLevelLeft = convertMillimetersToTwip(25.3)
+  listIndentSecondLevelHanging = convertMillimetersToTwip(6.3)
+  listIndentThirdLevelLeft = convertMillimetersToTwip(38.1)
+  listIndentThirdLevelHanging = convertMillimetersToTwip(3.2)
+  listTypes = {
+    ORDERED: 'numbered-list',
+    BULLET: 'bullet-list',
+  }
+  paragraphSpacingAfter = 200
+  typeToHandlerMap: Record<string, Function>
+
+  constructor(
+    doc: WaxDocument,
+    imageData,
+    options: WaxToDocxConverterOptions = {},
+  ) {
     if (!doc) this.error(`No document provided`)
-
-    if (!doc.type === 'doc')
-      this.error(`Document provided is not of type "doc"`)
-
+    if (doc.type !== 'doc') this.error(`Document provided is not of type "doc"`)
     if (!doc.content) this.error(`Document provided has no children`)
 
     if (!Array.isArray(doc.content))
       this.error(`Document content is not an array`)
 
     this.doc = doc
-    this.baseMessage = 'WaxToDocxConverter:'
     this.listInstance = 0
 
     this.typeToHandlerMap = {
       bulletlist: this.bulletListHandler,
-      figure: this.figureHandler,
+      figure: this.figureHandler, // Paragraph
       figcaption: this.captionHandler,
-      hard_break: this.hardBreakHandler,
-      image: this.imageHandler,
+      hard_break: this.hardBreakHandler, // TextRun
+      image: this.imageHandler, // ImageRun
       list_item: this.listItemHandler,
       orderedlist: this.orderedListHandler,
-      paragraph: this.paragraphHandler,
-      table: this.tableHandler,
-      table_cell: this.tableCellHandler,
-      table_header: this.tableCellHandler,
-      table_row: this.tableRowHandler,
-      text: this.textHandler,
-    }
-
-    this.listTypes = {
-      ORDERED: 'numbered-list',
-      BULLET: 'bullet-list',
+      paragraph: this.paragraphHandler, // Paragraph
+      table: this.tableHandler, // Table
+      table_cell: this.tableCellHandler, // TableCell
+      table_header: this.tableCellHandler, // TableCell
+      table_row: this.tableRowHandler, // TableRow
+      text: this.textHandler, // TextRun | ExternalHyperlink
     }
 
     this.imageData = imageData
 
     this.baseFontSize = options.baseFontSize || 24
     this.fontFamily = options.fontFamily || 'calibri'
-    this.listIndentFirstLevelLeft = convertMillimetersToTwip(12.7)
-    this.listIndentFirstLevelHanging = convertMillimetersToTwip(6.3)
-    this.listIndentSecondLevelLeft = convertMillimetersToTwip(25.3)
-    this.listIndentSecondLevelHanging = convertMillimetersToTwip(6.3)
-    this.listIndentThirdLevelLeft = convertMillimetersToTwip(38.1)
-    this.listIndentThirdLevelHanging = convertMillimetersToTwip(3.2)
-    this.paragraphSpacingAfter = 200
 
     this.config = {
       styles: {
@@ -95,6 +122,7 @@ class WaxToDocxConverter {
         },
         paragraphStyles: [
           {
+            id: 'paragraph-styles',
             name: 'Normal',
             run: {
               font: this.fontFamily,
@@ -216,18 +244,21 @@ class WaxToDocxConverter {
     }
   }
 
-  error = (e): void => {
+  error = (e: Error | string): void => {
     throw new Error(`${this.baseMessage} ${e}`)
   }
 
-  #findHandler = type => {
+  #findHandler = (type: string): Function => {
     return this.typeToHandlerMap[type]
   }
 
   /* eslint-disable-next-line class-methods-use-this */
-  textHandler = (textObject, options = {}) => {
+  textHandler = (
+    textObject,
+    options: TextHandlerOptions = {},
+  ): TextRun | ExternalHyperlink => {
     const { text, marks } = textObject
-    const objectToPass = { text }
+    const objectToPass: MutableTextRunOptions = { text }
     const { isTableHeader } = options
 
     let isLink = false
@@ -243,7 +274,7 @@ class WaxToDocxConverter {
 
         if (mark.type === 'em' || mark.type === 'i') objectToPass.italics = true
 
-        if (mark.type === 'strikethrough') objectToPass.strike = 'through'
+        if (mark.type === 'strikethrough') objectToPass.strike = true
         if (mark.type === 'superscript') objectToPass.superScript = true
         if (mark.type === 'subscript') objectToPass.subScript = true
         if (mark.type === 'smallcaps') objectToPass.smallCaps = true
@@ -281,11 +312,11 @@ class WaxToDocxConverter {
   }
 
   // #region lists
-  listItemHandler = (listItem, options) => {
+  listItemHandler = (listItem, options): FileChild[] => {
     return this.contentParser(listItem.content, options)
   }
 
-  listHandler = (list, options) => {
+  listHandler = (list, options): FileChild[] => {
     this.listInstance += 1
     const level = Number.isInteger(options.level) ? options.level + 1 : 0
 
@@ -298,7 +329,7 @@ class WaxToDocxConverter {
     return this.contentParser(list.content, optionsToPass)
   }
 
-  orderedListHandler = (list, options) => {
+  orderedListHandler = (list, options): FileChild[] => {
     const optionsToPass = {
       ...options,
       listType: this.listTypes.ORDERED,
@@ -307,7 +338,7 @@ class WaxToDocxConverter {
     return this.listHandler(list, optionsToPass)
   }
 
-  bulletListHandler = (list, options) => {
+  bulletListHandler = (list, options): FileChild[] => {
     const optionsToPass = {
       ...options,
       listType: this.listTypes.BULLET,
@@ -318,9 +349,9 @@ class WaxToDocxConverter {
   // #endregion lists
 
   // #region tables
-  tableHandler = table => {
+  tableHandler = (table): Table => {
     return new Table({
-      rows: this.contentParser(table.content),
+      rows: this.contentParser(table.content) as unknown as TableRow[],
       width: {
         size: 100,
         type: WidthType.PERCENTAGE,
@@ -328,16 +359,21 @@ class WaxToDocxConverter {
     })
   }
 
-  tableRowHandler = row => {
+  tableRowHandler = (row): TableRow => {
     const isTableHeader = row.content[0].type === 'table_header'
 
     return new TableRow({
-      children: this.contentParser(row.content, { isTableHeader }),
+      children: this.contentParser(row.content, {
+        isTableHeader,
+      }) as unknown as TableCell[],
       tableHeader: row.content[0].type === 'table_header',
     })
   }
 
-  tableCellHandler = (cell, options = {}) => {
+  tableCellHandler = (
+    cell,
+    options: TableCellHandlerOptions = {},
+  ): TableCell => {
     return new TableCell({
       children: this.contentParser(cell.content, {
         isTableCell: true,
@@ -354,10 +390,10 @@ class WaxToDocxConverter {
   // #endregion tables
 
   // #region images
-  figureHandler = (figure, options) => {
+  figureHandler = (figure, options): Paragraph => {
     const { listType, level, instance } = options
 
-    const paragraphData = {
+    const paragraphData: ParagraphOptions = {
       children: this.contentParser(figure.content),
       alignment: AlignmentType.CENTER,
     }
@@ -373,8 +409,21 @@ class WaxToDocxConverter {
     return new Paragraph(paragraphData)
   }
 
-  imageHandler = image => {
-    const { id: dataId, alt } = image.attrs
+  getImageType(filePath: string): ImageType {
+    let ext = path.parse(filePath).ext.substring(1).toLowerCase()
+    if (ext === 'jpeg') ext = 'jpg'
+
+    if (!['png', 'jpg', 'gif', 'bmp', 'svg'].includes(ext)) {
+      throw new Error(
+        `${this.baseMessage} Unsupported docx ImageType for extension: ${ext}`,
+      )
+    }
+
+    return ext as ImageType
+  }
+
+  imageHandler = (image): ImageRun => {
+    const { dataId, alt } = image.attrs
 
     if (!dataId || !this.imageData || !this.imageData[dataId]) {
       throw new Error('Missing image data')
@@ -387,11 +436,16 @@ class WaxToDocxConverter {
     // see link for possible change to a not-hardcoded doc width, though current value seems to work fine
     const docWidth = 600
     const dimensions = imageSize(imagePath)
-    const height = parseInt(dimensions.height, 10)
-    const width = parseInt(dimensions.width, 10)
+    const { height, width } = dimensions
     const scale = width / docWidth
+    const type = this.getImageType(imagePath)
 
     return new ImageRun({
+      type,
+      fallback: {
+        type: 'png',
+        data: fs.readFileSync(imagePath),
+      },
       data: fs.readFileSync(imagePath),
       altText: {
         title: alt,
@@ -406,17 +460,21 @@ class WaxToDocxConverter {
   }
 
   /* eslint-disable-next-line class-methods-use-this */
-  captionHandler = caption => {
-    if (!caption || !caption.content || !caption.content.length > 0) return
+  captionHandler = (caption: WaxNode): TextRun => {
+    if (!caption || !caption.content || caption.content.length === 0) return
+    const textContent = caption.content[0]
 
-    const { text } = caption.content[0]
-
-    /* eslint-disable-next-line consistent-return */
-    return new TextRun({ text: `Caption: ${text}` })
+    if (textContent.type === 'text') {
+      /* eslint-disable-next-line consistent-return */
+      return new TextRun({ text: `Caption: ${textContent.text}` })
+    }
   }
   // #endregion images
 
-  paragraphHandler = (paragraph, options = {}) => {
+  paragraphHandler = (
+    paragraph,
+    options: ParagraphHandlerOptions = {},
+  ): Paragraph => {
     const p = cloneDeep(paragraph)
     const { listType, level, instance, isTableCell } = options
 
@@ -433,7 +491,7 @@ class WaxToDocxConverter {
       ]
     }
 
-    const paragraphObject = {
+    const paragraphObject: ParagraphOptions = {
       children: this.contentParser(p.content, options),
     }
 
@@ -456,11 +514,14 @@ class WaxToDocxConverter {
   }
 
   /* eslint-disable-next-line class-methods-use-this */
-  hardBreakHandler = () => {
+  hardBreakHandler = (): TextRun => {
     return new TextRun({ text: '' })
   }
 
-  contentParser = (content, options = {}) => {
+  contentParser = (
+    content,
+    options: ContentParserOptions = {},
+  ): FileChild[] => {
     let children = []
 
     if (content) {
@@ -478,13 +539,13 @@ class WaxToDocxConverter {
           children = children.concat(childrenToAdd)
         })
     } else if (options.renderEmpty) {
-      return this.paragraphHandler({}, options)
+      return [this.paragraphHandler({}, options)]
     }
 
     return children
   }
 
-  buildDocx = () => {
+  buildDocx = (): Document => {
     return new Document({
       ...this.config,
       sections: [
@@ -495,13 +556,13 @@ class WaxToDocxConverter {
     })
   }
 
-  async writeToPath(path) {
+  async writeToPath(filePath: string): Promise<void> {
     try {
-      if (!path) throw new Error('No path provided to write method')
+      if (!filePath) throw new Error('No path provided to write method')
       const parsed = this.buildDocx()
 
       const buffer = await Packer.toBuffer(parsed)
-      fs.writeFileSync(path, buffer)
+      fs.writeFileSync(filePath, buffer)
     } catch (e) {
       this.error(e)
     }
