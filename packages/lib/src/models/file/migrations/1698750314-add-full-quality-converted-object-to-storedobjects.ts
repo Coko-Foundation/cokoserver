@@ -37,13 +37,9 @@ const imageSizeConversionMapper = {
 }
 
 const getMetadata = async fileBuffer => {
-  try {
-    const originalImage = sharp(fileBuffer, { limitInputPixels: false })
-    const imageMetadata = await originalImage.metadata()
-    return imageMetadata
-  } catch (e) {
-    throw new Error(e)
-  }
+  const originalImage = sharp(fileBuffer, { limitInputPixels: false })
+  const imageMetadata = await originalImage.metadata()
+  return imageMetadata
 }
 
 const sharpConversionFullFilePath = async (
@@ -195,12 +191,7 @@ export async function up() {
         }),
       )
 
-      try {
-        await fs.emptyDir(tempDir)
-      } catch (e) {
-        throw new Error(e)
-      }
-
+      await fs.emptyDir(tempDir)
       return true
     })
   } catch (e) {

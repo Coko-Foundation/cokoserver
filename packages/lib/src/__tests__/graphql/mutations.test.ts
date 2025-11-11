@@ -27,7 +27,7 @@ vi.mock('../../configManager/config', async () => {
 })
 
 describe('GraphQL core mutations', async () => {
-  let user
+  let user: User
   const gqlServer = await createGraphqlTestServer()
 
   const userData = {

@@ -10,33 +10,25 @@ import Identity from './identity.model'
 
 import { subscriptions } from '../user/constants'
 import { labels } from './constants'
-
+import { QueryResult } from '../base.model'
 import config from '../../configManager/config'
 import { isValidPositiveIntegerOrZero } from '../../utils/number'
 
 const { USER_UPDATED } = subscriptions
 const { IDENTITY_CONTROLLER } = labels
 
-const getUserIdentities = async userId => {
-  try {
-    return Identity.find({ userId })
-  } catch (e) {
-    throw new Error(e)
-  }
+const getUserIdentities = async (userId): Promise<QueryResult<Identity>> => {
+  return Identity.find({ userId })
 }
 
-const getDefaultIdentity = async userId => {
-  try {
-    return Identity.findOne({
-      userId,
-      isDefault: true,
-    })
-  } catch (e) {
-    throw new Error(e)
-  }
+const getDefaultIdentity = async (userId): Promise<Identity> => {
+  return Identity.findOne({
+    userId,
+    isDefault: true,
+  })
 }
 
-const hasValidRefreshToken = identity => {
+const hasValidRefreshToken = (identity): boolean => {
   const { oauthRefreshTokenExpiration, oauthRefreshToken } = identity
   const UTCNowTimestamp = moment().utc().toDate().getTime()
 
@@ -52,7 +44,12 @@ const hasValidRefreshToken = identity => {
  * Save OAuth access and refresh tokens.
  * Trigger subscription indicating the identity has changed.
  */
-const createOAuthIdentity = async (userId, provider, sessionState, code) => {
+const createOAuthIdentity = async (
+  userId,
+  provider,
+  sessionState,
+  code,
+): Promise<Identity> => {
   // Throw error if unable to acquire and then store authorisation
   try {
     let identity = await Identity.findOne({ userId, provider })
@@ -176,7 +173,10 @@ const authorizeOAuth = async (provider, sessionState, code) => {
   /* eslint-enable camelcase */
 }
 
-const invalidateProviderAccessToken = async (userId, providerLabel) => {
+const invalidateProviderAccessToken = async (
+  userId,
+  providerLabel,
+): Promise<void> => {
   const providerUserIdentity = await Identity.findOne({
     userId,
     provider: providerLabel,
@@ -191,7 +191,10 @@ const invalidateProviderAccessToken = async (userId, providerLabel) => {
   )
 }
 
-const invalidateProviderTokens = async (userId, providerLabel) => {
+const invalidateProviderTokens = async (
+  userId,
+  providerLabel,
+): Promise<void> => {
   const updatedUser = await getUser(userId)
 
   const providerUserIdentity = await Identity.findOne({

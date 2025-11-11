@@ -9,7 +9,7 @@
     "lint": "yarn coko-lint run --skip-stylelint",
     "release": "standard-version",
     "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=1 yarn jest --verbose",
-    "typecheck": "yarn workspace @coko/server tsc --noEmit"
+    "typecheck": "yarn workspace @coko/server tsc --noEmit -p tsconfig.typecheck.json"
   },
   "config": {
     "commitizen": {

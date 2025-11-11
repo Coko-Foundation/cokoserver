@@ -4,14 +4,10 @@ import User from '../../user/user.model'
 import Identity from '../../identity/identity.model'
 
 const createUser = async () => {
-  try {
-    return User.insert({
-      givenNames: faker.person.firstName(),
-      surname: faker.person.lastName(),
-    })
-  } catch (e) {
-    throw new Error(e)
-  }
+  return User.insert({
+    givenNames: faker.person.firstName(),
+    surname: faker.person.lastName(),
+  })
 }
 
 const createUserAndDefaultIdentity = async () => {

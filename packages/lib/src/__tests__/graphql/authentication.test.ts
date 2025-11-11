@@ -36,7 +36,7 @@ vi.mock('../../configManager/config', async () => {
 })
 
 describe('GraphQL authentication', async () => {
-  let user
+  let user: User
   const gqlServer = await createGraphqlTestServer()
 
   const userData = {
@@ -136,7 +136,11 @@ describe('GraphQL authentication', async () => {
         query: QUERY,
       })
 
-      const data = response.body.singleResult.data.currentUser
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
+      const data = response.body.singleResult?.data?.currentUser
       expect(data).toBe(null)
     })
 
@@ -160,7 +164,11 @@ describe('GraphQL authentication', async () => {
         },
       )
 
-      const data = response.body.singleResult.data.currentUser
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
+      const data = response.body.singleResult?.data?.currentUser
       expect(data.username).toBe('testuser')
     })
 
@@ -184,7 +192,14 @@ describe('GraphQL authentication', async () => {
         },
       )
 
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
       const { errors } = response.body.singleResult
+
+      if (!errors) throw new Error('No errors found')
+
       expect(errors[0].message).toBe('NotFoundError')
     })
   })

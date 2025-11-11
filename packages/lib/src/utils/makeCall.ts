@@ -3,7 +3,7 @@ import clone from 'lodash/clone'
 
 const makeCall = async (
   callParameters: any,
-  token: string,
+  token: string | boolean,
 ): Promise<AxiosResponse> => {
   const axiosParams = clone(callParameters)
   const { headers } = axiosParams

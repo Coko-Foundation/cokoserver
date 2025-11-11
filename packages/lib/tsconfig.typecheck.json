@@ -1,0 +1,17 @@
+// Used when running the typecheck command.
+// Should be identical to tsconfig.json without excluding tests.
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "es2022"
+  },
+  "include": ["src/**/*"]
+}

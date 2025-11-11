@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 
 import Identity from '../identity.model'
@@ -6,10 +6,21 @@ import { db } from '../../../db'
 import { createUser } from '../../__tests__/helpers/users'
 import identityFixture from '../../__tests__/fixtures/identities'
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
+import { migrationManager } from '../../../db/migrate'
 
 const { identityWithProfileData } = identityFixture
 
 describe('Identity model', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/user', 'src/models/identity'],
+    })
+
+    await migrationManager.migrate()
+  })
+
   beforeEach(async () => {
     await clearDb()
   })
@@ -107,7 +118,7 @@ describe('Identity model', () => {
   it('creates two identities with the same email but different provider', async () => {
     const user = await createUser()
 
-    const createIdentity = async provider => {
+    const createIdentity = async (provider: string): Promise<Identity> => {
       return Identity.insert({
         userId: user.id,
         email: 'john@example.com',
@@ -126,7 +137,7 @@ describe('Identity model', () => {
   it('fails when creating two identities with the same email and provider', async () => {
     const user = await createUser()
 
-    const createIdentity = async () => {
+    const createIdentity = async (): Promise<void> => {
       await Identity.insert({
         userId: user.id,
         email: 'john@example.com',
@@ -194,7 +205,7 @@ describe('Identity model', () => {
     })
 
     const result = await Identity.findOne({ email: sampleEmail })
-    expect(result).not.toBe(undefined)
+    expect(result).toBeDefined()
     expect(result.email).toEqual(sampleEmail.toLowerCase())
   })
 })

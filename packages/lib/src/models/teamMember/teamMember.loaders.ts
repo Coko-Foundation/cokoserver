@@ -24,7 +24,7 @@ const teamMembersBasedOnTeamIdsLoader = async teamIds => {
     logger.error(
       `${TEAM_MEMBER_LOADER} teamMembersBasedOnTeamIdsLoader: ${e.message}`,
     )
-    throw new Error(e)
+    throw e
   }
 }
 

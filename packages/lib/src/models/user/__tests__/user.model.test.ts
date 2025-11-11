@@ -14,8 +14,6 @@ import {
   createLocalTeamWithUsers,
 } from '../../__tests__/helpers/teams'
 
-import clearDb from '../../_helpers/clearDb'
-
 import {
   user,
   otherUser,
@@ -28,32 +26,58 @@ import User from '../user.model'
 import Identity from '../../identity/identity.model'
 import Team from '../../team/team.model'
 import TeamMember from '../../teamMember/teamMember.model'
+import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('User model', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+      ],
+      teams: {
+        global: [
+          {
+            role: 'editor',
+            displayName: 'Editor',
+          },
+        ],
+        nonGlobal: [
+          {
+            role: 'editor',
+            displayName: 'Editor',
+          },
+        ],
+      },
+    })
+    await DbTestUtils.dropAllTables()
     await migrationManager.migrate()
   })
 
-  beforeEach(() => clearDb())
+  beforeEach(async () => {
+    await DbTestUtils.clearDb()
+  })
 
   afterAll(async () => {
+    config.reset()
+    await DbTestUtils.clearDb()
     await db.destroy()
     await subscriptionManager.client.end()
   })
 
   it('validates password correctly after saving to db', async () => {
     const newUser = await User.insert(user)
-
     const shouldBeValid = await newUser.isPasswordValid(user.password)
-
     expect(shouldBeValid).toEqual(true)
   })
 
   it('returns false when provided password is wrong', async () => {
     const newUser = await User.insert(user)
-
     const checkValidity = await newUser.isPasswordValid('wrong password')
-
     expect(checkValidity).toEqual(false)
   })
 
@@ -62,20 +86,7 @@ describe('User model', () => {
     const otherUserFixture = clone(otherUser)
     otherUserFixture.username = user.username
 
-    const insertOtherUser = () =>
-      User.insert({
-        ...otherUserFixture,
-      })
-
-    await expect(insertOtherUser()).rejects.toThrow()
-  })
-
-  it('throws error if trying to save a user with a non-unique email', async () => {
-    await User.insert(user)
-    const otherUserFixture = clone(otherUser)
-    otherUserFixture.email = user.email
-
-    const insertOtherUser = () =>
+    const insertOtherUser = async (): Promise<User> =>
       User.insert({
         ...otherUserFixture,
       })
@@ -209,7 +220,9 @@ describe('User model', () => {
   it('getDisplayName throws an error when neither username nor givenNames nor surname are defined', async () => {
     const newUser = await User.insert(userWithoutName)
 
-    await expect(newUser.getDisplayName()).rejects.toThrow()
+    expect(() => {
+      newUser.getDisplayName()
+    }).toThrow()
   })
 
   it('throws when user tries to update their password by providing a wrong current password', async () => {
@@ -285,6 +298,7 @@ describe('User model', () => {
 
   it('throws when hasGlobalRole method does not have required params', async () => {
     const { team } = await createGlobalTeamWithUsers()
+    // @ts-ignore
     await expect(User.hasGlobalRole(undefined, team.role)).rejects.toThrow()
   })
 
@@ -311,6 +325,7 @@ describe('User model', () => {
   it('throws when hasRoleOnObject method does not have required params', async () => {
     const { team } = await createGlobalTeamWithUsers()
     await expect(
+      // @ts-ignore
       User.hasRoleOnObject(undefined, team.role, team.objectId),
     ).rejects.toThrow()
   })

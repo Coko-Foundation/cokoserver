@@ -50,6 +50,10 @@ describe('GraphQL errors', async () => {
       query: QUERY,
     })
 
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
     expect(response.body.singleResult.errors[0].message).toEqual(
       'Cannot query field "invalidProperty" on type "Users".',
     )

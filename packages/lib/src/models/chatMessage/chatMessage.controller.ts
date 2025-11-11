@@ -34,7 +34,7 @@ const sendMessage = async (
     return newMessage
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_CONTROLLER} sendMessage: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -61,7 +61,7 @@ const editMessage = async (id, content, mentions, options = {}) => {
     )
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_CONTROLLER} editMessage: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -79,7 +79,7 @@ const deleteMessage = async (id, options = {}) => {
     )
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_CONTROLLER} deleteMessage: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 

@@ -1,7 +1,13 @@
-import { ValidationError, RelationMappings } from 'objection'
+import {
+  ValidationError,
+  RelationMappings,
+  JSONSchema,
+  Pojo,
+  Transaction,
+} from 'objection'
 
 import logger from '../../logger'
-import BaseModel from '../base.model'
+import BaseModel, { TrxOption } from '../base.model'
 import TeamMember from '../teamMember/teamMember.model'
 import User from '../user/user.model'
 
@@ -16,6 +22,8 @@ import { type Teams } from '../../configManager/configSchema'
 
 import useTransaction from '../useTransaction'
 
+type TrxAndStatusOptions = { status?: string } & TrxOption
+
 function createEnumFromConfig(teamsConfig: Teams, key: string): string[] {
   return Array.from(
     new Set(
@@ -27,6 +35,14 @@ function createEnumFromConfig(teamsConfig: Teams, key: string): string[] {
 }
 
 class Team extends BaseModel {
+  objectId!: string
+  objectType!: string
+  displayName!: string
+  role!: string
+  global!: boolean
+  members!: TeamMember[]
+  users!: User[]
+
   constructor() {
     super()
     this.type = 'team'
@@ -87,7 +103,7 @@ class Team extends BaseModel {
   }
 
   /* eslint-disable-next-line class-methods-use-this */
-  $beforeValidate(jsonSchema, json) {
+  $beforeValidate(jsonSchema: JSONSchema, json: Pojo): JSONSchema {
     let validTeamChoice
     let validCombinationOfRoleAndName = true
     const { global, role, displayName } = json
@@ -135,7 +151,7 @@ class Team extends BaseModel {
     return jsonSchema
   }
 
-  static async findAllGlobalTeams(options = {}) {
+  static async findAllGlobalTeams(options: TrxOption = {}): Promise<Team[]> {
     try {
       return useTransaction(
         async tr => {
@@ -145,11 +161,14 @@ class Team extends BaseModel {
       )
     } catch (e) {
       logger.error('Team model: findAllGlobalTeams failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async findGlobalTeamByRole(role, options = {}) {
+  static async findGlobalTeamByRole(
+    role,
+    options: TrxOption = {},
+  ): Promise<Team> {
     try {
       return useTransaction(
         async tr => {
@@ -162,11 +181,15 @@ class Team extends BaseModel {
       )
     } catch (e) {
       logger.error('Team model: findGlobalTeamByRole failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async findTeamByRoleAndObject(role, objectId, options = {}) {
+  static async findTeamByRoleAndObject(
+    role: string,
+    objectId: string,
+    options: TrxOption = {},
+  ): Promise<Team> {
     try {
       return useTransaction(
         async tr => {
@@ -179,15 +202,19 @@ class Team extends BaseModel {
       )
     } catch (e) {
       logger.error('Team model: findTeamByRoleAndObject failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   /**
    * Members should be an array of user ids
    */
-  static async updateMembershipByTeamId(teamId, members, options = {}) {
-    const queries = async trx => {
+  static async updateMembershipByTeamId(
+    teamId: string,
+    members: string[],
+    options: TrxAndStatusOptions = {},
+  ): Promise<Team> {
+    const queries = async (trx: Transaction): Promise<Team> => {
       const existingMembers = await TeamMember.query(trx).where({ teamId })
       const existingMemberUserIds = existingMembers.map(m => m.userId)
 
@@ -213,15 +240,18 @@ class Team extends BaseModel {
     return useTransaction(queries, { trx: options.trx })
   }
 
-  static async addMember(teamId, userId, options = {}) {
+  static async addMember(
+    teamId: string,
+    userId: string,
+    options: TrxAndStatusOptions = {},
+  ): Promise<Team> {
     const data = {
       teamId,
       userId,
+      status: options.status,
     }
 
-    if (options.status) data.status = options.status
-
-    const add = async trx => {
+    const add = async (trx: Transaction): Promise<Team> => {
       await TeamMember.query(trx).insert(data)
       return Team.findById(teamId, { trx })
     }
@@ -235,12 +265,16 @@ class Team extends BaseModel {
       return useTransaction(add, trxOptions)
     } catch (e) {
       logger.error('Team Model: Add member: Insert failed!')
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async removeMember(teamId, userId, options = {}) {
-    const remove = async trx => {
+  static async removeMember(
+    teamId,
+    userId,
+    options: TrxOption = {},
+  ): Promise<Team> {
+    const remove = async (trx: Transaction): Promise<Team> => {
       await TeamMember.query(trx)
         .delete()
         .where({
@@ -257,45 +291,49 @@ class Team extends BaseModel {
       logger.error(
         'Team model: Remove member: Transaction failed! Rolling back...',
       )
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async addMemberToGlobalTeam(userId, role, options = {}) {
+  static async addMemberToGlobalTeam(
+    userId: string,
+    role: string,
+    options: TrxOption = {},
+  ): Promise<Team> {
     try {
-      const { trx } = options
-
       const team = await Team.findOne(
         {
           role,
           global: true,
         },
-        { trx },
+        { trx: options.trx },
       )
 
       return Team.addMember(team.id, userId, options)
     } catch (e) {
       logger.error(`Team model: Add member to global team: ${e.message}`)
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async removeMemberFromGlobalTeam(userId, role, options = {}) {
+  static async removeMemberFromGlobalTeam(
+    userId: string,
+    role: string,
+    options: TrxOption = {},
+  ): Promise<Team> {
     try {
-      const { trx } = options
-
       const team = await Team.findOne(
         {
           role,
           global: true,
         },
-        { trx },
+        { trx: options.trx },
       )
 
       return Team.removeMember(team.id, userId, options)
     } catch (e) {
       logger.error(`Team model: Remove member from global team: ${e.message}`)
-      throw new Error(e)
+      throw e
     }
   }
 }

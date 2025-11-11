@@ -1,14 +1,26 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 
 import Fake from './helpers/fake/fake.model'
 import { createUser } from './helpers/users'
 import clearDb from '../_helpers/clearDb'
+import config from '../../configManager/config'
+import { migrationManager } from '../../db'
 
 describe('Base model', () => {
-  beforeEach(() => clearDb())
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/user', 'src/models/__tests__/helpers/fake'],
+    })
+
+    await migrationManager.migrate()
+  })
+
+  beforeEach(async () => clearDb())
 
   afterAll(() => {
+    config.reset()
     const knex = Fake.knex()
     knex.destroy()
   })
@@ -25,6 +37,7 @@ describe('Base model', () => {
   })
 
   it('throws when invalid params in insert', async () => {
+    // @ts-ignore
     await expect(Fake.insert(1)).rejects.toThrow()
   })
 
@@ -170,6 +183,7 @@ describe('Base model', () => {
   })
 
   it('throws when invalid params in find', async () => {
+    // @ts-ignore
     await expect(Fake.find(1)).rejects.toThrow()
   })
 
@@ -181,10 +195,12 @@ describe('Base model', () => {
   })
 
   it('throws when invalid params in findById', async () => {
+    // @ts-ignore
     await expect(Fake.findById(false)).rejects.toThrow()
   })
 
   it('throws when id does not exist', async () => {
+    // @ts-ignore
     await expect(Fake.findById(1)).rejects.toThrow()
   })
 
@@ -196,19 +212,20 @@ describe('Base model', () => {
   })
 
   it('throws when invalid params in findOne', async () => {
+    // @ts-ignore
     await expect(Fake.findOne(1)).rejects.toThrow()
   })
 
   it('patches entity with provided data', async () => {
     const newEntity = await Fake.insert({})
-    const affectedRows = await newEntity.patch({ status: 'test' })
-    const patchedEntity = await Fake.findById(newEntity.id)
-    expect(affectedRows).toEqual(1)
-    expect(patchedEntity.status).toEqual('test')
+    const result = await newEntity.patch({ status: 'test' })
+    expect(result).toBeDefined()
+    expect(result.status).toEqual('test')
   })
 
   it('throws when patch called with invalid params', async () => {
     const newEntity = await Fake.insert({})
+    // @ts-ignore
     await expect(newEntity.patch()).rejects.toThrow()
   })
 
@@ -240,19 +257,21 @@ describe('Base model', () => {
   })
 
   it('throws when patchAndFetchById called with invalid params', async () => {
+    // @ts-ignore
     await expect(Fake.patchAndFetchById()).rejects.toThrow()
   })
 
   it('updates entity with provided data', async () => {
     const newEntity = await Fake.insert({})
-    const affectedRows = await newEntity.update({ status: 'test' })
-    const updatedEntity = await Fake.findById(newEntity.id)
-    expect(affectedRows).toEqual(1)
-    expect(updatedEntity.status).toEqual('test')
+    const result = await newEntity.update({ status: 'test' })
+
+    expect(result).toBeDefined()
+    expect(result.status).toEqual('test')
   })
 
   it('throws when update called with invalid params', async () => {
     const newEntity = await Fake.insert({})
+    // @ts-ignore
     await expect(newEntity.update()).rejects.toThrow()
   })
 
@@ -284,6 +303,7 @@ describe('Base model', () => {
   })
 
   it('throws when updateAndFetchById called with invalid params', async () => {
+    // @ts-ignore
     await expect(Fake.updateAndFetchById()).rejects.toThrow()
   })
 
@@ -296,6 +316,7 @@ describe('Base model', () => {
   })
 
   it('throws when deleteById called with invalid params', async () => {
+    // @ts-ignore
     await expect(Fake.deleteById()).rejects.toThrow()
   })
 

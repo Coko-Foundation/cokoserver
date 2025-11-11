@@ -1,19 +1,25 @@
-import BaseModel from '../base.model'
+import { RelationMappings } from 'objection'
 
+import BaseModel from '../base.model'
 import ChatMessage from '../chatMessage/chatMessage.model'
 import { id } from '../_helpers/types'
 
 class ChatChannel extends BaseModel {
-  constructor(properties) {
-    super(properties)
+  chatType!: string
+  relatedObjectId!: string
+
+  messages!: ChatMessage[]
+
+  constructor() {
+    super()
     this.type = 'chatChannel'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'chatChannels'
   }
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: ['chatType', 'relatedObjectId'],
@@ -26,7 +32,7 @@ class ChatChannel extends BaseModel {
     }
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       messages: {
         relation: BaseModel.HasManyRelation,

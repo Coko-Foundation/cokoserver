@@ -15,13 +15,14 @@ type MetaRow = {
 }
 
 const migrations = {
-  createTable: async (): Promise<void> =>
-    db.raw(`
+  createTable: async (): Promise<void> => {
+    await db.raw(`
       CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
         id TEXT PRIMARY KEY,
         run_at TIMESTAMPTZ DEFAULT current_timestamp
       )
-    `),
+    `)
+  },
 
   getLastMigration: async (): Promise<string> => {
     const row = await db(MIGRATIONS_TABLE)

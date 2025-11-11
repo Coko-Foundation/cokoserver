@@ -26,7 +26,7 @@ const checkDbConnection = async (): Promise<void> => {
     } catch (e) {
       if (attempt === retries) {
         logErrorTask('Could not establish connection to the database')
-        throw new Error(e)
+        throw e
       } else {
         // console.log(`attempt ${attempt} failed. retrying...`)
         const timeout = attempt * 1000

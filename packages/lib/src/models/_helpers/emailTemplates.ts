@@ -5,12 +5,11 @@ import { clientUrl } from '../../utils/urls'
   Email with email verification token to new users
 */
 const identityVerification = context => {
-  try {
-    const { verificationToken, email } = context
+  const { verificationToken, email } = context
 
-    const link = `${clientUrl}/email-verification/${verificationToken}`
+  const link = `${clientUrl}/email-verification/${verificationToken}`
 
-    const content = `
+  const content = `
         <p>Thank you for signing up!</p>
         <p>Click on <a href="${link}">this link</a> to verify your account.</p>
         <p></p>
@@ -21,20 +20,17 @@ const identityVerification = context => {
         </p>
       `
 
-    const text = `
+  const text = `
       Thank you for signing up!\nCopy and paste the following link into your browser to verify your account.\n\n${link}`
 
-    const data = {
-      content,
-      text,
-      subject: 'Account Verification',
-      to: email,
-    }
-
-    return data
-  } catch (e) {
-    throw new Error(e)
+  const data = {
+    content,
+    text,
+    subject: 'Account Verification',
+    to: email,
   }
+
+  return data
 }
 
 const passwordUpdate = context => {

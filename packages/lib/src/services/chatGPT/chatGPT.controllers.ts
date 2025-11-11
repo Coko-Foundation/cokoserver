@@ -41,7 +41,7 @@ const chatGPT = async (input): Promise<string> => {
     return response.data.choices[0].message.content
   } catch (e) {
     logger.error('chatGPT:', e)
-    throw new Error(e)
+    throw e
   }
 }
 

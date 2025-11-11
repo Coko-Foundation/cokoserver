@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 
 import logger from '../../logger'
-import BaseModel from '../base.model'
+import BaseModel, { TrxOption } from '../base.model'
 import useTransaction from '../useTransaction'
 
 import {
@@ -13,6 +13,24 @@ import {
   id,
   objectDefaultEmpty,
 } from '../_helpers/types'
+
+type ImageMetadata = {
+  id?: string
+  density?: number
+  height: number
+  space?: string
+  width: number
+}
+
+type StoredObject = {
+  id?: string
+  extension: string
+  imageMetadata?: ImageMetadata
+  key: string
+  mimetype: string | false
+  size: number
+  type: string
+}
 
 // Type declaration
 const mimetype = {
@@ -54,16 +72,26 @@ const arrayOfStoredObjects = {
 }
 
 class File extends BaseModel {
-  constructor(properties) {
-    super(properties)
+  alt!: string
+  caption!: string
+  meta!: object
+  name!: string
+  objectId!: string
+  storedObjects!: StoredObject[]
+  referenceId!: string
+  tags!: string[]
+  uploadStatus!: string
+
+  constructor() {
+    super()
     this.type = 'file'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'files'
   }
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: ['name', 'storedObjects'],
@@ -81,7 +109,7 @@ class File extends BaseModel {
     }
   }
 
-  ensureIds() {
+  ensureIds(): void {
     if (this.storedObjects) {
       this.storedObjects.forEach((storedObject, index) => {
         if (!storedObject.id) {
@@ -97,25 +125,27 @@ class File extends BaseModel {
     }
   }
 
-  $beforeInsert(queryContext) {
-    super.$beforeInsert(queryContext)
+  $beforeInsert(): void {
+    super.$beforeInsert()
     this.ensureIds()
   }
 
-  $beforeUpdate() {
+  $beforeUpdate(): void {
     super.$beforeUpdate()
     this.ensureIds()
   }
 
-  static async getEntityFiles(objectId, options = {}) {
+  static async getEntityFiles(
+    objectId: string,
+    options: TrxOption = {},
+  ): Promise<File[]> {
     try {
-      const { trx } = options
       return useTransaction(
         async tr => {
-          const { result: files } = await File.find({ objectId }, options)
+          const { result: files } = await File.find({ objectId }, { trx: tr })
           return files
         },
-        { trx, passedTrxOnly: true },
+        { trx: options.trx, passedTrxOnly: true },
       )
     } catch (e) {
       logger.error('File model: getEntityFiles failed', e)
@@ -125,7 +155,7 @@ class File extends BaseModel {
     }
   }
 
-  getStoredObjectBasedOnType(type) {
+  getStoredObjectBasedOnType(type: string): StoredObject {
     try {
       const found = this.storedObjects.find(o => o.type === type)
 

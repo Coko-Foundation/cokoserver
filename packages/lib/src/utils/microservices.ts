@@ -28,34 +28,30 @@ const callMicroservice = async (
   serviceName: string,
   callParameters: any,
 ): Promise<AxiosResponse> => {
-  try {
-    if (!callParameters)
-      throw new Error(
-        `communication parameters needed for calling ${serviceName} microservice`,
-      )
+  if (!callParameters)
+    throw new Error(
+      `communication parameters needed for calling ${serviceName} microservice`,
+    )
 
-    const accessToken = await getAccessToken(serviceName)
+  const accessToken = await getAccessToken(serviceName)
 
-    return makeCall(callParameters, accessToken).catch(async err => {
-      const { response } = err
+  return makeCall(callParameters, accessToken).catch(async err => {
+    const { response } = err
 
-      if (!response) {
-        throw new Error(`Request failed with message: ${err.code}`)
-      }
+    if (!response) {
+      throw new Error(`Request failed with message: ${err.code}`)
+    }
 
-      const { status, data } = response
-      const { msg } = data
+    const { status, data } = response
+    const { msg } = data
 
-      if (status === 401 && msg === 'expired token') {
-        const freshToken = await getAccessToken(serviceName, true)
-        return makeCall(callParameters, freshToken)
-      }
+    if (status === 401 && msg === 'expired token') {
+      const freshToken = await getAccessToken(serviceName, true)
+      return makeCall(callParameters, freshToken)
+    }
 
-      throw new Error(err)
-    })
-  } catch (e) {
-    throw new Error(e)
-  }
+    throw new Error(err)
+  })
 }
 
 export { callMicroservice, getAccessToken }

@@ -29,7 +29,7 @@ const activityLog = async (
     )
   } catch (e) {
     logger.error(`${ACTIVITY_LOG_SERVICE} activityLog: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 

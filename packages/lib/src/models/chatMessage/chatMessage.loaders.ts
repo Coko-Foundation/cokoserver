@@ -20,7 +20,7 @@ const messagesBasedOnChatChannelIdsLoader = async chatChannelIds => {
     logger.error(
       `${CHAT_MESSAGE_LOADER} messagesBasedOnChatChannelIdsLoader: ${e.message}`,
     )
-    throw new Error(e)
+    throw e
   }
 }
 

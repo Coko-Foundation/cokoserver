@@ -17,7 +17,7 @@ const sendMessageResolver = async (_, { input }, ctx) => {
     return sendMessage(chatChannelId, content, userId, mentions)
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_RESOLVER} sendMessage: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -28,7 +28,7 @@ const editMessageResolver = async (_, { input }, ctx) => {
     return editMessage(id, content, mentions)
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_RESOLVER} editMessage: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -38,7 +38,7 @@ const deleteMessageResolver = async (_, { id }, ctx) => {
     return deleteMessage(id)
   } catch (e) {
     logger.error(`${CHAT_MESSAGE_RESOLVER} deleteMessage: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 

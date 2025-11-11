@@ -12,7 +12,6 @@ import authentication from '../../authentication'
 import User from './user.model'
 import Identity from '../identity/identity.model'
 import useTransaction from '../useTransaction'
-import { displayNameConstructor } from '../_helpers/utilities'
 
 import {
   identityVerification,
@@ -24,32 +23,44 @@ import {
 import notify from '../../services/notify'
 import { notificationTypes } from '../../services/constants'
 import { labels } from './constants'
+import {
+  TrxOption,
+  FindOptions,
+  QueryResult,
+  TrxAndRelatedOptions,
+} from '../base.model'
+import Team from '../team/team.model'
 
 const createJWT = authentication.token.create
 const { EMAIL } = notificationTypes
 const { USER_CONTROLLER } = labels
 
-const activateUser = async (id, options = {}) => {
+const activateUser = async (
+  id: string,
+  options: TrxOption = {},
+): Promise<User> => {
   try {
-    const { trx } = options
     return useTransaction(
       async tr => {
         logger.info(
           `${USER_CONTROLLER} activateUser: activating user with id ${id}`,
         )
-        return User.activateUsers([id], { trx: tr })
+        const queryRes = User.activateUsers([id], { trx: tr })
+        return queryRes[0]
       },
-      { trx, passedTrxOnly: true },
+      { trx: options.trx, passedTrxOnly: true },
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} activateUser: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const activateUsers = async (ids, options = {}) => {
+const activateUsers = async (
+  ids: string[],
+  options: TrxOption = {},
+): Promise<User[]> => {
   try {
-    const { trx } = options
     return useTransaction(
       async tr => {
         logger.info(
@@ -58,15 +69,15 @@ const activateUsers = async (ids, options = {}) => {
 
         return User.activateUsers(ids, { trx: tr })
       },
-      { trx, passedTrxOnly: true },
+      { trx: options.trx, passedTrxOnly: true },
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} activateUsers: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const getUser = async (id, options = {}) => {
+const getUser = async (id: string, options: TrxOption = {}): Promise<User> => {
   try {
     const { trx, ...restOptions } = options
     return useTransaction(
@@ -78,22 +89,23 @@ const getUser = async (id, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} getUser: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const getDisplayName = async user => {
+const getDisplayName = (user: User): string => {
   try {
-    const { givenNames, surname, username } = user
-
-    return displayNameConstructor(givenNames, surname, username)
+    return user.getDisplayName()
   } catch (e) {
     logger.error(`${USER_CONTROLLER} getDisplayName: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const getUsers = async (queryParams = {}, options = {}) => {
+const getUsers = async (
+  queryParams = {},
+  options: FindOptions = {},
+): Promise<QueryResult<User>> => {
   try {
     const { trx, ...restOptions } = options
     return useTransaction(
@@ -107,39 +119,44 @@ const getUsers = async (queryParams = {}, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} getUsers: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const deleteUser = async (id, options = {}) => {
+const deleteUser = async (id, options: TrxOption = {}): Promise<number> => {
   return User.deleteById(id, { trx: options.trx })
 }
 
-const deleteUsers = async (ids, options = {}) => {
-  return User.deleteByIds(ids)
+const deleteUsers = async (ids, options: TrxOption = {}): Promise<number> => {
+  return User.deleteByIds(ids, { trx: options.trx })
 }
 
-const deactivateUser = async (id, options = {}) => {
+const deactivateUser = async (
+  id: string,
+  options: TrxOption = {},
+): Promise<User> => {
   try {
-    const { trx } = options
     return useTransaction(
       async tr => {
         logger.info(
           `${USER_CONTROLLER} deactivateUser: deactivating user with id ${id}`,
         )
-        return User.deactivateUsers([id], { trx: tr })
+        const queryRes = await User.deactivateUsers([id], { trx: tr })
+        return queryRes[0]
       },
-      { trx, passedTrxOnly: true },
+      { trx: options.trx, passedTrxOnly: true },
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} deactivateUser: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const deactivateUsers = async (ids, options = {}) => {
+const deactivateUsers = async (
+  ids: string[],
+  options: TrxOption = {},
+): Promise<User[]> => {
   try {
-    const { trx } = options
     return useTransaction(
       async tr => {
         logger.info(
@@ -147,15 +164,19 @@ const deactivateUsers = async (ids, options = {}) => {
         )
         return User.deactivateUsers(ids, { trx: tr })
       },
-      { trx, passedTrxOnly: true },
+      { trx: options.trx, passedTrxOnly: true },
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} deactivateUsers: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const updateUser = async (id, data, options = {}) => {
+const updateUser = async (
+  id: string,
+  data,
+  options: TrxAndRelatedOptions = {},
+): Promise<User> => {
   try {
     const { email, identityId, ...restData } = data
     const { trx, ...restOptions } = options
@@ -205,11 +226,16 @@ const updateUser = async (id, data, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} updateUser: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const login = async input => {
+export type LoginResponse = {
+  user: User
+  token: string
+}
+
+const login = async (input): Promise<LoginResponse> => {
   try {
     let isValid = false
     let user
@@ -250,14 +276,13 @@ const login = async input => {
     }
   } catch (e) {
     logger.error(`${USER_CONTROLLER} login: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const signUp = async (data, options = {}) => {
+const signUp = async (data, options: TrxOption = {}): Promise<string> => {
   try {
     const { email, ...restData } = data
-    const { trx } = options
 
     return useTransaction(
       async tr => {
@@ -353,15 +378,18 @@ const signUp = async (data, options = {}) => {
 
         return newUser.id
       },
-      { trx },
+      { trx: options.trx },
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} signUp: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const verifyEmail = async (token, options = {}) => {
+const verifyEmail = async (
+  token,
+  options: TrxOption = {},
+): Promise<boolean> => {
   try {
     const { trx } = options
     logger.info(`${USER_CONTROLLER} verifyEmail: verifying user email`)
@@ -397,7 +425,7 @@ const verifyEmail = async (token, options = {}) => {
           moment()
             .subtract(
               emailVerificationTokenExpiry.amount,
-              emailVerificationTokenExpiry.unit,
+              emailVerificationTokenExpiry.unit as moment.unitOfTime.DurationConstructor,
             )
             .isAfter(identity.verificationTokenTimestamp)
         ) {
@@ -419,11 +447,14 @@ const verifyEmail = async (token, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} verifyEmail: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const resendVerificationEmailCommon = async (identity, options = {}) => {
+const resendVerificationEmailCommon = async (
+  identity,
+  options: TrxOption = {},
+): Promise<void> => {
   const verificationToken = crypto.randomBytes(64).toString('hex')
   const verificationTokenTimestamp = new Date()
 
@@ -443,7 +474,10 @@ const resendVerificationEmailCommon = async (identity, options = {}) => {
   notify(EMAIL, emailData)
 }
 
-const resendVerificationEmail = async (token, options = {}) => {
+const resendVerificationEmail = async (
+  token,
+  options: TrxOption = {},
+): Promise<boolean> => {
   try {
     logger.info(
       `${USER_CONTROLLER} resendVerificationEmail: resending verification email to user`,
@@ -469,7 +503,10 @@ const resendVerificationEmail = async (token, options = {}) => {
   }
 }
 
-const resendVerificationEmailAfterLogin = async (userId, options = {}) => {
+const resendVerificationEmailAfterLogin = async (
+  userId: string,
+  options: TrxOption = {},
+): Promise<boolean> => {
   try {
     logger.info(
       `${USER_CONTROLLER} resendVerificationEmailAfterLogin: resending verification email to user`,
@@ -491,7 +528,11 @@ const resendVerificationEmailAfterLogin = async (userId, options = {}) => {
   }
 }
 
-const updatePassword = async (id, currentPassword, newPassword) => {
+const updatePassword = async (
+  id: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<boolean> => {
   try {
     logger.info(`${USER_CONTROLLER} updatePassword: updating user password`)
 
@@ -508,11 +549,14 @@ const updatePassword = async (id, currentPassword, newPassword) => {
     return true
   } catch (e) {
     logger.error(`${USER_CONTROLLER} updatePassword: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const sendPasswordResetEmail = async (email, options = {}) => {
+const sendPasswordResetEmail = async (
+  email,
+  options: TrxOption = {},
+): Promise<boolean> => {
   try {
     const { trx } = options
     return useTransaction(
@@ -563,11 +607,15 @@ const sendPasswordResetEmail = async (email, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} sendPasswordResetEmail: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const resetPassword = async (token, password, options = {}) => {
+const resetPassword = async (
+  token,
+  password,
+  options: TrxOption = {},
+): Promise<boolean> => {
   try {
     const { trx } = options
     logger.info(`${USER_CONTROLLER} resetPassword: resetting user password`)
@@ -593,7 +641,7 @@ const resetPassword = async (token, password, options = {}) => {
           moment()
             .subtract(
               passwordResetTokenExpiry.amount,
-              passwordResetTokenExpiry.unit,
+              passwordResetTokenExpiry.unit as moment.unitOfTime.DurationConstructor,
             )
             .isAfter(user.passwordResetTimestamp)
         ) {
@@ -629,22 +677,23 @@ const resetPassword = async (token, password, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} resetPassword: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const setDefaultIdentity = async (userId, identityId, options = {}) => {
+const setDefaultIdentity = async (
+  userId,
+  identityId,
+  options: TrxOption = {},
+): Promise<User> => {
   try {
     const { trx } = options
     return useTransaction(
       async tr => {
-        const user = await User.findById(
-          userId,
-          {
-            related: 'identities',
-          },
-          { trx: tr },
-        )
+        const user = await User.findById(userId, {
+          trx: tr,
+          related: 'identities',
+        })
 
         const { identities } = user
         const previouslyDefault = identities.find(i => i.isDefault)
@@ -672,17 +721,17 @@ const setDefaultIdentity = async (userId, identityId, options = {}) => {
     )
   } catch (e) {
     logger.error(`${USER_CONTROLLER} setDefaultIdentity: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const getUserTeams = user => {
+const getUserTeams = (user): Promise<Team[]> => {
   try {
     const { id } = user
     return User.getTeams(id)
   } catch (e) {
     logger.error(`${USER_CONTROLLER} getUserTeams: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 

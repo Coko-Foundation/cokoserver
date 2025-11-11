@@ -9,26 +9,22 @@ const authenticatedCall = async (
   providerLabel: string,
   callParameters: any,
 ): Promise<AxiosResponse> => {
-  try {
-    if (!callParameters) throw new Error(`Call parameters are required`)
+  if (!callParameters) throw new Error(`Call parameters are required`)
 
-    const accessToken = await getAuthTokens(userId, providerLabel)
+  const accessToken = await getAuthTokens(userId, providerLabel)
 
-    const response = await makeCall(callParameters, accessToken)
+  const response = await makeCall(callParameters, accessToken)
 
-    if (response.status === 401) {
-      // for the case that something happened and accessToken become invalid -> set that expired
-      await invalidateProviderAccessToken(userId, providerLabel)
+  if (response.status === 401) {
+    // for the case that something happened and accessToken become invalid -> set that expired
+    await invalidateProviderAccessToken(userId, providerLabel)
 
-      const freshAccessToken = await getAuthTokens(userId, providerLabel)
+    const freshAccessToken = await getAuthTokens(userId, providerLabel)
 
-      return makeCall(callParameters, freshAccessToken)
-    }
-
-    return response
-  } catch (e) {
-    throw new Error(e)
+    return makeCall(callParameters, freshAccessToken)
   }
+
+  return response
 }
 
 export { authenticatedCall, getAuthTokens }

@@ -1,14 +1,21 @@
+import { RelationMappings } from 'objection'
 import BaseModel from '../base.model'
 import { stringNullable, id } from '../_helpers/types'
 import Team from '../team/team.model'
 import User from '../user/user.model'
 
 class TeamMember extends BaseModel {
-  static get tableName() {
+  userId!: string
+  teamId!: string
+  status!: string
+  user!: User
+  team!: Team
+
+  static get tableName(): string {
     return 'team_members'
   }
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: ['teamId', 'userId'],
@@ -20,7 +27,7 @@ class TeamMember extends BaseModel {
     }
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       user: {
         relation: BaseModel.BelongsToOneRelation,

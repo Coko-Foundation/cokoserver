@@ -1,24 +1,28 @@
+import { Client } from 'pg'
+
 class PostgresPubSubNoop {
+  client: Client
+
   /* eslint-disable-next-line class-methods-use-this */
-  error() {
+  error(): void {
     throw new Error(
       'Cannot use the Subscription Manager when useGraphQLServer is false in the config',
     )
   }
 
-  publish() {
+  publish(): void {
     this.error()
   }
 
-  subscribe(triggerName, onMessage) {
+  subscribe(): void {
     this.error()
   }
 
-  unsubscribe(subId) {
+  unsubscribe(): void {
     this.error()
   }
 
-  asyncIterator(triggers) {
+  asyncIterator(): void {
     this.error()
   }
 }

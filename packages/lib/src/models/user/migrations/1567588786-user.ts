@@ -1,4 +1,6 @@
-export const up = async (knex): Promise<void> => {
+import { Knex } from 'knex'
+
+export const up = async (knex: Knex): Promise<void> => {
   try {
     const tableExists = await knex.schema.hasTable('users')
 
@@ -143,6 +145,6 @@ export const up = async (knex): Promise<void> => {
   }
 }
 
-export const down = async (knex): Promise<void> => {
+export const down = async (knex: Knex): Promise<void> => {
   await knex.schema.dropTable('users')
 }

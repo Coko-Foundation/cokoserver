@@ -36,7 +36,7 @@ const teamResolver = async (_, { id }) => {
     return getTeam(id)
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} team: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -46,7 +46,7 @@ const teamsResolver = async (_, { filter }) => {
     return getTeams(filter)
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} teams: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -61,7 +61,7 @@ const updateTeamMembershipResolver = async (_, { teamId, members }) => {
     return updatedTeam
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} updateTeamMembership: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -76,7 +76,7 @@ const addTeamMemberResolver = async (_, { teamId, userId }) => {
     return updatedTeam
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} addTeamMember: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -91,7 +91,7 @@ const removeTeamMemberResolver = async (_, { teamId, userId }) => {
     return updatedTeam
   } catch (e) {
     logger.error(`${TEAM_RESOLVER} removeTeamMember: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -101,7 +101,7 @@ const removeTeamMemberResolver = async (_, { teamId, userId }) => {
 //     return deleteTeam(id)
 //   } catch (e) {
 //     logger.error(`${TEAM_RESOLVER} deleteTeam: ${e.message}`)
-//     throw new Error(e)
+//     throw e
 //   }
 // }
 

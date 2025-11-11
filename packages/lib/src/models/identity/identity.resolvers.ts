@@ -39,7 +39,7 @@ const createOAuthIdentityResolver = async (
     return identity
   } catch (e) {
     logger.error(`${IDENTITY_RESOLVER} createOAuthIdentity: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 

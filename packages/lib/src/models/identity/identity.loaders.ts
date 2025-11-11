@@ -14,7 +14,7 @@ const identitiesBasedOnUserIdsLoader = async userIds => {
     logger.error(
       `${IDENTITY_LOADER} identitiesBasedOnUserIdsLoader: ${e.message}`,
     )
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -31,7 +31,7 @@ const defaultIdentityBasedOnUserIdsLoader = async userIds => {
     logger.error(
       `${IDENTITY_LOADER} defaultIdentityBasedOnUserIdsLoader: ${e.message}`,
     )
-    throw new Error(e)
+    throw e
   }
 }
 

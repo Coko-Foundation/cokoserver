@@ -1,14 +1,33 @@
 import db from './db'
+import config from '../configManager/config'
 
 export default class DbTestUtils {
   static async dropAllTables(): Promise<void> {
-    const tables = await db('pg_tables')
-      .select('tablename')
-      .where('schemaname', 'public')
+    await db.raw(`
+      DROP SCHEMA IF EXISTS public CASCADE;
+      CREATE SCHEMA public;
+      GRANT ALL ON SCHEMA public TO "${config.get('db.user')}";
+      GRANT ALL ON SCHEMA public TO public;
+    `)
+  }
 
-    for (const t of tables) {
-      /* eslint-disable-next-line no-await-in-loop */
-      await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-    }
+  static async clearDb(): Promise<void> {
+    await db.raw(`
+      DO
+      $$
+      DECLARE
+          tabname text;
+      BEGIN
+          FOR tabname IN
+              SELECT tablename
+              FROM pg_tables
+              WHERE schemaname = 'public'
+                AND tablename NOT IN ('migrations', 'coko_server_meta')
+          LOOP
+              EXECUTE format('TRUNCATE TABLE %I.%I RESTART IDENTITY CASCADE;', 'public', tabname);
+          END LOOP;
+      END;
+      $$;  
+    `)
   }
 }

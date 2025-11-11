@@ -36,7 +36,7 @@ vi.mock('../../configManager/config', async () => {
 })
 
 describe('GraphQL core queries', async () => {
-  let user
+  let user: User
   const gqlServer = await createGraphqlTestServer()
 
   const userData = {
@@ -142,7 +142,11 @@ describe('GraphQL core queries', async () => {
       query: QUERY,
     })
 
-    const data = response.body.singleResult.data.users
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult?.data?.users
     expect(data.result).toHaveLength(1)
     const foundUser = data.result[0]
     expect(foundUser.username).toEqual('testuser')

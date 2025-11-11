@@ -3,10 +3,11 @@ import logger from '../../logger'
 import Team from './team.model'
 import useTransaction from '../useTransaction'
 import { labels } from './constants'
+import { FindOptions, QueryResult, TrxOption } from '../base.model'
 
 const { TEAM_CONTROLLER } = labels
 
-const getTeam = async (id, options = {}) => {
+const getTeam = async (id, options: TrxOption = {}): Promise<Team> => {
   try {
     const { trx, ...restOptions } = options
     return useTransaction(
@@ -18,16 +19,23 @@ const getTeam = async (id, options = {}) => {
     )
   } catch (e) {
     logger.error(`${TEAM_CONTROLLER} getTeam: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const getTeams = async (where = {}, options = {}) => {
+const getTeams = async (
+  where = {},
+  options: FindOptions = {},
+): Promise<QueryResult<Team>> => {
   const { trx, ...rest } = options
   return Team.find(where, { trx, ...rest })
 }
 
-const addTeamMember = async (teamId, userId, options = {}) => {
+const addTeamMember = async (
+  teamId,
+  userId,
+  options: TrxOption = {},
+): Promise<Team> => {
   try {
     const { trx } = options
     // notify
@@ -42,11 +50,15 @@ const addTeamMember = async (teamId, userId, options = {}) => {
     )
   } catch (e) {
     logger.error(`${TEAM_CONTROLLER} addTeamMember: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const removeTeamMember = async (teamId, userId, options = {}) => {
+const removeTeamMember = async (
+  teamId,
+  userId,
+  options: TrxOption = {},
+): Promise<Team> => {
   try {
     const { trx } = options
     // notify
@@ -61,11 +73,15 @@ const removeTeamMember = async (teamId, userId, options = {}) => {
     )
   } catch (e) {
     logger.error(`${TEAM_CONTROLLER} removeTeamMember: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
-const updateTeamMembership = async (teamId, members, options = {}) => {
+const updateTeamMembership = async (
+  teamId,
+  members,
+  options: TrxOption = {},
+): Promise<Team> => {
   try {
     const { trx } = options
     return useTransaction(
@@ -79,7 +95,7 @@ const updateTeamMembership = async (teamId, members, options = {}) => {
     )
   } catch (e) {
     logger.error(`${TEAM_CONTROLLER} updateTeamMembership: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -97,7 +113,7 @@ const updateTeamMembership = async (teamId, members, options = {}) => {
 //     )
 //   } catch (e) {
 //     logger.error(`${TEAM_CONTROLLER} deleteTeam: ${e.message}`)
-//     throw new Error(e)
+//     throw e
 //   }
 // }
 

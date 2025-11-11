@@ -1,11 +1,28 @@
+import { S3 } from '@aws-sdk/client-s3'
+import { Transaction } from 'objection'
+
 import logger from '../../logger'
 import File from './file.model'
 import useTransaction from '../useTransaction'
 import fileStorage from '../../fileStorage'
 import FileStorageConstructor from '../../fileStorage/FileStorage'
 import { labels } from './constants'
+import { StoredObject } from '../../fileStorage/types'
 
 const { FILE_CONTROLLER } = labels
+
+type CreateFileOptions = {
+  forceObjectKeyValue?: string
+  meta?: object
+  public?: boolean
+  s3?: S3
+  trx?: Transaction
+}
+
+type DeleteFileOptions = {
+  s3?: S3
+  trx?: Transaction
+}
 
 const getStorage = connectionConfig => {
   if (!connectionConfig) return fileStorage
@@ -19,17 +36,21 @@ const createFile = async (
   caption = null,
   tags = [],
   objectId = null,
-  options = {},
-) => {
+  options: CreateFileOptions = {},
+): Promise<File> => {
   try {
     const { trx, forceObjectKeyValue, s3, public: isPublic, meta } = options
 
     const storage = getStorage(s3)
 
-    const storedObjects = await storage.upload(fileStream, name, {
-      forceObjectKeyValue,
-      public: isPublic,
-    })
+    const storedObjects: StoredObject[] = await storage.upload(
+      fileStream,
+      name,
+      {
+        forceObjectKeyValue,
+        public: isPublic,
+      },
+    )
 
     return File.insert(
       {
@@ -49,7 +70,11 @@ const createFile = async (
   }
 }
 
-const deleteFiles = async (ids, removeFromFileServer = true, options = {}) => {
+const deleteFiles = async (
+  ids,
+  removeFromFileServer = true,
+  options: DeleteFileOptions = {},
+): Promise<number> => {
   try {
     const { trx, s3 } = options
 

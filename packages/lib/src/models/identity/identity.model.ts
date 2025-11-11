@@ -1,4 +1,10 @@
-import BaseModel from '../base.model'
+import { RelationMappings, Pojo, PartialModelObject } from 'objection'
+
+import BaseModel, {
+  TrxAndRelatedOptions,
+  FindOptions,
+  QueryResult,
+} from '../base.model'
 import User from '../user/user.model'
 
 import {
@@ -10,31 +16,33 @@ import {
   stringNullable,
 } from '../_helpers/types'
 
-const formatIncomingQueryData = data => {
-  let parsedData = { ...data }
-  const emailValue = data.email
-
-  if (emailValue) {
-    parsedData = {
-      ...data,
-      email: emailValue.toLowerCase(),
-    }
-  }
-
-  return parsedData
-}
-
 class Identity extends BaseModel {
-  constructor(properties) {
-    super(properties)
+  email!: string
+  isDefault!: boolean
+  isSocial!: boolean
+  isVerified!: boolean
+  oauthAccessToken!: string
+  oauthAccessTokenExpiration!: Date
+  oauthRefreshToken!: string
+  oauthRefreshTokenExpiration!: Date
+  profileData!: { [key: string]: unknown }
+  provider!: string
+  userId!: string
+  verificationToken!: string
+  verificationTokenTimestamp!: Date
+
+  user!: User
+
+  constructor() {
+    super()
     this.type = 'identity'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'identities'
   }
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: ['email', 'userId'],
@@ -56,7 +64,7 @@ class Identity extends BaseModel {
     }
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       user: {
         relation: BaseModel.BelongsToOneRelation,
@@ -69,21 +77,57 @@ class Identity extends BaseModel {
     }
   }
 
-  static async find(data, options = {}) {
-    const parsedData = formatIncomingQueryData(data)
-    return super.find(parsedData, options)
-  }
-
-  static async findOne(data, options = {}) {
-    const parsedData = formatIncomingQueryData(data)
-    return super.findOne(parsedData, options)
-  }
-
-  $formatDatabaseJson(json) {
+  $formatDatabaseJson(json: Pojo): Pojo {
     json = super.$formatDatabaseJson(json)
-    const emailValue = json.email
-    if (emailValue) return { ...json, email: emailValue.toLowerCase() }
-    return { ...json }
+
+    if (json.email) {
+      return {
+        ...json,
+        email: json.email.toLowerCase(),
+      }
+    }
+
+    return json
+  }
+
+  static formatIncomingQueryData(
+    data: PartialModelObject<Identity>,
+  ): PartialModelObject<Identity> {
+    let parsedData = { ...data }
+    const emailValue = data.email
+
+    if (emailValue && typeof emailValue === 'string') {
+      parsedData = {
+        ...data,
+        email: emailValue.toLowerCase(),
+      }
+    }
+
+    return parsedData
+  }
+
+  static async find<T extends BaseModel>(
+    this: new () => T,
+    data: PartialModelObject<T>,
+    options: FindOptions = {},
+  ): Promise<QueryResult<T>> {
+    const parsedData = Identity.formatIncomingQueryData(
+      data,
+    ) as PartialModelObject<T>
+
+    return super.find<T>(parsedData, options)
+  }
+
+  static async findOne<T extends BaseModel>(
+    this: new () => T,
+    data: PartialModelObject<T>,
+    options: TrxAndRelatedOptions = {},
+  ): Promise<T> {
+    const parsedData = Identity.formatIncomingQueryData(
+      data,
+    ) as PartialModelObject<T>
+
+    return super.findOne<T>(parsedData, options)
   }
 }
 

@@ -10,7 +10,7 @@ const chatChannelResolver = async (_, { id }, ctx) => {
     return getChatChannel(id)
   } catch (e) {
     logger.error(`${CHAT_CHANNEL_RESOLVER} getChatChannel: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 
@@ -20,7 +20,7 @@ const chatChannelsResolver = async (_, { filter }, ctx) => {
     return getChatChannels(filter)
   } catch (e) {
     logger.error(`${CHAT_CHANNEL_RESOLVER} getChatChannels: ${e.message}`)
-    throw new Error(e)
+    throw e
   }
 }
 

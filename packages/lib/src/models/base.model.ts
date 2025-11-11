@@ -4,6 +4,8 @@ import {
   ColumnRefOrOrderByDescriptor,
   Transaction,
   QueryBuilder,
+  Page,
+  PartialModelObject,
 } from 'objection'
 
 import merge from 'lodash/merge'
@@ -18,12 +20,20 @@ import { dateNotNullable } from './_helpers/types'
 
 Model.knex(db)
 
-type QueryResult<T> = {
+export type QueryResult<T> = {
   result: T[]
   totalCount: number
 }
 
-type FindOptions = {
+type ModelQueryBuilder<T extends BaseModel> = QueryBuilder<T, T[]>
+type PaginatedModelQueryBuilder<T extends BaseModel> = QueryBuilder<T, Page<T>>
+type ModelFindQueryBuilder<T extends BaseModel> =
+  | ModelQueryBuilder<T>
+  | PaginatedModelQueryBuilder<T>
+
+type ModelSingleResult<T extends BaseModel> = QueryBuilder<T, T>
+
+export type FindOptions = {
   trx?: Transaction
   related?: string | string[]
   orderBy?: ColumnRefOrOrderByDescriptor[]
@@ -31,11 +41,11 @@ type FindOptions = {
   pageSize?: number
 }
 
-type TrxOption = {
+export type TrxOption = {
   trx?: Transaction
 }
 
-type TrxAndRelatedOptions = {
+export type TrxAndRelatedOptions = {
   trx?: Transaction
   related?: string | string[]
 }
@@ -101,15 +111,23 @@ class BaseModel extends Model {
   }
 
   static async find<T extends BaseModel>(
-    data,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
+    data: PartialModelObject<T>,
     options: FindOptions = {},
   ): Promise<QueryResult<T>> {
     try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
       const { trx, related, orderBy, page, pageSize } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder: ModelFindQueryBuilder<T> = ModelClass.query(
+            tr,
+          ) as ModelQueryBuilder<T>
+
+          const isPaginated =
+            Number.isInteger(page) && Number.isInteger(pageSize)
 
           if (orderBy) {
             queryBuilder = queryBuilder.orderBy(orderBy)
@@ -124,7 +142,7 @@ class BaseModel extends Model {
             )
           }
 
-          if (Number.isInteger(page) && Number.isInteger(pageSize)) {
+          if (isPaginated) {
             if (page < 0) {
               throw new Error(
                 'invalid index for page (page should be an integer and greater than or equal to 0)',
@@ -137,20 +155,32 @@ class BaseModel extends Model {
               )
             }
 
-            queryBuilder = queryBuilder.page(page, pageSize)
+            queryBuilder = queryBuilder.page(
+              page,
+              pageSize,
+            ) as PaginatedModelQueryBuilder<T>
           }
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          const result = await queryBuilder.where(data)
+          const rawResult = await queryBuilder.where(data)
 
-          const { results, total } = result
+          if (isPaginated) {
+            const result = rawResult as Page<T>
+
+            return {
+              result: result.results,
+              totalCount: result.total,
+            }
+          }
+
+          const result = rawResult as T[]
 
           return {
-            result: page !== undefined ? results : result,
-            totalCount: total || result.length,
+            result: result,
+            totalCount: result.length,
           }
         },
         {
@@ -160,20 +190,21 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: find failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   static async findByIds<T extends BaseModel>(
+    this: { new (): T } & typeof BaseModel,
     ids: string[],
     options: TrxAndRelatedOptions = {},
-  ): Promise<QueryResult<T>> {
+  ): Promise<T[]> {
     try {
       const { trx, related } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder = this.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
@@ -191,7 +222,6 @@ class BaseModel extends Model {
 
           return result
         },
-
         {
           trx,
           passedTrxOnly: true,
@@ -199,12 +229,13 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: findByIds failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   static async findById<T extends BaseModel>(
-    id,
+    this: { new (): T } & typeof BaseModel,
+    id: string,
     options: TrxAndRelatedOptions = {},
   ): Promise<T> {
     try {
@@ -212,13 +243,14 @@ class BaseModel extends Model {
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder = this.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          return queryBuilder.findById(id).throwIfNotFound()
+          const result: T = await queryBuilder.findById(id).throwIfNotFound()
+          return result
         },
         {
           trx,
@@ -227,20 +259,23 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: findById failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   static async findOne<T extends BaseModel>(
-    data,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
+    data: PartialModelObject<T>,
     options: TrxAndRelatedOptions = {},
   ): Promise<T> {
     try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
       const { trx, related } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder = ModelClass.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
@@ -255,21 +290,21 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: findOne failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   static async insert<T extends BaseModel>(
-    data,
+    this: { new (): T } & typeof BaseModel,
+    data: PartialModelObject<T>,
     options: TrxAndRelatedOptions = {},
   ): Promise<T> {
     try {
       const { trx, related } = options
-      // console.log('insert trx', trx)
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder = this.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
@@ -277,7 +312,6 @@ class BaseModel extends Model {
 
           return queryBuilder.insert(data)
         },
-
         {
           trx,
           passedTrxOnly: true,
@@ -285,12 +319,15 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: insert failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   // INSTANCE METHOD
-  async patch<T extends BaseModel>(data, options: TrxOption = {}): Promise<T> {
+  async patch(
+    data: PartialModelObject<this>,
+    options: TrxOption = {},
+  ): Promise<this> {
     try {
       const { trx } = options
 
@@ -298,38 +335,47 @@ class BaseModel extends Model {
         throw new Error('Patch is empty')
       }
 
-      return useTransaction(async tr => this.$query(tr).patch(data), {
-        trx,
-        passedTrxOnly: true,
-      })
+      return useTransaction(
+        async tr => {
+          const q = this.$query(tr) as ModelSingleResult<this>
+          const result = await q.patchAndFetch(data)
+          return result
+        },
+        {
+          trx,
+          passedTrxOnly: true,
+        },
+      )
     } catch (e) {
       logger.error('Base model: patch failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async patchAndFetchById<M extends typeof BaseModel>(
-    this: M,
-    id,
-    data: Partial<InstanceType<M>>,
+  static async patchAndFetchById<T extends BaseModel>(
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
+    id: string,
+    data: PartialModelObject<T>,
     options: TrxAndRelatedOptions = {},
-  ): Promise<InstanceType<M>> {
+  ): Promise<T> {
     try {
       const { trx, related } = options
+      const ModelClass = this as typeof BaseModel & { new (): T }
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder = ModelClass.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          const x = await queryBuilder
+          const result: T = await queryBuilder
             .patchAndFetchById(id, data)
             .throwIfNotFound()
 
-          return x as Promise<InstanceType<M>>
+          return result
         },
         {
           trx,
@@ -338,12 +384,15 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: patchAndFetchById failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   // INSTANCE METHOD
-  async update<T extends BaseModel>(data, options: TrxOption = {}): Promise<T> {
+  async update(
+    data: PartialModelObject<this>,
+    options: TrxOption = {},
+  ): Promise<this> {
     try {
       const { trx } = options
 
@@ -351,33 +400,47 @@ class BaseModel extends Model {
         throw new Error('Patch is empty')
       }
 
-      return useTransaction(async tr => this.$query(tr).update(data), {
-        trx,
-        passedTrxOnly: true,
-      })
+      return useTransaction(
+        async tr => {
+          const q = this.$query(tr) as ModelSingleResult<this>
+          const result = await q.updateAndFetch(data)
+          return result
+        },
+        {
+          trx,
+          passedTrxOnly: true,
+        },
+      )
     } catch (e) {
       logger.error('Base model: update failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
   static async updateAndFetchById<T extends BaseModel>(
-    id,
-    data,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
+    id: string,
+    data: PartialModelObject<T>,
     options: TrxAndRelatedOptions = {},
   ): Promise<T> {
     try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
       const { trx, related } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr)
+          let queryBuilder = ModelClass.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          return queryBuilder.updateAndFetchById(id, data).throwIfNotFound()
+          const result: T = await queryBuilder
+            .updateAndFetchById(id, data)
+            .throwIfNotFound()
+
+          return result
         },
         {
           trx,
@@ -386,11 +449,15 @@ class BaseModel extends Model {
       )
     } catch (e) {
       logger.error('Base model: updateAndFetchById failed', e)
-      throw new Error(e)
+      throw e
     }
   }
 
-  static async deleteById(id, options: TrxOption = {}): Promise<number> {
+  static async deleteById<T extends BaseModel>(
+    this: { new (): T } & typeof BaseModel,
+    id: string,
+    options: TrxOption = {},
+  ): Promise<number> {
     try {
       return this.query(options.trx).deleteById(id).throwIfNotFound()
     } catch (e) {
@@ -399,7 +466,11 @@ class BaseModel extends Model {
     }
   }
 
-  static async deleteByIds(ids, options: TrxOption = {}): Promise<number> {
+  static async deleteByIds<T extends BaseModel>(
+    this: { new (): T } & typeof BaseModel,
+    ids: string[],
+    options: TrxOption = {},
+  ): Promise<number> {
     try {
       const rows = await this.query(options.trx).findByIds(ids)
 
@@ -419,7 +490,7 @@ class BaseModel extends Model {
       return result.length
     } catch (e) {
       logger.error(`${this.name} model: deleteByIds failed`, e)
-      throw new Error(e)
+      throw e
     }
   }
 }

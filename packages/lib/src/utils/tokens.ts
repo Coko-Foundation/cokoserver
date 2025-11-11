@@ -263,7 +263,7 @@ const getAccessToken = async (
       })
     }
 
-    throw new Error(e)
+    throw e
   }
 }
 

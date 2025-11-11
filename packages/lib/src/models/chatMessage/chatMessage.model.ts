@@ -1,3 +1,5 @@
+import { RelationMappings } from 'objection'
+
 import BaseModel from '../base.model'
 import User from '../user/user.model'
 
@@ -9,16 +11,24 @@ import {
 } from '../_helpers/types'
 
 class ChatMessage extends BaseModel {
-  constructor(properties) {
-    super(properties)
+  content!: string
+  chatChannelId!: string
+  userId!: string
+  mentions!: string[]
+  isDeleted!: boolean
+
+  user!: User
+
+  constructor() {
+    super()
     this.type = 'chatMessage'
   }
 
-  static get tableName() {
+  static get tableName(): string {
     return 'chatMessages'
   }
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: ['content', 'chatChannelId', 'userId'],
@@ -32,7 +42,7 @@ class ChatMessage extends BaseModel {
     }
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       user: {
         relation: BaseModel.BelongsToOneRelation,

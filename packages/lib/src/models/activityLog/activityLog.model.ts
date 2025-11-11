@@ -1,3 +1,5 @@
+import { RelationMappings } from 'objection'
+
 import BaseModel from '../base.model'
 import User from '../user/user.model'
 
@@ -26,8 +28,19 @@ const affectedObjects = {
 }
 
 class ActivityLog extends BaseModel {
-  constructor(properties) {
-    super(properties)
+  actorId!: string
+  actionType!: string
+  message!: string
+  valueBefore!: object
+  valueAfter!: object
+  affectedObjects!: {
+    id: string
+    objectType: string
+  }
+  additionalData!: object
+
+  constructor() {
+    super()
     this.type = 'activityLog'
   }
 
@@ -35,7 +48,7 @@ class ActivityLog extends BaseModel {
     return 'activityLogs'
   }
 
-  static get schema() {
+  static get schema(): object {
     return {
       type: 'object',
       required: ['actorId', 'actionType'],
@@ -51,7 +64,7 @@ class ActivityLog extends BaseModel {
     }
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       user: {
         relation: BaseModel.BelongsToOneRelation,
