@@ -8,7 +8,7 @@ import config from './configManager/config'
 import logger from './logger/index'
 import User from './models/user/user.model'
 
-const createToken = user => {
+const createToken = (user): string => {
   logger.info(`Creating token for ${user.username}`)
 
   const expiresIn = config.get('tokenExpiresIn')
@@ -23,7 +23,7 @@ const createToken = user => {
   )
 }
 
-const verifyToken = (token, done) => {
+const verifyToken = (token, done): void => {
   jwt.verify(token, config.get('secret'), (err, decoded) => {
     if (err) return done(null)
 
@@ -35,14 +35,14 @@ const verifyToken = (token, done) => {
   })
 }
 
-const verifyPassword = (username: string, password: string, done) => {
+const verifyPassword = (username: string, password: string, done): void => {
   const errorMessage = 'Wrong username or password.'
   logger.debug('User finding:', username)
 
-  User.findByUsername(username)
+  User.findOne({ username })
     .then(user => {
       logger.debug('User found:', user.username)
-      return Promise.all([user, user.validPassword(password)])
+      return Promise.all([user, user.isPasswordValid(password)])
     })
     .then(([user, isValid]) => {
       if (isValid) {

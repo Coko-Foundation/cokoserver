@@ -45,7 +45,7 @@ describe('Team Model', () => {
       global: true,
     })
 
-    const createDuplicate = () =>
+    const createDuplicate = async (): Promise<Team> =>
       Team.insert({
         role: 'editor',
         displayName: 'Editor',
@@ -72,7 +72,7 @@ describe('Team Model', () => {
       objectType: 'unknownObject',
     })
 
-    const createDuplicate = () =>
+    const createDuplicate = async (): Promise<Team> =>
       Team.insert({
         role: 'author',
         displayName: 'Author',
@@ -85,7 +85,7 @@ describe('Team Model', () => {
   })
 
   it('ensures non-global teams must have an associated object', async () => {
-    const create = () =>
+    const create = async (): Promise<Team> =>
       Team.insert({
         role: 'author',
         displayName: 'Author',
@@ -95,7 +95,7 @@ describe('Team Model', () => {
   })
 
   it('ensures teams only accept valid roles', async () => {
-    const createTeam = () =>
+    const createTeam = async (): Promise<Team> =>
       Team.insert({
         role: 'lorem',
         displayName: 'Lorem',
@@ -105,14 +105,14 @@ describe('Team Model', () => {
   })
 
   it('ensures global teams should only accept global roles', async () => {
-    const createValid = () =>
+    const createValid = async (): Promise<Team> =>
       Team.insert({
         role: 'editor',
         displayName: 'Editor',
         global: true,
       })
 
-    const createInvalid = () =>
+    const createInvalid = async (): Promise<Team> =>
       Team.insert({
         role: 'reviewer',
         displayName: 'Reviewer',
@@ -125,7 +125,7 @@ describe('Team Model', () => {
   })
 
   it('ensures non-global teams should only accept non-global roles', async () => {
-    const createValid = () =>
+    const createValid = async (): Promise<Team> =>
       Team.insert({
         role: 'author',
         displayName: 'Author',
@@ -133,7 +133,7 @@ describe('Team Model', () => {
         objectType: 'unknownObject',
       })
 
-    const createInvalid = () =>
+    const createInvalid = async (): Promise<Team> =>
       Team.insert({
         role: 'admin',
         displayName: 'Admin',

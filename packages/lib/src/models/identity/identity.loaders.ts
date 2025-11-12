@@ -4,7 +4,7 @@ import { labels } from './constants'
 
 const { IDENTITY_LOADER } = labels
 
-const identitiesBasedOnUserIdsLoader = async userIds => {
+const identitiesBasedOnUserIdsLoader = async (userIds): Promise<Identity[]> => {
   try {
     const userIdentities = await Identity.query().whereIn('userId', userIds)
     return userIds.map(userId =>
@@ -18,7 +18,9 @@ const identitiesBasedOnUserIdsLoader = async userIds => {
   }
 }
 
-const defaultIdentityBasedOnUserIdsLoader = async userIds => {
+const defaultIdentityBasedOnUserIdsLoader = async (
+  userIds,
+): Promise<Identity[]> => {
   try {
     const userIdentities = await Identity.query()
       .whereIn('userId', userIds)

@@ -10,7 +10,7 @@ import {
 
 const { CHAT_MESSAGE_RESOLVER } = labels
 
-const sendMessageResolver = async (_, { input }, ctx) => {
+const sendMessageResolver = async (_, { input }) => {
   try {
     const { chatChannelId, content, userId, mentions } = input
     logger.info(`${CHAT_MESSAGE_RESOLVER} sendMessage`)
@@ -21,7 +21,7 @@ const sendMessageResolver = async (_, { input }, ctx) => {
   }
 }
 
-const editMessageResolver = async (_, { input }, ctx) => {
+const editMessageResolver = async (_, { input }) => {
   try {
     const { id, content, mentions } = input
     logger.info(`${CHAT_MESSAGE_RESOLVER} editMessage`)
@@ -32,7 +32,7 @@ const editMessageResolver = async (_, { input }, ctx) => {
   }
 }
 
-const deleteMessageResolver = async (_, { id }, ctx) => {
+const deleteMessageResolver = async (_, { id }) => {
   try {
     logger.info(`${CHAT_MESSAGE_RESOLVER} deleteMessage`)
     return deleteMessage(id)

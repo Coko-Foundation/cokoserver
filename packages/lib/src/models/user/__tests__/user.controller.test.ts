@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeEach, afterAll, it, expect, vi } from 'vitest'
 import User from '../user.model'
 import Identity from '../../identity/identity.model'
 
@@ -32,8 +32,8 @@ import {
 
 import clearDb from '../../_helpers/clearDb'
 
-jest.mock('../../../services/notify.js')
-jest.mock('../../_helpers/emailTemplates.js')
+vi.mock('../../../services/notify.js')
+vi.mock('../../_helpers/emailTemplates.js')
 
 describe('User Controller', () => {
   beforeEach(async () => {

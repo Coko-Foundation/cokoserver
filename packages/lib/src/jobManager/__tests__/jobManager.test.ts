@@ -1,12 +1,12 @@
-import { describe, beforeAll, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
 import wait from '../../utils/wait'
-import TestConfig from '../../utils/TestConfig'
 import subscriptionManager from '../../graphql/pubsub'
 
 import { jobManager } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
 import { boss, start, stop } from '../boss'
 import JobManagerOptionsError from '../JobManagerOptionsError'
+import config from '../../configManager/config'
 
 const N = 3000
 
@@ -27,14 +27,14 @@ describe('Job queues', () => {
   })
 
   describe('Job manager', () => {
-    const config = new TestConfig({
-      jobQueues: [
-        {
-          name: 'test-me',
-          handler: () => {},
-        },
-      ],
-    })
+    // const config = new TestConfig({
+    //   jobQueues: [
+    //     {
+    //       name: 'test-me',
+    //       handler: () => {},
+    //     },
+    //   ],
+    // })
 
     beforeAll(async () => {
       await start(config)
@@ -155,15 +155,14 @@ describe('Job queues', () => {
      * Needs investigation.
      */
 
-    /* eslint-disable-next-line jest/no-commented-out-tests */
-    // it('gets started and stopped', async () => {
-    //   expect(boss.stopped).toBe(true)
-    //   const config = new TestConfig({})
-    //   await start(config)
-    //   expect(boss.started).toBe(true)
-    //   await stop()
-    //   expect(boss.stopped).toBe(true)
-    // })
+    it.skip('gets started and stopped', async () => {
+      // expect(boss.stopped).toBe(true)
+      // const config = new TestConfig({})
+      // await start(config)
+      // expect(boss.started).toBe(true)
+      // await stop()
+      // expect(boss.stopped).toBe(true)
+    })
 
     it('registers built-in queues when started', async () => {
       const config = new TestConfig({})

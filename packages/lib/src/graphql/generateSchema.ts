@@ -3,6 +3,7 @@ import merge from 'lodash/merge'
 
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.js'
 import { applyMiddleware } from 'graphql-middleware'
+import { GraphQLSchema } from 'graphql'
 import { shield } from 'graphql-shield'
 
 import { makeExecutableSchema } from '@graphql-tools/schema'
@@ -17,7 +18,7 @@ const resolverPerformanceMiddleware = async (
   args,
   context,
   info,
-) => {
+): Promise<any> => {
   // Only top level resolver
   if (!info.path.prev) {
     const startTime = performance.now()
@@ -40,7 +41,7 @@ const resolverPerformanceMiddleware = async (
   return resolve(root, args, context, info)
 }
 
-const generateSchema = async () => {
+const generateSchema = async (): Promise<GraphQLSchema> => {
   const typeDefs = [
     `type Query, type Mutation, type Subscription, scalar Upload`,
   ]

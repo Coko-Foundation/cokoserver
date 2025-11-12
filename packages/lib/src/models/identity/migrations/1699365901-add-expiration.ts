@@ -1,4 +1,6 @@
-export const up = async knex => {
+import { Knex } from 'knex'
+
+export const up = async (knex: Knex): Promise<void> => {
   try {
     const tableExists = await knex.schema.hasTable('identities')
     if (!tableExists) throw new Error('Table identities does not exist!')
@@ -50,7 +52,7 @@ export const up = async knex => {
   }
 }
 
-export const down = async knex => {
+export const down = async (knex: Knex): Promise<void> => {
   try {
     return knex.schema.table('identities', table => {
       table.dropColumn('oauthAccessTokenExpiration')

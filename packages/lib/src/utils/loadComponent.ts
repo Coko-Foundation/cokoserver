@@ -4,6 +4,7 @@ type Component = {
   // model:
   modelName?: string
   typeDefs?: string
+  resolvers?: object
   server?: Function
 }
 

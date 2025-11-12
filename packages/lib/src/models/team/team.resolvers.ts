@@ -14,6 +14,8 @@ import {
 
 import { getUser } from '../user/user.controller'
 import TeamMember from '../teamMember/teamMember.model'
+import Team from './team.model'
+import { QueryResult } from '../base.model'
 
 const { TEAM_RESOLVER } = labels
 const { USER_UPDATED } = subscriptions
@@ -30,7 +32,7 @@ const broadcastUserUpdated = async userId => {
   }
 }
 
-const teamResolver = async (_, { id }) => {
+const teamResolver = async (_, { id }): Promise<Team> => {
   try {
     logger.info(`${TEAM_RESOLVER} team`)
     return getTeam(id)
@@ -40,7 +42,7 @@ const teamResolver = async (_, { id }) => {
   }
 }
 
-const teamsResolver = async (_, { filter }) => {
+const teamsResolver = async (_, { filter }): Promise<QueryResult<Team>> => {
   try {
     logger.info(`${TEAM_RESOLVER} teams`)
     return getTeams(filter)
@@ -50,7 +52,10 @@ const teamsResolver = async (_, { filter }) => {
   }
 }
 
-const updateTeamMembershipResolver = async (_, { teamId, members }) => {
+const updateTeamMembershipResolver = async (
+  _,
+  { teamId, members },
+): Promise<Team> => {
   try {
     logger.info(`${TEAM_RESOLVER} updateTeamMembership`)
 
@@ -65,7 +70,7 @@ const updateTeamMembershipResolver = async (_, { teamId, members }) => {
   }
 }
 
-const addTeamMemberResolver = async (_, { teamId, userId }) => {
+const addTeamMemberResolver = async (_, { teamId, userId }): Promise<Team> => {
   try {
     logger.info(`${TEAM_RESOLVER} addTeamMember`)
 
@@ -80,7 +85,10 @@ const addTeamMemberResolver = async (_, { teamId, userId }) => {
   }
 }
 
-const removeTeamMemberResolver = async (_, { teamId, userId }) => {
+const removeTeamMemberResolver = async (
+  _,
+  { teamId, userId },
+): Promise<Team> => {
   try {
     logger.info(`${TEAM_RESOLVER} removeTeamMember`)
 
@@ -105,7 +113,11 @@ const removeTeamMemberResolver = async (_, { teamId, userId }) => {
 //   }
 // }
 
-const teamMemberResolver = async (team, { currentUserOnly }, ctx) => {
+const teamMemberResolver = async (
+  team,
+  { currentUserOnly },
+  ctx,
+): Promise<QueryResult<TeamMember>> => {
   // const { id } = team
   // return ctx.loaders.TeamMember.teamMembersBasedOnTeamIdsLoader.load(id)
 

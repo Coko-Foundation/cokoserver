@@ -87,7 +87,7 @@ const uploadFileHandler = async (fileStream, filename, mimetype) => {
   return { key: Key }
 }
 
-export async function up() {
+export async function up(): Promise<void> {
   /**
    * If the app didn't use file storage before or after, this migration is unnecessary.
    *
@@ -104,11 +104,11 @@ export async function up() {
    */
 
   if (!config.get('fileStorage')) {
-    return true
+    return
   }
 
   try {
-    return useTransaction(async trx => {
+    await useTransaction(async trx => {
       const files = await File.query(trx)
 
       const tempDir = tempFolderPath

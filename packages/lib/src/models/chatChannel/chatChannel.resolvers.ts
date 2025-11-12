@@ -1,10 +1,12 @@
 import logger from '../../logger'
 import { labels } from './constants'
 import { getChatChannel, getChatChannels } from './chatChannel.controller'
+import ChatChannel from './chatChannel.model'
+import { QueryResult } from '../base.model'
 
 const { CHAT_CHANNEL_RESOLVER } = labels
 
-const chatChannelResolver = async (_, { id }, ctx) => {
+const chatChannelResolver = async (_, { id }): Promise<ChatChannel> => {
   try {
     logger.info(`${CHAT_CHANNEL_RESOLVER} getChatChannel`)
     return getChatChannel(id)
@@ -14,7 +16,10 @@ const chatChannelResolver = async (_, { id }, ctx) => {
   }
 }
 
-const chatChannelsResolver = async (_, { filter }, ctx) => {
+const chatChannelsResolver = async (
+  _,
+  { filter },
+): Promise<QueryResult<ChatChannel>> => {
   try {
     logger.info(`${CHAT_CHANNEL_RESOLVER} getChatChannels`)
     return getChatChannels(filter)

@@ -77,7 +77,10 @@ const activateUsers = async (
   }
 }
 
-const getUser = async (id: string, options: TrxOption = {}): Promise<User> => {
+const getUser = async (
+  id: string,
+  options: TrxAndRelatedOptions = {},
+): Promise<User> => {
   try {
     const { trx, ...restOptions } = options
     return useTransaction(

@@ -13,7 +13,7 @@ const connectionConfig = getDbConnectionConfig()
 const boss = new PgBoss(connectionConfig)
 boss.on('error', error => logger.error(error))
 
-const registerQueues = async (queues, config) => {
+const registerQueues = async (queues, config): Promise<void> => {
   await Promise.all(
     queues.map(async q => {
       const options = {}
@@ -46,7 +46,7 @@ const registerQueues = async (queues, config) => {
   )
 }
 
-const start = async config => {
+const start = async (config): Promise<void> => {
   logTask('Set up job manager')
 
   await boss.start()
@@ -95,7 +95,7 @@ const start = async config => {
   if (!orphanFound) logTaskSubItem('No orphaned schedules found')
 }
 
-const stop = async options => {
+const stop = async (options): Promise<void> => {
   logTask('Shut down job manager')
   await boss.stop(options)
 

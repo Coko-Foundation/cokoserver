@@ -1,4 +1,6 @@
-export const up = async knex => {
+import { Knex } from 'knex'
+
+export const up = async (knex: Knex): Promise<void> => {
   try {
     const tableExists = await knex.schema.hasTable('team_members')
 
@@ -24,7 +26,8 @@ export const up = async knex => {
           .onUpdate('CASCADE')
         table.unique(['team_id', 'user_id'])
       })
-      return true
+
+      return
     }
 
     const hasId = await knex.schema.hasColumn('team_members', 'id')
@@ -78,12 +81,11 @@ export const up = async knex => {
     await knex.schema.raw(
       'CREATE UNIQUE INDEX IF NOT EXISTS "team_members_team_id_user_id_unique" ON "team_members" (team_id, user_id);',
     )
-    return true
   } catch (e) {
     throw new Error(`Team Members: Initial: Migration failed! ${e}`)
   }
 }
 
-export const down = knex => {
-  return knex.schema.dropTable('team_members')
+export const down = async (knex: Knex): Promise<void> => {
+  await knex.schema.dropTable('team_members')
 }

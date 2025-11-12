@@ -1,8 +1,8 @@
 import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
-import TestConfig from '../../utils/TestConfig'
 
 import db from '../db'
 import { migrate } from '../migrate'
+import config from '../../configManager/config'
 
 import {
   migrations,
@@ -10,14 +10,14 @@ import {
   MIGRATIONS_TABLE,
 } from '../migrateDbHelpers'
 
-const config = new TestConfig(
-  {
-    components: ['src/db/__tests__/mocks/succeeding'],
-  },
-  { useDb: true },
-)
-
 describe('Migrate db helpers', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/db/__tests__/mocks/succeeding'],
+    })
+  })
+
   afterAll(async () => {
     await db.destroy()
   })

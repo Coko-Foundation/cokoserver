@@ -70,7 +70,11 @@ describe('GraphQL core mutations', async () => {
         },
       )
 
-      const data = response.body.singleResult.data.updateUser
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
+      const data = response.body.singleResult.data?.updateUser as User
       expect(data.username).toEqual('newUsername')
     })
 
@@ -95,7 +99,11 @@ describe('GraphQL core mutations', async () => {
         },
       )
 
-      const data = response.body.singleResult.data.deleteUser
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
+      const data = response.body.singleResult.data?.deleteUser
       expect(data).toEqual('1')
     })
   })

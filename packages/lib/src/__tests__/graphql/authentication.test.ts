@@ -7,6 +7,7 @@ import { User } from '../../models'
 import { db } from '../../db'
 import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
 import subscriptionManager from '../../graphql/pubsub'
+import { LoginResponse } from '../../models/user/user.controller'
 
 vi.mock('../../configManager/config', async () => {
   const { default: Config } = await import(
@@ -82,7 +83,7 @@ describe('GraphQL authentication', async () => {
         throw new Error('Expected single result, got incremental')
       }
 
-      const data = response.body.singleResult?.data?.login
+      const data = response.body.singleResult?.data?.login as LoginResponse
       expect(data?.token).toBeDefined()
       expect(data?.user.username).toEqual('testuser')
 
@@ -168,7 +169,7 @@ describe('GraphQL authentication', async () => {
         throw new Error('Expected single result, got incremental')
       }
 
-      const data = response.body.singleResult?.data?.currentUser
+      const data = response.body.singleResult?.data?.currentUser as User
       expect(data.username).toBe('testuser')
     })
 

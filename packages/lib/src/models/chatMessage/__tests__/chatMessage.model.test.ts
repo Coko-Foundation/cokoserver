@@ -30,7 +30,7 @@ describe('ChatMessage model', () => {
       relatedObjectId: relatedObject,
     })
 
-    const createMessageWithoutContent = () =>
+    const createMessageWithoutContent = (): Promise<ChatMessage> =>
       ChatMessage.insert({
         chatChannelId: channel.id,
         userId: user.id,
@@ -38,7 +38,7 @@ describe('ChatMessage model', () => {
 
     await expect(createMessageWithoutContent()).rejects.toThrow()
 
-    const createMessageWithEmptyContent = () =>
+    const createMessageWithEmptyContent = (): Promise<ChatMessage> =>
       ChatMessage.insert({
         chatChannelId: channel.id,
         userId: user.id,
@@ -151,50 +151,48 @@ describe('ChatMessage model', () => {
     expect(message.mentions[0]).toEqual(user.id)
   })
 
-  /* eslint-disable-next-line jest/no-commented-out-tests */
-  // it('throws when mentioned user is not team member of channel', async () => {
-  //   const user2 = await User.insert({})
-  //   const relatedObject = uuid()
+  it.skip('throws when mentioned user is not team member of channel', async () => {
+    const user2 = await User.insert({})
+    const relatedObject = uuid()
 
-  //   const channel = await ChatChannel.insert({
-  //     chatType: 'reviewers',
-  //     relatedObjectId: relatedObject,
-  //   })
+    const channel = await ChatChannel.insert({
+      chatType: 'reviewers',
+      relatedObjectId: relatedObject,
+    })
 
-  //   const { user } = await createChatChannelTeamWithUsers(channel.id)
+    const { user } = await createChatChannelTeamWithUsers(channel.id)
 
-  //   await expect(
-  //     ChatMessage.insert({
-  //       chatChannelId: channel.id,
-  //       userId: user.id,
-  //       content: '<p>this is a test</p>',
-  //       mentions: [user2.id],
-  //     }),
-  //   ).rejects.toThrow()
-  // })
+    await expect(
+      ChatMessage.insert({
+        chatChannelId: channel.id,
+        userId: user.id,
+        content: '<p>this is a test</p>',
+        mentions: [user2.id],
+      }),
+    ).rejects.toThrow()
+  })
 
-  /* eslint-disable-next-line jest/no-commented-out-tests */
-  // it('throws when updating a message mentions array with a user who is not team member of channel', async () => {
-  //   const user2 = await User.insert({})
-  //   const relatedObject = uuid()
+  it.skip('throws when updating a message mentions array with a user who is not team member of channel', async () => {
+    const user2 = await User.insert({})
+    const relatedObject = uuid()
 
-  //   const channel = await ChatChannel.insert({
-  //     chatType: 'reviewers',
-  //     relatedObjectId: relatedObject,
-  //   })
+    const channel = await ChatChannel.insert({
+      chatType: 'reviewers',
+      relatedObjectId: relatedObject,
+    })
 
-  //   const { user } = await createChatChannelTeamWithUsers(channel.id)
+    const { user } = await createChatChannelTeamWithUsers(channel.id)
 
-  //   const message = await ChatMessage.insert({
-  //     chatChannelId: channel.id,
-  //     userId: user.id,
-  //     content: '<p>this is a test</p>',
-  //   })
+    const message = await ChatMessage.insert({
+      chatChannelId: channel.id,
+      userId: user.id,
+      content: '<p>this is a test</p>',
+    })
 
-  //   await expect(
-  //     message.patch({
-  //       mentions: [user2.id],
-  //     }),
-  //   ).rejects.toThrow()
-  // })
+    await expect(
+      message.patch({
+        mentions: [user2.id],
+      }),
+    ).rejects.toThrow()
+  })
 })

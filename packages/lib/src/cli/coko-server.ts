@@ -11,7 +11,7 @@ import logger from '../logger'
 import { logNodemon } from '../logger/internals'
 import loadBuilderConfig from './loadBuilderConfig'
 import generateTsConfig from './generateTsConfig'
-import { UpOptions } from '../db/migrate'
+import { MigrateOptions, RollbackOptions } from '../db/migrate'
 
 const pkg = require('../../package.json')
 
@@ -125,7 +125,7 @@ migrateCommand
     const { migrationManager } = await import('../db/index')
 
     try {
-      const optionsToPass: UpOptions = {}
+      const optionsToPass: Partial<MigrateOptions> = {}
 
       if (options.skipLast) {
         optionsToPass.skipLast = parseInt(options.skipLast, 10)
@@ -135,7 +135,7 @@ migrateCommand
         optionsToPass.step = parseInt(options.step, 10)
       }
 
-      await migrationManager.migrate(optionsToPass)
+      await migrationManager.migrate(optionsToPass as MigrateOptions)
       process.exit(0)
     } catch (e) {
       logger.error(e)
@@ -145,7 +145,7 @@ migrateCommand
 
 migrateCommand
   .command('down')
-  .option('-s, --step <number>', 'How many migrations to roll back', 1)
+  .option('-s, --step <number>', 'How many migrations to roll back', '1')
   .option(
     '-l, --last-successful-run',
     'Roll back to the last time migrate completed successfully. If used, the --step option is discarded.',
@@ -155,7 +155,7 @@ migrateCommand
   .action(async options => {
     const { migrationManager } = await import('../db/index')
 
-    const optionsToPass = {}
+    const optionsToPass: Partial<RollbackOptions> = {}
     const lastSuccessfulRun = options.lastSuccessfulRun === true
     const step = parseInt(options.step, 10)
 
@@ -166,7 +166,7 @@ migrateCommand
     }
 
     try {
-      await migrationManager.rollback(optionsToPass)
+      await migrationManager.rollback(optionsToPass as RollbackOptions)
       process.exit(0)
     } catch (e) {
       logger.error(e)
@@ -218,11 +218,14 @@ program
         text: 'Finding files',
         color: 'white',
         interval: 100000,
+        // @ts-ignore
         isEnabled: program.spinner === 'false' ? false : null,
       })
 
       output.circular(spinner, res, circular, {
+        // @ts-ignore
         json: program.json,
+        // @ts-ignore
         printCount: program.count,
       })
 

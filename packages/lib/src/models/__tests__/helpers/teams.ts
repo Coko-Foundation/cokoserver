@@ -3,7 +3,10 @@ import { v4 as uuid } from 'uuid'
 import User from '../../user/user.model'
 import Team from '../../team/team.model'
 
-const createGlobalTeamWithUsers = async () => {
+const createGlobalTeamWithUsers = async (): Promise<{
+  team: Team
+  user: User
+}> => {
   const team = await Team.insert({
     role: 'editor',
     displayName: 'Editor',
@@ -16,7 +19,10 @@ const createGlobalTeamWithUsers = async () => {
   return { team, user }
 }
 
-const createLocalTeamWithUsers = async () => {
+const createLocalTeamWithUsers = async (): Promise<{
+  team: Team
+  user: User
+}> => {
   const team = await Team.insert({
     role: 'editor',
     displayName: 'Editor',
@@ -31,7 +37,12 @@ const createLocalTeamWithUsers = async () => {
   return { team, user }
 }
 
-const createChatChannelTeamWithUsers = async chatChannelId => {
+const createChatChannelTeamWithUsers = async (
+  chatChannelId: string,
+): Promise<{
+  team: Team
+  user: User
+}> => {
   const team = await Team.insert({
     role: 'editor',
     displayName: 'Editor',

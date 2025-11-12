@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid'
 import gql from 'graphql-tag'
 
 import { Team, User } from '../../models'
+import { QueryResult } from '../../models/base.model'
 import clearDb from '../../models/_helpers/clearDb'
 import { db } from '../../db'
 import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
@@ -69,7 +70,11 @@ describe('GraphQL core queries', async () => {
       query: QUERY,
     })
 
-    const data = response.body.singleResult.data.users
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult.data?.users as QueryResult<User>
     expect(data.result).toHaveLength(1)
     expect(data.result[0].username).toEqual('testuser')
   })
@@ -90,7 +95,11 @@ describe('GraphQL core queries', async () => {
       },
     })
 
-    const data = response.body.singleResult.data.user
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult.data?.user as User
     expect(data.username).toEqual('testuser')
   })
 
@@ -110,7 +119,16 @@ describe('GraphQL core queries', async () => {
       },
     })
 
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
     const { errors } = response.body.singleResult
+
+    if (!errors) {
+      throw new Error('Errors expected')
+    }
+
     expect(errors[0].message).toEqual('NotFoundError')
   })
 
@@ -146,7 +164,7 @@ describe('GraphQL core queries', async () => {
       throw new Error('Expected single result, got incremental')
     }
 
-    const data = response.body.singleResult?.data?.users
+    const data = response.body.singleResult?.data?.users as QueryResult<User>
     expect(data.result).toHaveLength(1)
     const foundUser = data.result[0]
     expect(foundUser.username).toEqual('testuser')

@@ -3,10 +3,10 @@ import { promisify } from 'util'
 import http from 'http'
 import passport from 'passport'
 import cookieParser from 'cookie-parser'
-import helmet from 'helmet'
-import morgan from 'morgan'
+import helmet, { HelmetOptions } from 'helmet'
+// import morgan from 'morgan'
 
-import logger from './logger'
+// import logger from './logger'
 import { logInit, logTask, logTaskItem } from './logger/internals'
 import { db, migrationManager } from './db'
 import { startJobManager, stopJobManager } from './jobManager'
@@ -30,7 +30,7 @@ import {
   runCustomShutdownScripts,
 } from './startup/customScripts'
 
-let server
+let server: http.Server
 
 /**
  * startServer is run with no parameters, but we allow a testConfig so that
@@ -38,7 +38,7 @@ let server
  */
 export const startServer = async (
   testConfig?: Partial<ConfigType>,
-): Promise<void> => {
+): Promise<http.Server> => {
   if (server) return server
 
   const startTime = performance.now()
@@ -64,7 +64,7 @@ export const startServer = async (
   const port = config.get('port') || 3000
   app.set('port', port)
   const httpServer = http.createServer(app)
-  httpServer.app = app
+  // httpServer.app = app
   logTask(`Starting HTTP server`)
   const startListening = promisify(httpServer.listen).bind(httpServer)
   await startListening(port)
@@ -81,7 +81,9 @@ export const startServer = async (
    * Or maybe someone is not mounting static folders at all and they want to
    * restrict even further to 'same-origin'.
    */
-  let helmetConfig = { crossOriginResourcePolicy: { policy: 'cross-origin' } }
+  let helmetConfig: HelmetOptions = {
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }
 
   /**
    * This makes apollo explorer work in development
@@ -115,26 +117,27 @@ export const startServer = async (
   app.use(helmet(helmetConfig))
   app.use(cors())
 
-  morgan.token('graphql', ({ body }, res, type) => {
-    if (!body.operationName) return ''
+  // morgan.token('graphql', ({ body }, _res, type) => {
+  //   if (!body.operationName) return ''
 
-    switch (type) {
-      case 'query':
-        return body.query.replace(/\s+/g, ' ')
-      case 'variables':
-        return JSON.stringify(body.variables)
-      case 'operation':
-      default:
-        return body.operationName
-    }
-  })
+  //   switch (type) {
+  //     case 'query':
+  //       return body.query.replace(/\s+/g, ' ')
+  //     case 'variables':
+  //       return JSON.stringify(body.variables)
+  //     case 'operation':
+  //     default:
+  //       return body.operationName
+  //   }
+  // })
 
-  app.use(
-    morgan('combined', {
-      stream: logger.stream,
-    }),
-  )
+  // app.use(
+  //   morgan('combined', {
+  //     stream: logger.stream,
+  //   }),
+  // )
 
+  // @ts-ignore
   app.use(passport.initialize())
   passport.use('bearer', authentication.strategies.bearer)
   passport.use('anonymous', authentication.strategies.anonymous)
@@ -160,14 +163,14 @@ export const startServer = async (
     `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
   )
 
-  return httpServer
+  return server
 }
 
 export const shutdownFn = async (): Promise<void> => {
   await runCustomShutdownScripts()
 
   logTask('Shut down http server')
-  await server.close()
+  server.close()
   server = undefined
   logTaskItem('Http server successfully shut down')
 

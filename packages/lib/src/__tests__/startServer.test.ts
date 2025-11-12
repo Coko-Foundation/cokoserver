@@ -20,8 +20,8 @@ describe('Starting the server', () => {
     })
 
     it.skip('returns the server if it is already running', async () => {
-      const server = await startServer()
-      server.originalServer = true
+      // const server = await startServer()
+      // server.originalServer = true
       const secondAccess = await startServer()
       expect(secondAccess).toHaveProperty('originalServer')
       await shutdownFn()

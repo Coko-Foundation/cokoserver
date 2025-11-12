@@ -3,14 +3,17 @@ import { faker } from '@faker-js/faker'
 import User from '../../user/user.model'
 import Identity from '../../identity/identity.model'
 
-const createUser = async () => {
+const createUser = async (): Promise<User> => {
   return User.insert({
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
   })
 }
 
-const createUserAndDefaultIdentity = async () => {
+const createUserAndDefaultIdentity = async (): Promise<{
+  user: User
+  id: Identity
+}> => {
   const user = await User.query().insert({
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
@@ -26,7 +29,11 @@ const createUserAndDefaultIdentity = async () => {
   return { user, id }
 }
 
-const createUserAndIdentities = async () => {
+const createUserAndIdentities = async (): Promise<{
+  user: User
+  id: Identity
+  id2: Identity
+}> => {
   const user = await User.query().insert({
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
@@ -50,7 +57,13 @@ const createUserAndIdentities = async () => {
   return { user, id, id2 }
 }
 
-const createUserWithPasswordAndIdentities = async password => {
+const createUserWithPasswordAndIdentities = async (
+  password: string,
+): Promise<{
+  user: User
+  id: Identity
+  id2: Identity
+}> => {
   const user = await User.query().insert({
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
@@ -75,7 +88,9 @@ const createUserWithPasswordAndIdentities = async password => {
   return { user, id, id2 }
 }
 
-const createUserWithPasswordAndDefaultIdentity = async password => {
+const createUserWithPasswordAndDefaultIdentity = async (
+  password: string,
+): Promise<{ user: User; id: Identity }> => {
   const user = await User.query().insert({
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
