@@ -7,10 +7,11 @@ import {
   deleteMessage,
   editMessage,
 } from './chatMessage.controller'
+import ChatMessage from './chatMessage.model'
 
 const { CHAT_MESSAGE_RESOLVER } = labels
 
-const sendMessageResolver = async (_, { input }) => {
+const sendMessageResolver = async (_, { input }): Promise<ChatMessage> => {
   try {
     const { chatChannelId, content, userId, mentions } = input
     logger.info(`${CHAT_MESSAGE_RESOLVER} sendMessage`)
@@ -21,7 +22,7 @@ const sendMessageResolver = async (_, { input }) => {
   }
 }
 
-const editMessageResolver = async (_, { input }) => {
+const editMessageResolver = async (_, { input }): Promise<ChatMessage> => {
   try {
     const { id, content, mentions } = input
     logger.info(`${CHAT_MESSAGE_RESOLVER} editMessage`)
@@ -32,7 +33,7 @@ const editMessageResolver = async (_, { input }) => {
   }
 }
 
-const deleteMessageResolver = async (_, { id }) => {
+const deleteMessageResolver = async (_, { id }): Promise<number> => {
   try {
     logger.info(`${CHAT_MESSAGE_RESOLVER} deleteMessage`)
     return deleteMessage(id)

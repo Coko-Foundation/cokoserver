@@ -89,7 +89,7 @@ const createUserWithPasswordAndIdentities = async (
 }
 
 const createUserWithPasswordAndDefaultIdentity = async (
-  password: string,
+  password: string = 'password',
 ): Promise<{ user: User; id: Identity }> => {
   const user = await User.query().insert({
     givenNames: faker.person.firstName(),

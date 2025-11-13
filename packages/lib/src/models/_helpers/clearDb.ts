@@ -1,6 +1,6 @@
 import { db } from '../../db'
 
-const dbCleaner = async () => {
+const dbCleaner = async (): Promise<void> => {
   const query = await db.raw(
     `SELECT tablename FROM pg_tables WHERE schemaname='public'`,
   )

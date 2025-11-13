@@ -1,3 +1,5 @@
+import { Knex } from 'knex'
+
 import useTransaction from '../../useTransaction'
 import ChatChannel from '../chatChannel.model'
 
@@ -12,7 +14,7 @@ const NEW_COLUMN_NAME = 'chat_channel_id'
 
 const MESSAGE_TABLE = 'chat_messages'
 
-export const up = async db => {
+export const up = async (db: Knex): Promise<void> => {
   await db.schema.renameTable(OLD_TABLE_NAME, NEW_TABLE_NAME)
 
   const channels = await ChatChannel.query()
@@ -34,7 +36,7 @@ export const up = async db => {
   })
 }
 
-export const down = async db => {
+export const down = async (db: Knex): Promise<void> => {
   await db.schema.renameTable(NEW_TABLE_NAME, OLD_TABLE_NAME)
 
   const threads = await db('chat_threads')

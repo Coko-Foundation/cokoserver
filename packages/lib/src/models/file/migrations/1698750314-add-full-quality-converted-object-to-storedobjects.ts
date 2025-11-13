@@ -11,6 +11,7 @@ import useTransaction from '../../useTransaction'
 import File from '../file.model'
 import { tempFolderPath } from '../../../utils/filesystem'
 import fileStorage from '../../../fileStorage'
+import { type StoredObject } from '../../../fileStorage/types'
 
 /**
  * Some light duplication of code in this file, in order to keep it from being
@@ -36,7 +37,7 @@ const imageSizeConversionMapper = {
   },
 }
 
-const getMetadata = async fileBuffer => {
+const getMetadata = async (fileBuffer): Promise<sharp.Metadata> => {
   const originalImage = sharp(fileBuffer, { limitInputPixels: false })
   const imageMetadata = await originalImage.metadata()
   return imageMetadata
@@ -47,7 +48,7 @@ const sharpConversionFullFilePath = async (
   tempFileDir,
   filenameWithoutExtension,
   format,
-) => {
+): Promise<string> => {
   await fs.ensureDir(tempFileDir)
 
   const tempFullFilePath = path.join(
@@ -64,7 +65,11 @@ const sharpConversionFullFilePath = async (
   return tempFullFilePath
 }
 
-const uploadFileHandler = async (fileStream, filename, mimetype) => {
+const uploadFileHandler = async (
+  fileStream,
+  filename,
+  mimetype,
+): Promise<Partial<StoredObject>> => {
   const params = {
     Bucket: fileStorage.bucket,
     Key: filename, // file name you want to save as
@@ -103,9 +108,7 @@ export async function up(): Promise<void> {
    * files are still used. In this case this migration will need to be run manually.
    */
 
-  if (!config.get('fileStorage')) {
-    return
-  }
+  if (!config.get('fileStorage')) return
 
   try {
     await useTransaction(async trx => {
@@ -122,7 +125,7 @@ export async function up(): Promise<void> {
             storedObject => storedObject.type === 'full',
           )
 
-          if (mimetype.match(/^image\//) && !fullStoredObject) {
+          if (mimetype && mimetype.match(/^image\//) && !fullStoredObject) {
             const tempFileDir = path.join(tempDir, file.id)
             await fs.ensureDir(tempFileDir)
 
@@ -180,7 +183,7 @@ export async function up(): Promise<void> {
             full.type = 'full'
             full.mimetype = mime.lookup(tempFullFilePath)
 
-            file.storedObjects.push(full)
+            file.storedObjects.push(full as StoredObject)
 
             await File.query(trx).patchAndFetchById(file.id, {
               storedObjects: file.storedObjects,

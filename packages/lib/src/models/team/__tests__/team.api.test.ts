@@ -7,6 +7,7 @@ import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 import clearDb from '../../_helpers/clearDb'
 import Fake from '../../__tests__/helpers/fake/fake.model'
+import { QueryResult } from '../../base.model'
 
 describe('Team API', async () => {
   const gqlServer = await createGraphqlTestServer()
@@ -70,7 +71,11 @@ describe('Team API', async () => {
       variables: { filter: { objectId: fake.id } },
     })
 
-    const data = result.body.singleResult.data.teams
+    if (result.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = result.body.singleResult.data?.teams as QueryResult<Team>
     expect(data.totalCount).toBe(1)
     expect(data.result[0].id).toBe(team.id)
     expect(data.result[0].members).toHaveLength(1)
@@ -120,7 +125,11 @@ describe('Team API', async () => {
       variables: { filter: { global: true } },
     })
 
-    const data = result.body.singleResult.data.teams
+    if (result.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = result.body.singleResult.data?.teams as QueryResult<Team>
 
     expect(data.totalCount).toBe(1)
     expect(data.result).toHaveLength(1)
@@ -197,17 +206,22 @@ describe('Team API', async () => {
       },
     )
 
-    const foundTeam = result.body.singleResult.data.teams.result.find(
-      t => t.role === 'editor',
-    )
+    if (result.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
 
-    expect(foundTeam.id).toEqual(globalTeam.id)
+    const resultTeams = result.body.singleResult.data
+      ?.teams as QueryResult<Team>
 
-    expect(foundTeam.members).toHaveLength(1)
-    const foundMember = foundTeam.members[0]
-    expect(foundMember.id).toEqual(member.id)
+    const foundTeam = resultTeams.result.find(t => t.role === 'editor')
 
-    const foundUser = foundMember.user
-    expect(foundUser.id).toEqual(user.id)
+    expect(foundTeam?.id).toEqual(globalTeam.id)
+
+    expect(foundTeam?.members).toHaveLength(1)
+    const foundMember = foundTeam?.members[0]
+    expect(foundMember?.id).toEqual(member.id)
+
+    const foundUser = foundMember?.user
+    expect(foundUser?.id).toEqual(user.id)
   })
 })

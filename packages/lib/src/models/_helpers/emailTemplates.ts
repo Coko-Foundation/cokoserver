@@ -1,10 +1,17 @@
 import config from '../../configManager/config'
 import { clientUrl } from '../../utils/urls'
 
+type EmailData = {
+  content: string
+  text?: string
+  subject: string
+  to: string
+}
+
 /*
   Email with email verification token to new users
 */
-const identityVerification = context => {
+const identityVerification = (context): EmailData => {
   const { verificationToken, email } = context
 
   const link = `${clientUrl}/email-verification/${verificationToken}`
@@ -33,7 +40,7 @@ const identityVerification = context => {
   return data
 }
 
-const passwordUpdate = context => {
+const passwordUpdate = (context): EmailData => {
   const { email } = context
 
   const content = `
@@ -53,7 +60,7 @@ const passwordUpdate = context => {
   return data
 }
 
-const requestResetPasswordEmailNotFound = context => {
+const requestResetPasswordEmailNotFound = (context): EmailData => {
   const { email } = context
 
   const content = `
@@ -81,7 +88,7 @@ const requestResetPasswordEmailNotFound = context => {
   return data
 }
 
-const requestResetPassword = context => {
+const requestResetPassword = (context): EmailData => {
   const { email, token } = context
 
   const pathToPage = config.has('passwordReset.pathToPage')

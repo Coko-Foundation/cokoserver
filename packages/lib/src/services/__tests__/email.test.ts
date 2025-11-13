@@ -1,13 +1,16 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, beforeEach } from 'vitest'
 import nodemailer from 'nodemailer'
-
-import TestConfig from '../../utils/TestConfig'
 
 import { sendEmail, makeTransportConfig } from '../sendEmail'
 import SendEmailError from '../SendEmailError'
+import config from '../../configManager/config'
 
 describe('Email', () => {
   const env = process.env.NODE_ENV
+
+  beforeEach(() => {
+    config.reset()
+  })
 
   afterEach(async () => {
     process.env.NODE_ENV = env
@@ -24,7 +27,6 @@ describe('Email', () => {
   })
 
   it('falls back to ethereal when not in production', async () => {
-    const config = new TestConfig()
     const created = await makeTransportConfig(config)
 
     expect(created.transportConfig.host).toBe('smtp.ethereal.email')
@@ -33,15 +35,15 @@ describe('Email', () => {
 
   it('does not use ethereal in production', async () => {
     process.env.NODE_ENV = 'production'
-    const config = new TestConfig()
     await expect(makeTransportConfig(config)).rejects.toThrow(SendEmailError)
   })
 
   it('reads config when provided', async () => {
     const ethereal = await nodemailer.createTestAccount()
 
-    const config = new TestConfig({
+    await config.init({
       mailer: {
+        from: 'test@example.com',
         transport: {
           ...ethereal.smtp,
           auth: {
@@ -58,7 +60,6 @@ describe('Email', () => {
 
   it('overrides config when provided values', async () => {
     const ethereal = await nodemailer.createTestAccount()
-    const config = new TestConfig()
 
     const overrides = {
       ...ethereal.smtp,

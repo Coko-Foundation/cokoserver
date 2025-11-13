@@ -49,7 +49,11 @@ describe('ChatGPT', () => {
       },
     })
 
-    const data = result.body.singleResponse.data.chatGPT
+    if (result.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = result.body.singleResult.data?.chatGPT
     expect(data).toBeTruthy()
   }, 20000)
 })

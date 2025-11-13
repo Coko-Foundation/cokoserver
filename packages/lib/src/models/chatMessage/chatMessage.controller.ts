@@ -1,19 +1,21 @@
+import { PartialModelObject } from 'objection'
 import logger from '../../logger'
 
 import ChatMessage from './chatMessage.model'
 import useTransaction from '../useTransaction'
 
 import { labels } from './constants'
+import { TrxAndRelatedOptions, TrxOption } from '../base.model'
 
 const { CHAT_MESSAGE_CONTROLLER } = labels
 
 const sendMessage = async (
-  chatChannelId,
-  content,
-  userId,
+  chatChannelId: string,
+  content: string,
+  userId: string,
   mentions = [],
-  options = {},
-) => {
+  options: TrxAndRelatedOptions = {},
+): Promise<ChatMessage> => {
   try {
     const { trx, ...restOptions } = options
 
@@ -38,7 +40,12 @@ const sendMessage = async (
   }
 }
 
-const editMessage = async (id, content, mentions, options = {}) => {
+const editMessage = async (
+  id: string,
+  content: string,
+  mentions?: string[],
+  options: TrxAndRelatedOptions = {},
+): Promise<ChatMessage> => {
   try {
     const { trx, ...restOptions } = options
     return useTransaction(
@@ -46,7 +53,7 @@ const editMessage = async (id, content, mentions, options = {}) => {
         logger.info(
           `${CHAT_MESSAGE_CONTROLLER} editMessage: patching message with id ${id}`,
         )
-        const patchData = { content }
+        const patchData = { content } as PartialModelObject<ChatMessage>
 
         if (mentions) {
           patchData.mentions = mentions
@@ -65,7 +72,10 @@ const editMessage = async (id, content, mentions, options = {}) => {
   }
 }
 
-const deleteMessage = async (id, options = {}) => {
+const deleteMessage = async (
+  id: string,
+  options: TrxOption = {},
+): Promise<number> => {
   try {
     const { trx } = options
     return useTransaction(

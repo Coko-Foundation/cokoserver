@@ -195,16 +195,18 @@ class BaseModel extends Model {
   }
 
   static async findByIds<T extends BaseModel>(
-    this: { new (): T } & typeof BaseModel,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
     ids: string[],
     options: TrxAndRelatedOptions = {},
   ): Promise<T[]> {
     try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
       const { trx, related } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr) as ModelQueryBuilder<T>
+          let queryBuilder = ModelClass.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
@@ -234,16 +236,18 @@ class BaseModel extends Model {
   }
 
   static async findById<T extends BaseModel>(
-    this: { new (): T } & typeof BaseModel,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
     id: string,
     options: TrxAndRelatedOptions = {},
   ): Promise<T> {
     try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
       const { trx, related } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr) as ModelQueryBuilder<T>
+          let queryBuilder = ModelClass.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
@@ -295,22 +299,44 @@ class BaseModel extends Model {
   }
 
   static async insert<T extends BaseModel>(
-    this: { new (): T } & typeof BaseModel,
+    this: new () => T,
     data: PartialModelObject<T>,
+    options?: TrxAndRelatedOptions,
+  ): Promise<T>
+
+  static async insert<T extends BaseModel>(
+    this: new () => T,
+    data: PartialModelObject<T>[],
+    options?: TrxAndRelatedOptions,
+  ): Promise<T[]>
+
+  static async insert<T extends BaseModel>(
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
+    data: PartialModelObject<T> | PartialModelObject<T>[],
     options: TrxAndRelatedOptions = {},
-  ): Promise<T> {
+  ): Promise<T | T[]> {
     try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
       const { trx, related } = options
 
       return useTransaction(
         async tr => {
-          let queryBuilder = this.query(tr) as ModelQueryBuilder<T>
+          let queryBuilder = ModelClass.query(tr) as ModelQueryBuilder<T>
 
           if (related) {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          return queryBuilder.insert(data)
+          if (Array.isArray(data)) {
+            const res = await queryBuilder.insert(
+              data as PartialModelObject<T>[],
+            )
+            return res
+          }
+
+          const res = await queryBuilder.insert(data as PartialModelObject<T>)
+          return res
         },
         {
           trx,
@@ -454,12 +480,19 @@ class BaseModel extends Model {
   }
 
   static async deleteById<T extends BaseModel>(
-    this: { new (): T } & typeof BaseModel,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
     id: string,
     options: TrxOption = {},
   ): Promise<number> {
     try {
-      return this.query(options.trx).deleteById(id).throwIfNotFound()
+      const ModelClass = this as typeof BaseModel & { new (): T }
+
+      const res = await ModelClass.query(options.trx)
+        .deleteById(id)
+        .throwIfNotFound()
+
+      return res
     } catch (e) {
       logger.error(`${this.name} model: deleteById failed.`, e)
       throw e
@@ -467,12 +500,14 @@ class BaseModel extends Model {
   }
 
   static async deleteByIds<T extends BaseModel>(
-    this: { new (): T } & typeof BaseModel,
+    // this: { new (): T } & typeof BaseModel,
+    this: new () => T,
     ids: string[],
     options: TrxOption = {},
   ): Promise<number> {
     try {
-      const rows = await this.query(options.trx).findByIds(ids)
+      const ModelClass = this as typeof BaseModel & { new (): T }
+      const rows = await ModelClass.query(options.trx).findByIds(ids)
 
       if (rows.length < ids.length) {
         const diff = ids.filter(id => !rows.map(res => res.id).includes(id))
@@ -482,7 +517,7 @@ class BaseModel extends Model {
         )
       }
 
-      const result = await this.query(options.trx)
+      const result = await ModelClass.query(options.trx)
         .delete()
         .whereIn('id', ids)
         .returning('id')

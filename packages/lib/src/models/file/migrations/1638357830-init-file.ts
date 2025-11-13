@@ -1,4 +1,6 @@
-export const up = async knex => {
+import { Knex } from 'knex'
+
+export const up = async (knex: Knex): Promise<void> => {
   try {
     const tableExists = await knex.schema.hasTable('files')
 
@@ -20,7 +22,8 @@ export const up = async knex => {
         table.text('uploadStatus').nullable()
         table.text('caption').nullable()
       })
-      return true
+
+      return
     }
 
     const hasId = await knex.schema.hasColumn('files', 'id')
@@ -99,12 +102,11 @@ export const up = async knex => {
         table.text('caption').nullable()
       }
     })
-    return true
   } catch (e) {
     throw new Error(`File: Initial: Migration failed! ${e}`)
   }
 }
 
-export const down = async knex => {
+export const down = async (knex: Knex): Promise<void> => {
   return knex.schema.dropTable('files')
 }

@@ -21,7 +21,7 @@ describe('ChatChannel Model', () => {
   })
 
   it('does not create new channel without a related object id', async () => {
-    const createChannel = () =>
+    const createChannel = async (): Promise<ChatChannel> =>
       ChatChannel.insert({
         chatType: 'editors',
       })

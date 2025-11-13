@@ -1,4 +1,6 @@
-export const up = async knex => {
+import { Knex } from 'knex'
+
+export const up = async (knex: Knex): Promise<void> => {
   try {
     const tableExists = await knex.schema.hasTable('teams')
 
@@ -29,7 +31,8 @@ export const up = async knex => {
       await knex.schema.raw(
         'ALTER TABLE "teams" ADD CONSTRAINT "global_teams_must_not_have_associated_objects_other_teams_must_have_them" CHECK ( (global = true AND object_id IS NULL AND object_type IS NULL) or (global = false AND object_id IS NOT NULL AND object_type IS NOT NULL));',
       )
-      return true
+
+      return
     }
 
     const hasId = await knex.schema.hasColumn('teams', 'id')
@@ -96,13 +99,11 @@ export const up = async knex => {
       `ALTER TABLE "teams" DROP CONSTRAINT IF EXISTS "global_teams_must_not_have_associated_objects_other_teams_must_have_them";
       ALTER TABLE "teams" ADD CONSTRAINT "global_teams_must_not_have_associated_objects_other_teams_must_have_them" CHECK ( (global = true AND object_id IS NULL AND object_type IS NULL) or (global = false AND object_id IS NOT NULL AND object_type IS NOT NULL));`,
     )
-
-    return true
   } catch (e) {
     throw new Error(`Teams: Initial: Migration failed! ${e}`)
   }
 }
 
-export const down = knex => {
-  return knex.schema.dropTable('teams')
+export const down = async (knex: Knex): Promise<void> => {
+  await knex.schema.dropTable('teams')
 }

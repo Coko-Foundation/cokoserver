@@ -3,11 +3,19 @@ import logger from '../../logger'
 import Team from './team.model'
 import useTransaction from '../useTransaction'
 import { labels } from './constants'
-import { FindOptions, QueryResult, TrxOption } from '../base.model'
+import {
+  FindOptions,
+  QueryResult,
+  TrxOption,
+  TrxAndRelatedOptions,
+} from '../base.model'
 
 const { TEAM_CONTROLLER } = labels
 
-const getTeam = async (id, options: TrxOption = {}): Promise<Team> => {
+const getTeam = async (
+  id,
+  options: TrxAndRelatedOptions = {},
+): Promise<Team> => {
   try {
     const { trx, ...restOptions } = options
     return useTransaction(

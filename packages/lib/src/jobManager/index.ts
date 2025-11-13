@@ -3,7 +3,7 @@ import { start, stop } from './boss'
 import { jobManager } from './JobManager'
 import defaultJobQueueNames from './defaultJobQueueNames'
 
-const startJobManager = async () => start(config)
+const startJobManager = async (): Promise<void> => start(config)
 const stopJobManager = stop
 
 export {

@@ -8,6 +8,7 @@ import fileStorage from '../../fileStorage'
 import FileStorageConstructor from '../../fileStorage/FileStorage'
 import { labels } from './constants'
 import { StoredObject } from '../../fileStorage/types'
+import FileStorageNoop from '../../fileStorage/FileStorageNoop'
 
 const { FILE_CONTROLLER } = labels
 
@@ -24,7 +25,9 @@ type DeleteFileOptions = {
   trx?: Transaction
 }
 
-const getStorage = connectionConfig => {
+const getStorage = (
+  connectionConfig,
+): FileStorageConstructor | FileStorageNoop => {
   if (!connectionConfig) return fileStorage
   return new FileStorageConstructor(connectionConfig)
 }
@@ -41,7 +44,7 @@ const createFile = async (
   try {
     const { trx, forceObjectKeyValue, s3, public: isPublic, meta } = options
 
-    const storage = getStorage(s3)
+    const storage = getStorage(s3) as FileStorageConstructor
 
     const storedObjects: StoredObject[] = await storage.upload(
       fileStream,

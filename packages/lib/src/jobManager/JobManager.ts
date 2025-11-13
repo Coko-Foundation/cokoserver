@@ -17,7 +17,7 @@ class JobManager {
     }
   }
 
-  static #validateOptions(schema, options) {
+  static #validateOptions(schema, options): void {
     const validationResult = schema.validate(options)
 
     if (validationResult.error) {
@@ -25,7 +25,7 @@ class JobManager {
     }
   }
 
-  async sendToQueue(queueName, data, options = {}) {
+  async sendToQueue(queueName, data, options = {}): Promise<void> {
     JobManager.#validateOptions(this.#validationSchemas.send, options)
     await this.#boss.send(queueName, data, options)
   }

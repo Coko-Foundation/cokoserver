@@ -51,7 +51,7 @@ describe('ChatMessage model', () => {
   it('does not create a new chat message without a channel', async () => {
     const user = await User.insert({})
 
-    const createMessage = () =>
+    const createMessage = async (): Promise<ChatMessage> =>
       ChatMessage.insert({
         userId: user.id,
         content: 'test',
@@ -64,7 +64,7 @@ describe('ChatMessage model', () => {
     const user = await User.insert({})
     const channelId = uuid()
 
-    const createMessage = () =>
+    const createMessage = async (): Promise<ChatMessage> =>
       ChatMessage.insert({
         userId: user.id,
         content: 'test',
@@ -82,7 +82,7 @@ describe('ChatMessage model', () => {
       relatedObjectId: relatedObject,
     })
 
-    const createMessage = () =>
+    const createMessage = async (): Promise<ChatMessage> =>
       ChatMessage.insert({
         chatChannelId: channel.id,
         content: 'test',
@@ -100,7 +100,7 @@ describe('ChatMessage model', () => {
       relatedObjectId: relatedObject,
     })
 
-    const createMessage = () =>
+    const createMessage = async (): Promise<ChatMessage> =>
       ChatMessage.insert({
         chatChannelId: channel.id,
         content: 'test',

@@ -8,6 +8,7 @@ import clearDb from '../../_helpers/clearDb'
 
 import User from '../user.model'
 import Identity from '../../identity/identity.model'
+import { QueryResult } from '../../base.model'
 
 describe('User API', async () => {
   const gqlServer = await createGraphqlTestServer()
@@ -58,7 +59,13 @@ describe('User API', async () => {
       query: GET_USER_IDENTITIES,
     })
 
-    const responseIdentities = response.body.singleResult.data.user.identities
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const responseUser = response.body.singleResult.data?.user as User
+
+    const { identities: responseIdentities } = responseUser
 
     expect(responseIdentities[0].id).toBe(identities[0].id)
     expect(responseIdentities[1].id).toBe(identities[1].id)
@@ -75,14 +82,19 @@ describe('User API', async () => {
       query: GET_USER_IDENTITIES,
     })
 
-    const newResponseIdentities =
-      newResponse.body.singleResult.data.user.identities
+    if (newResponse.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const newResponseUser = newResponse.body.singleResult.data?.user as User
+
+    const { identities: newResponseIdentities } = newResponseUser
 
     const changedIdentity = newResponseIdentities.find(
       i => i.id === verifiedIdentity.id,
     )
 
-    expect(changedIdentity.isVerified).toBe(true)
+    expect(changedIdentity?.isVerified).toBe(true)
   })
 
   it('gets user default identity', async () => {
@@ -118,7 +130,11 @@ describe('User API', async () => {
       query: GET_USER_IDENTITIES,
     })
 
-    const { defaultIdentity } = response.body.singleResult.data.user
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const { defaultIdentity } = response.body.singleResult.data?.user as User
 
     expect(defaultIdentity.id).toBe(identities[0].id)
   })
@@ -148,7 +164,11 @@ describe('User API', async () => {
       query: ACTIVE_USERS,
     })
 
-    const data = response.body.singleResult.data.users
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult.data?.users as QueryResult<User>
 
     expect(data.totalCount).toBe(1)
     expect(data.result[0].id).toBe(userOne.id)
@@ -198,7 +218,11 @@ describe('User API', async () => {
       },
     })
 
-    const data = response.body.singleResult.data.updateUser
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult.data?.updateUser as User
 
     expect(data.givenNames).toBe('Jack')
     expect(data.surname).toBe('Black')

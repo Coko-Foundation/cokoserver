@@ -7,25 +7,27 @@ import { logTask, logTaskItem, logTaskSubItem } from '../logger/internals'
 import wait from '../utils/wait'
 
 import { defaultJobQueues } from './defaultJobQueues'
+import { JobQueue } from '../configManager/configSchema'
 
 const connectionConfig = getDbConnectionConfig()
 
+// @ts-ignore
 const boss = new PgBoss(connectionConfig)
 boss.on('error', error => logger.error(error))
 
 const registerQueues = async (queues, config): Promise<void> => {
   await Promise.all(
     queues.map(async q => {
-      const options = {}
+      const options = {} as JobQueue
       if (q.teamSize) options.teamSize = q.teamSize
       if (q.teamConcurrency) options.teamConcurrency = q.teamConcurrency
-      const handler = job => q.handler(job, { config })
+      const handler = async (job): Promise<any> => q.handler(job, { config })
 
       await boss.work(q.name, options, handler)
       logTaskSubItem(`Registered queue "${q.name}"`)
 
       if (q.schedule) {
-        const scheduleOptions = {}
+        const scheduleOptions = {} as PgBoss.ScheduleOptions
         if (q.scheduleTimezone) scheduleOptions.tz = q.scheduleTimezone
 
         await boss.schedule(q.name, q.schedule, null, scheduleOptions)
@@ -109,6 +111,7 @@ const stop = async (options): Promise<void> => {
   const endTime = Date.now() + timeout
 
   while (true) {
+    // @ts-ignore
     if (boss.stopped) {
       logTaskItem('Successfully shut down job manager')
       break

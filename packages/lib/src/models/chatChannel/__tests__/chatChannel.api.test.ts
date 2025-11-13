@@ -8,6 +8,7 @@ import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
 import Fake from '../../__tests__/helpers/fake/fake.model'
 
 import ChatChannel from '../chatChannel.model'
+import { QueryResult } from '../../base.model'
 
 describe('Chat channel api', async () => {
   const gqlServer = await createGraphqlTestServer()
@@ -56,7 +57,12 @@ describe('Chat channel api', async () => {
       query: CHANNELS,
     })
 
-    const data = response.body.singleResult.data.chatChannels
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult.data
+      ?.chatChannels as QueryResult<ChatChannel>
     expect(data.totalCount).toBe(2)
 
     const first = data.result.find(c => c.chatType === 'test-one')
@@ -100,7 +106,12 @@ describe('Chat channel api', async () => {
       },
     })
 
-    const data = response.body.singleResult.data.chatChannels
+    if (response.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = response.body.singleResult.data
+      ?.chatChannels as QueryResult<ChatChannel>
     expect(data.totalCount).toBe(1)
   })
 })

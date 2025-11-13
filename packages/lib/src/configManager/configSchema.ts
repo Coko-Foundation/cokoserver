@@ -129,7 +129,7 @@ const Timezone = z
     },
   )
 
-const JobQueue = z.object({
+const JobQueueSchema = z.object({
   name: JobQueueName,
   handler: z.function(),
   teamSize: z.number().int().positive().optional(),
@@ -162,10 +162,11 @@ export const ConfigSchema = z.strictObject({
 
   // drop
   integrations: z.record(z.string(), IntegrationConfigSchema).optional(),
-  jobQueues: z.array(JobQueue).optional(),
+  jobQueues: z.array(JobQueueSchema).optional(),
   permissions: z.object().optional(),
 })
 
+export type JobQueue = z.infer<typeof JobQueueSchema>
 export type Teams = z.infer<typeof TeamsConfigSchema>
 export type MailerTransport = z.infer<typeof MailerTransportSchema>
 export type FileStorageConfig = z.infer<typeof FileStorageConfigSchema>

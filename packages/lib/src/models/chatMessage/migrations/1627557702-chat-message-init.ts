@@ -1,6 +1,8 @@
-export const up = knex => {
+import { Knex } from 'knex'
+
+export const up = async (knex: Knex): Promise<void> => {
   try {
-    return knex.schema.createTable('chat_messages', table => {
+    await knex.schema.createTable('chat_messages', table => {
       table.uuid('id').primary()
       table
         .timestamp('created', { useTz: true })
@@ -22,6 +24,6 @@ export const up = knex => {
   }
 }
 
-export const down = knex => {
-  return knex.schema.dropTable('chat_messages')
+export const down = async (knex: Knex): Promise<void> => {
+  await knex.schema.dropTable('chat_messages')
 }

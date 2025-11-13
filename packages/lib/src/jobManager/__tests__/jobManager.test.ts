@@ -1,7 +1,16 @@
-import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
+import {
+  describe,
+  beforeAll,
+  afterAll,
+  afterEach,
+  it,
+  expect,
+  vi,
+  beforeEach,
+} from 'vitest'
+
 import wait from '../../utils/wait'
 import subscriptionManager from '../../graphql/pubsub'
-
 import { jobManager } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
 import { boss, start, stop } from '../boss'
@@ -9,6 +18,7 @@ import JobManagerOptionsError from '../JobManagerOptionsError'
 import config from '../../configManager/config'
 
 const N = 3000
+const noop = (): void => {}
 
 /**
  * Note:
@@ -27,16 +37,17 @@ describe('Job queues', () => {
   })
 
   describe('Job manager', () => {
-    // const config = new TestConfig({
-    //   jobQueues: [
-    //     {
-    //       name: 'test-me',
-    //       handler: () => {},
-    //     },
-    //   ],
-    // })
-
     beforeAll(async () => {
+      config.reset()
+      await config.init({
+        jobQueues: [
+          {
+            name: 'test-me',
+            handler: noop,
+          },
+        ],
+      })
+
       await start(config)
     })
 
@@ -47,7 +58,7 @@ describe('Job queues', () => {
     it('sends a job to the queue', async () => {
       const name = 'test-me'
       const queues = config.get('jobQueues')
-      const spy = jest.spyOn(queues[0], 'handler')
+      const spy = vi.spyOn(queues[0], 'handler')
 
       await jobManager.sendToQueue(name, { id: 1 })
 
@@ -150,6 +161,10 @@ describe('Job queues', () => {
   })
 
   describe('Boss', () => {
+    beforeEach(async () => {
+      config.reset()
+    })
+
     /**
      * If I run stop more than once, I get the dreaded open handles in jest.
      * Needs investigation.
@@ -165,7 +180,7 @@ describe('Job queues', () => {
     })
 
     it('registers built-in queues when started', async () => {
-      const config = new TestConfig({})
+      await config.init({})
       await start(config)
 
       const refreshTokenQueueSize = await boss.getQueueSize(
@@ -178,11 +193,11 @@ describe('Job queues', () => {
     })
 
     it('registers custom queues when started', async () => {
-      const config = new TestConfig({
+      await config.init({
         jobQueues: [
           {
             name: 'test-me',
-            handler: () => {},
+            handler: noop,
           },
         ],
       })
@@ -196,11 +211,11 @@ describe('Job queues', () => {
     })
 
     it('registers schedules', async () => {
-      const config = new TestConfig({
+      await config.init({
         jobQueues: [
           {
             name: 'test-schedule',
-            handler: () => {},
+            handler: noop,
             schedule: '0 1 * * *',
             scheduleTimezone: 'Europe/Athens',
           },
@@ -214,6 +229,7 @@ describe('Job queues', () => {
       expect(schedules).toHaveLength(1)
       expect(schedules[0].name).toBe('test-schedule')
       expect(schedules[0].cron).toBe('0 1 * * *')
+      // @ts-ignore
       expect(schedules[0].timezone).toBe('Europe/Athens')
 
       await boss.unschedule('test-schedule')
@@ -221,11 +237,11 @@ describe('Job queues', () => {
     })
 
     it('cleans up orphan schedules when the queue is removed', async () => {
-      const config = new TestConfig({
+      await config.init({
         jobQueues: [
           {
             name: 'test-schedule',
-            handler: () => {},
+            handler: noop,
             schedule: '0 1 * * *',
             scheduleTimezone: 'Europe/Athens',
           },
@@ -239,22 +255,23 @@ describe('Job queues', () => {
 
       // await stop()
 
-      const newConfig = new TestConfig({
+      config.reset()
+      await config.init({
         jobQueues: [],
       })
 
-      await start(newConfig)
+      await start(config)
 
       const newSchedules = await boss.getSchedules()
       expect(newSchedules).toHaveLength(0)
     })
 
     it('cleans up orphan schedules when the schedule is removed from the queue', async () => {
-      const config = new TestConfig({
+      await config.init({
         jobQueues: [
           {
             name: 'test-schedule',
-            handler: () => {},
+            handler: noop,
             schedule: '0 1 * * *',
             scheduleTimezone: 'Europe/Athens',
           },
@@ -268,16 +285,17 @@ describe('Job queues', () => {
 
       // await stop()
 
-      const newConfig = new TestConfig({
+      config.reset()
+      await config.init({
         jobQueues: [
           {
             name: 'test-schedule',
-            handler: () => {},
+            handler: noop,
           },
         ],
       })
 
-      await start(newConfig)
+      await start(config)
 
       const newSchedules = await boss.getSchedules()
       expect(newSchedules).toHaveLength(0)

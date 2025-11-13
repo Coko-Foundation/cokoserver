@@ -4,7 +4,7 @@ import { useServer } from 'graphql-ws/lib/use/ws'
 import { WebSocketServer } from 'ws'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServer } from '@apollo/server'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { type GraphQLFormattedError } from 'graphql'
 
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'
@@ -17,6 +17,10 @@ import logger from '../logger'
 
 import loaders from './loaders'
 import generateSchema from './generateSchema'
+
+type Context = {
+  userId: string | null
+}
 
 const setup = async (
   httpServer: http.Server,
@@ -36,7 +40,7 @@ const setup = async (
     path: '/subscriptions',
   })
 
-  const getDynamicContext = ctx => {
+  const getDynamicContext = (ctx): Context => {
     const context = { userId: null }
 
     if (ctx.connectionParams.authToken) {
@@ -44,7 +48,7 @@ const setup = async (
         const decodedToken = jwt.verify(
           ctx.connectionParams.authToken,
           config.get('secret'),
-        )
+        ) as JwtPayload
 
         context.userId = decodedToken.id
       } catch (_e) {
@@ -77,9 +81,9 @@ const setup = async (
 
       // Proper shutdown for the WebSocket server
       {
-        async serverWillStart() {
+        async serverWillStart(): Promise<{ drainServer }> {
           return {
-            async drainServer() {
+            async drainServer(): Promise<void> {
               await subscriptionServerCleanup.dispose()
             },
           }
@@ -111,7 +115,7 @@ const setup = async (
       session: false,
     }),
     expressMiddleware(apolloServer, {
-      context: ({ req, res }) => {
+      context: async ({ req, res }) => {
         return {
           userId: req.user, // req.user is set by passport
           loaders: createdLoaders,
