@@ -3,6 +3,8 @@ import DataLoader from 'dataloader'
 import config from '../configManager/config'
 import loadComponent from '../utils/loadComponent'
 
+type Loaders = Record<string, any>
+
 // Require components here so that the requires are done only once per app runtime
 let components = []
 
@@ -11,7 +13,7 @@ if (config.has('components') && Array.isArray(config.get('components'))) {
   components = components.map(componentName => loadComponent(componentName))
 }
 
-const defaultLoader = model =>
+const defaultLoader = (model: any): DataLoader<any, any> =>
   new DataLoader(async ids => {
     const results = await model.query().whereIn('id', ids)
     // We map over ids so that the DataLoader API is always matched,
@@ -19,7 +21,7 @@ const defaultLoader = model =>
     return ids.map(id => results.find(result => result.id === id))
   })
 
-export default () => {
+export default (): Loaders => {
   const loaders = {}
 
   components.forEach(component => {

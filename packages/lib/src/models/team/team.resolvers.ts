@@ -20,7 +20,7 @@ import { QueryResult } from '../base.model'
 const { TEAM_RESOLVER } = labels
 const { USER_UPDATED } = subscriptions
 
-const broadcastUserUpdated = async userId => {
+const broadcastUserUpdated = async (userId: string): Promise<boolean> => {
   try {
     const updatedUser = await getUser(userId)
 
@@ -117,12 +117,14 @@ const teamMemberResolver = async (
   team,
   { currentUserOnly },
   ctx,
-): Promise<QueryResult<TeamMember>> => {
+): Promise<TeamMember[]> => {
   // const { id } = team
   // return ctx.loaders.TeamMember.teamMembersBasedOnTeamIdsLoader.load(id)
 
-  const where = { teamId: team.id }
-  if (currentUserOnly) where.userId = ctx.userId
+  const where = {
+    teamId: team.id,
+    ...(currentUserOnly ? { userId: ctx.userId } : {}),
+  }
 
   const { result: members } = await TeamMember.find(where)
   return members

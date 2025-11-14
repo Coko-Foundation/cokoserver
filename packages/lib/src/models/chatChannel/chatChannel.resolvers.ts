@@ -2,6 +2,7 @@ import logger from '../../logger'
 import { labels } from './constants'
 import { getChatChannel, getChatChannels } from './chatChannel.controller'
 import ChatChannel from './chatChannel.model'
+import ChatMessage from '../chatMessage/chatMessage.model'
 import { QueryResult } from '../base.model'
 
 const { CHAT_CHANNEL_RESOLVER } = labels
@@ -29,18 +30,22 @@ const chatChannelsResolver = async (
   }
 }
 
+const channelMessagesResolver = async (
+  chatChannel: ChatChannel,
+  _,
+  ctx,
+): Promise<ChatMessage[]> => {
+  const { id } = chatChannel
+  return ctx.loaders.ChatMessage.messagesBasedOnChatChannelIdsLoader.load(id)
+}
+
 const resolvers = {
   Query: {
     chatChannel: chatChannelResolver,
     chatChannels: chatChannelsResolver,
   },
   ChatChannel: {
-    async messages(chatChannel, _, ctx) {
-      const { id } = chatChannel
-      return ctx.loaders.ChatMessage.messagesBasedOnChatChannelIdsLoader.load(
-        id,
-      )
-    },
+    messages: channelMessagesResolver,
   },
 }
 

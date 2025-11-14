@@ -4,7 +4,7 @@ import { labels } from './constants'
 
 const { USER_LOADER } = labels
 
-const usersBasedOnTeamMemberIdsLoader = async userIds => {
+const usersBasedOnTeamMemberIdsLoader = async (userIds): Promise<User[]> => {
   try {
     const teamMemberUsers = await User.query().whereIn('id', userIds)
 

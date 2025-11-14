@@ -41,7 +41,7 @@ const FileStorageConfigSchema = z.strictObject({
   accessKeyId: z.string().optional(),
   secretAccessKey: z.string().optional(),
 
-  url: z.string().url(),
+  url: z.url(),
   bucket: z.string(),
   region: z.string().optional(),
 
@@ -87,7 +87,7 @@ const StaticFolderSchema = z.strictObject({
   mountPoint: z.string(),
 })
 
-const IntegrationConfigSchema = z.object({
+const IntegrationConfigSchema = z.strictObject({
   clientId: z.string(),
   redirectUri: z.url(),
   tokenUrl: z.url(),
@@ -129,7 +129,7 @@ const Timezone = z
     },
   )
 
-const JobQueueSchema = z.object({
+const JobQueueSchema = z.strictObject({
   name: JobQueueName,
   handler: z.function(),
   teamSize: z.number().int().positive().optional(),

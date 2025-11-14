@@ -1,20 +1,19 @@
+import PgBoss from 'pg-boss'
 import Joi from 'joi'
 
 import { boss } from './boss'
 import JobManagerOptionsError from './JobManagerOptionsError'
 
 class JobManager {
-  #boss
-  #validationSchemas
+  #boss: PgBoss
+  #validationSchemas = {
+    send: Joi.object({
+      startAfter: Joi.number().integer().positive().optional(),
+    }),
+  }
 
   constructor(passedBoss) {
     this.#boss = passedBoss
-
-    this.#validationSchemas = {
-      send: Joi.object({
-        startAfter: Joi.number().integer().positive().optional(),
-      }),
-    }
   }
 
   static #validateOptions(schema, options): void {

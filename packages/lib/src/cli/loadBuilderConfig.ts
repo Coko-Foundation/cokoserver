@@ -1,20 +1,22 @@
 import path from 'path'
 
 import fs from 'fs-extra'
-import Joi from 'joi'
+import { z } from 'zod'
 import mergeWith from 'lodash/mergeWith'
 
 import BuilderConfigError from './BuilderConfigError'
 import logger from '../logger/index'
 
-const configSchema = Joi.object({
-  buildPath: Joi.string(),
-  configPath: Joi.string(),
-  devServer: Joi.object({
-    ignore: Joi.array().items(Joi.string()),
-    inspectorPort: Joi.number().integer().positive(),
+const builderConfigSchema = z.strictObject({
+  buildPath: z.string(),
+  configPath: z.string().optional(),
+  devServer: z.strictObject({
+    ignore: z.array(z.string()),
+    inspectorPort: z.number().int().positive(),
   }),
-}).required()
+})
+
+type BuilderConfig = z.infer<typeof builderConfigSchema>
 
 const DEFAULT_CONFIG = {
   buildPath: `${process.cwd()}/**/*`,
@@ -32,7 +34,7 @@ function arrayCustomizer(objValue, srcValue): any[] | undefined {
   return undefined
 }
 
-function defineBuilderConfig() {
+function defineBuilderConfig(): BuilderConfig {
   const configPath = path.join(process.cwd(), 'builder.json')
 
   if (!fs.existsSync(configPath)) {
@@ -57,15 +59,12 @@ function defineBuilderConfig() {
   const merged = mergeWith(DEFAULT_CONFIG, fileConfig, arrayCustomizer)
 
   // validate
-  const { error } = configSchema.validate(merged, {
-    abortEarly: false,
-  })
+  builderConfigSchema.parse(merged)
 
-  if (error) throw new BuilderConfigError(error.message)
   return merged
 }
 
-function loadBuilderConfig() {
+function loadBuilderConfig(): BuilderConfig {
   const config = defineBuilderConfig()
   return config
 }

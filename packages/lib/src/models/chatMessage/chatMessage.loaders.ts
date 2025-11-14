@@ -4,7 +4,9 @@ import { labels } from './constants'
 
 const { CHAT_MESSAGE_LOADER } = labels
 
-const messagesBasedOnChatChannelIdsLoader = async chatChannelIds => {
+const messagesBasedOnChatChannelIdsLoader = async (
+  chatChannelIds,
+): Promise<ChatMessage[]> => {
   try {
     const chatChannelMessages = await ChatMessage.query().whereIn(
       'chatChannelId',

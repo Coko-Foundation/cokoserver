@@ -88,12 +88,14 @@ const createOAuthIdentity = async (
     const { oauthRefreshTokenExpiration } = authData
 
     if (oauthRefreshTokenExpiration.getTime() !== foreverDate.getTime()) {
-      const expiresIn = (oauthRefreshTokenExpiration - moment().utc()) / 1000
+      const expiresIn =
+        (oauthRefreshTokenExpiration.getTime() - moment().utc().valueOf()) /
+        1000
 
       await jobManager.sendToQueue(
         defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
         { userId, providerLabel: provider },
-        { startAfter: expiresIn },
+        { startAfter: Math.round(expiresIn) },
       )
     }
 
@@ -108,7 +110,16 @@ const createOAuthIdentity = async (
  * Send an Oauth2 authorisation code requesting access and refresh tokens.
  * Return the validated tokens or throw an error.
  */
-const authorizeOAuth = async (provider, sessionState, code) => {
+const authorizeOAuth = async (
+  provider,
+  sessionState,
+  code,
+): Promise<{
+  oauthAccessToken: string
+  oauthRefreshToken: string
+  oauthAccessTokenExpiration: Date
+  oauthRefreshTokenExpiration: Date
+}> => {
   const tokenUrl = config.get(`integrations.${provider}.tokenUrl`)
   const clientId = config.get(`integrations.${provider}.clientId`)
   const redirectUri = config.get(`integrations.${provider}.redirectUri`)

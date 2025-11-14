@@ -281,6 +281,10 @@ const teamsResolver = async (user): Promise<Team[]> => {
   return getUserTeams(user)
 }
 
+type UserUpdatedPayload = {
+  userUpdated: User
+}
+
 const resolvers = {
   Query: {
     user: userResolver,
@@ -314,16 +318,15 @@ const resolvers = {
   },
   Subscription: {
     userUpdated: {
-      subscribe: async (...args) => {
+      subscribe: async (
+        ...args
+      ): Promise<AsyncIterator<UserUpdatedPayload>> => {
         return withFilter(
-          () => {
+          (): AsyncIterator<UserUpdatedPayload> => {
             return subscriptionManager.asyncIterator(USER_UPDATED)
           },
           (payload, variables) => {
-            const { userId } = variables
-            const { userUpdated } = payload
-            const { id } = userUpdated
-            return userId === id
+            return variables?.userId === payload.userUpdated.id
           },
         )(...args)
       },

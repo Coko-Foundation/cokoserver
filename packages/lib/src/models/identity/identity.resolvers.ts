@@ -7,7 +7,7 @@ import {
 } from './identity.controller'
 
 import { getUser } from '../user/user.controller'
-
+import Identity from './identity.model'
 import { labels } from './constants'
 import { subscriptions } from '../user/constants'
 
@@ -18,7 +18,7 @@ const createOAuthIdentityResolver = async (
   _,
   { provider, sessionState, code },
   ctx,
-) => {
+): Promise<Identity> => {
   try {
     logger.info(`${IDENTITY_RESOLVER} createOAuthIdentity`)
     const { userId } = ctx

@@ -1,4 +1,13 @@
-import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
+import {
+  describe,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+  vi,
+} from 'vitest'
+
 import axios from 'axios'
 import { URLSearchParams as UnpackedParams } from 'url'
 import flattenDeep from 'lodash/flattenDeep'
@@ -20,10 +29,10 @@ import Identity from '../identity.model'
 import { createUser } from '../../__tests__/helpers/users'
 import clearDb from '../../_helpers/clearDb'
 
-jest.mock('../../../jobManager', () => {
+vi.mock('../../../jobManager', () => {
   return {
     jobManager: {
-      sendToQueue: jest.fn(),
+      sendToQueue: vi.fn(),
     },
     defaultJobQueueNames: {
       REFRESH_TOKEN_EXPIRED: 'refresh-token-expired',
@@ -34,7 +43,36 @@ jest.mock('../../../jobManager', () => {
 const fakeAccessToken =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJkZWZhdWx0QHRlc3QuY29tIiwiZmFtaWx5X25hbWUiOiJXYWx0b24iLCJnaXZlbl9uYW1lIjoiSm9obiJ9.8Qn2H6FAJVUn6T1U7bnbjnuguIFlY5EW_XaII1IJdE4'
 
-const fakePostResponse = ({ method, url, data, headers }) => {
+type FakeResponseArgs = {
+  method: string
+  url: string
+  data: any
+  headers: Record<string, string>
+}
+
+type FakeResponse = {
+  status?: number
+  data?: {
+    access_token?: string
+    error?: string
+    error_description?: string
+    expires_in?: number
+    msg?: string
+    'not-before-policy'?: number
+    refresh_expires_in?: number
+    refresh_token?: string
+    scope?: string
+    session_state?: string
+    token_type?: string
+  }
+}
+
+const fakePostResponse = ({
+  method,
+  url,
+  data,
+  headers,
+}: FakeResponseArgs): FakeResponse => {
   const dataUnpacked = new UnpackedParams(data)
 
   if (headers['Content-Type'] !== 'application/x-www-form-urlencoded') {
@@ -55,11 +93,13 @@ const fakePostResponse = ({ method, url, data, headers }) => {
     }
   }
 
-  if (url !== config.integrations.test.tokenUrl) {
+  if (url !== config.get('integrations').test.tokenUrl) {
     return {}
   }
 
-  if (dataUnpacked.get('client_id') !== config.integrations.test.clientId) {
+  if (
+    dataUnpacked.get('client_id') !== config.get('integrations').test.clientId
+  ) {
     return {
       status: 400,
       data: {
@@ -101,16 +141,27 @@ const fakePostResponse = ({ method, url, data, headers }) => {
   }
 }
 
-const timeLeft = dateTime => {
-  return new Date(dateTime) - new Date()
+const timeLeft = (dateTime: Date): number => {
+  return new Date(dateTime).getTime() - new Date().getTime()
 }
 
-jest.mock('axios')
+vi.mock('axios')
 const specificDate = new Date()
-Date.now = jest.fn(() => specificDate)
+Date.now = vi.fn(() => specificDate.getTime())
 
 describe('Identity Controller', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      integrations: {
+        test: {
+          clientId: 'the-client-id',
+          redirectUri: 'http://localhost:4000/provider-redirect',
+          tokenUrl: 'https://api.myprovider.com/auth',
+        },
+      },
+    })
+
     await migrationManager.migrate()
   })
 
@@ -119,12 +170,13 @@ describe('Identity Controller', () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })
 
-  it('authorizes access and inserts the Oauth tokens', async () => {
-    axios.mockImplementationOnce(fakePostResponse)
+  it.only('authorizes access and inserts the Oauth tokens', async () => {
+    ;(axios as any).mockImplementationOnce(fakePostResponse)
     const user = await createUser()
     // Mock authorization
     await createOAuthIdentity(
@@ -142,7 +194,7 @@ describe('Identity Controller', () => {
 
     expect(newProvider.email).toEqual('default@test.com')
     expect(newProvider.oauthAccessToken).toEqual(fakeAccessToken)
-    // Expect time left to be 3600s (with 5s uncertainty)
+    // // Expect time left to be 3600s (with 5s uncertainty)
     expect(
       timeLeft(newProvider.oauthAccessTokenExpiration) <= 3600000,
     ).toBeTruthy()
@@ -171,8 +223,8 @@ describe('Identity Controller', () => {
     )
   })
 
-  it('invalidates access token', async () => {
-    axios.mockImplementationOnce(fakePostResponse)
+  it.only('invalidates access token', async () => {
+    ;(axios as any).mockImplementationOnce(fakePostResponse)
     const user = await createUser()
     // Mock authorization
     await createOAuthIdentity(
@@ -191,8 +243,8 @@ describe('Identity Controller', () => {
     expect(oauthAccessTokenExpiration).toEqual(specificDate)
   })
 
-  it('invalidates provider tokens', async () => {
-    axios.mockImplementationOnce(fakePostResponse)
+  it.only('invalidates provider tokens', async () => {
+    ;(axios as any).mockImplementationOnce(fakePostResponse)
     const user = await createUser()
     // Mock authorization
     await createOAuthIdentity(
@@ -213,8 +265,8 @@ describe('Identity Controller', () => {
     expect(oauthRefreshTokenExpiration).toEqual(specificDate)
   })
 
-  it('authorizes access and inserts the Oauth tokens with never-expiring refresh token and not schedule a expiration job', async () => {
-    axios.mockResolvedValueOnce({
+  it.only('authorizes access and inserts the Oauth tokens with never-expiring refresh token and not schedule a expiration job', async () => {
+    ;(axios as any).mockResolvedValueOnce({
       status: 200,
       data: {
         access_token: fakeAccessToken,
@@ -243,8 +295,8 @@ describe('Identity Controller', () => {
 
     expect(oauthRefreshTokenExpiration).toEqual(foreverDate)
     expect(
-      flattenDeep(jobManager.sendToQueue.mock.calls).find(
-        i => i.userId === user.id,
+      flattenDeep((jobManager.sendToQueue as any).mock.calls).find(
+        (i: any) => i.userId === user.id,
       ),
     ).toBeUndefined()
   })
