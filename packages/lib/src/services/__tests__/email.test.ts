@@ -1,22 +1,51 @@
-import { describe, it, expect, afterEach, beforeEach } from 'vitest'
-import nodemailer from 'nodemailer'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { sendEmail, makeTransportConfig } from '../sendEmail'
 import SendEmailError from '../SendEmailError'
 import config from '../../configManager/config'
+
+vi.mock('nodemailer', async () => {
+  const original = await vi.importActual('nodemailer')
+
+  return {
+    default: {
+      ...original,
+      createTestAccount: vi.fn().mockResolvedValue({
+        smtp: {
+          host: 'smtp.ethereal.email',
+          port: 587,
+        },
+        user: 'user',
+        pass: 'pass',
+      }),
+    },
+  }
+})
 
 describe('Email', () => {
   const env = process.env.NODE_ENV
 
   beforeEach(() => {
     config.reset()
-  })
-
-  afterEach(async () => {
     process.env.NODE_ENV = env
   })
 
   it('sends email', async () => {
+    // use mailhog
+    await config.init({
+      mailer: {
+        from: 'Mailer Test <test@example.com>',
+        transport: {
+          host: 'mailhog',
+          port: 1025,
+          auth: {
+            user: 'user',
+            pass: 'pass',
+          },
+        },
+      },
+    })
+
     const mailData = {
       to: 'john@example.com',
       html: 'hello',
@@ -39,16 +68,15 @@ describe('Email', () => {
   })
 
   it('reads config when provided', async () => {
-    const ethereal = await nodemailer.createTestAccount()
-
     await config.init({
       mailer: {
         from: 'test@example.com',
         transport: {
-          ...ethereal.smtp,
+          host: 'smtp.fakemail.com',
+          port: 587,
           auth: {
-            user: ethereal.user,
-            pass: ethereal.pass,
+            user: 'user',
+            pass: 'pass',
           },
         },
       },
@@ -59,13 +87,12 @@ describe('Email', () => {
   })
 
   it('overrides config when provided values', async () => {
-    const ethereal = await nodemailer.createTestAccount()
-
     const overrides = {
-      ...ethereal.smtp,
+      host: 'smtp.fakemail.com',
+      port: 587,
       auth: {
-        user: ethereal.user,
-        pass: ethereal.pass,
+        user: 'user',
+        pass: 'pass',
       },
     }
 

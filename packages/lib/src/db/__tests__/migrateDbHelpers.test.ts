@@ -11,6 +11,8 @@ import {
 } from '../migrateDbHelpers'
 
 describe('Migrate db helpers', () => {
+  const LAST = '1762697452-remove-extension-from-migrations'
+
   beforeAll(async () => {
     config.reset()
     await config.init({
@@ -55,18 +57,18 @@ describe('Migrate db helpers', () => {
     it('gets last migrations', async () => {
       await migrate(config)
       const last = await migrations.getLastMigration()
-      expect(last).toEqual('1722326235-three.js')
+      expect(last).toEqual(LAST)
     })
 
     it('gets migration rows', async () => {
       await migrate(config)
 
       const rows = await migrations.getRows()
-      expect(rows.length).toBe(6)
+      expect(rows.length).toBe(7)
 
-      expect(rows[0].id).toBe('1715865522-one-before-meta.js')
-      expect(rows[rows.length - 2].id).toBe('1722326234-two.js')
-      expect(rows[rows.length - 1].id).toBe('1722326235-three.js')
+      expect(rows[0].id).toBe('1715865522-one-before-meta')
+      expect(rows[rows.length - 3].id).toBe('1722326234-two')
+      expect(rows[rows.length - 2].id).toBe('1722326235-three')
     })
 
     it('logs a migration', async () => {
@@ -86,7 +88,7 @@ describe('Migrate db helpers', () => {
       await migrations.unlogMigration(name)
 
       const last = await migrations.getLastMigration()
-      expect(last).toBe('1722326235-three.js')
+      expect(last).toBe(LAST)
     })
   })
 
@@ -136,20 +138,18 @@ describe('Migrate db helpers', () => {
     it('gets checkpoint', async () => {
       await migrate(config)
       const checkpoint = await migrationsMeta.getCheckpoint()
-      expect(checkpoint).toEqual('1722326235-three.js')
+      expect(checkpoint).toEqual(LAST)
     })
 
     it('gets table data', async () => {
       await migrate(config)
       const data = await migrationsMeta.getData()
-      expect(data.lastSuccessfulMigrateCheckpoint).toEqual(
-        '1722326235-three.js',
-      )
+      expect(data.lastSuccessfulMigrateCheckpoint).toEqual(LAST)
     })
 
     it('sets checkpoint', async () => {
       await migrate(config)
-      const name = '1722326234-two.js'
+      const name = '1722326234-two'
       await migrationsMeta.setCheckpoint(name)
       const checkpoint = await migrationsMeta.getCheckpoint()
       expect(checkpoint).toEqual(name)

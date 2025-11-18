@@ -1,5 +1,6 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import gql from 'graphql-tag'
+import { ApolloServer } from '@apollo/server'
 
 import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
 import { Team, TeamMember, User } from '../..'
@@ -8,11 +9,47 @@ import subscriptionManager from '../../../graphql/pubsub'
 import clearDb from '../../_helpers/clearDb'
 import Fake from '../../__tests__/helpers/fake/fake.model'
 import { QueryResult } from '../../base.model'
+import config from '../../../configManager/config'
 
 describe('Team API', async () => {
-  const gqlServer = await createGraphqlTestServer()
+  let gqlServer: ApolloServer
 
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/__tests__/helpers/fake',
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+      ],
+      teams: {
+        nonGlobal: [
+          {
+            displayName: 'Author',
+            role: 'author',
+          },
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+        global: [
+          {
+            displayName: 'Author',
+            role: 'author',
+          },
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+    })
+
+    gqlServer = await createGraphqlTestServer()
+
     await migrationManager.migrate()
   })
 
@@ -21,6 +58,7 @@ describe('Team API', async () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })

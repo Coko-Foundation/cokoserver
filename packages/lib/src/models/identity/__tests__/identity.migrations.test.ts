@@ -1,11 +1,20 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
+
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
+import config from '../../../configManager/config'
 
 import User from '../../user/user.model'
 import Identity from '../identity.model'
 
 describe('Identity migrations', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/user', 'src/models/identity'],
+    })
+  })
+
   beforeEach(async () => {
     const tables = await db('pg_tables')
       .select('tablename')

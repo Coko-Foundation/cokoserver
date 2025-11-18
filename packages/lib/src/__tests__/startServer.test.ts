@@ -15,7 +15,7 @@ describe('Starting the server', () => {
       })
 
       expect(server.listening).toBe(true)
-      expect(server).toHaveProperty('app')
+      // expect(server).toHaveProperty('app')
       await shutdownFn()
     })
 

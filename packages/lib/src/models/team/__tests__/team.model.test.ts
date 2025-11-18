@@ -1,13 +1,49 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 import { Team, TeamMember, User } from '../../index'
 import { createGlobalTeamWithUsers } from '../../__tests__/helpers/teams'
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 describe('Team Model', () => {
-  beforeEach(() => clearDb())
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      teams: {
+        global: [
+          {
+            displayName: 'Author',
+            role: 'author',
+          },
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+        nonGlobal: [
+          {
+            displayName: 'Author',
+            role: 'author',
+          },
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+          {
+            displayName: 'Reviewer',
+            role: 'reviewer',
+          },
+        ],
+      },
+    })
+  })
+
+  beforeEach(async () => {
+    await clearDb()
+  })
 
   afterAll(() => {
+    config.reset()
     const knex = Team.knex()
     knex.destroy()
   })
@@ -165,11 +201,11 @@ describe('Team Model', () => {
 
     const editorTeam = teams.find(t => t.role === 'editor')
     expect(editorTeam).toBeDefined()
-    expect(editorTeam.global).toBeTruthy()
+    expect(editorTeam?.global).toBeTruthy()
 
     const authorTeam = teams.find(t => t.role === 'author')
     expect(authorTeam).toBeDefined()
-    expect(authorTeam.global).toBeTruthy()
+    expect(authorTeam?.global).toBeTruthy()
   })
 
   it('finds global teams by role', async () => {

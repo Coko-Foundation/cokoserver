@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import moment from 'moment'
 
 import {
-  AuthorizationError,
+  AuthenticationError,
   ValidationError,
   ConflictError,
 } from '../../errors'
@@ -45,7 +45,7 @@ const activateUser = async (
         logger.info(
           `${USER_CONTROLLER} activateUser: activating user with id ${id}`,
         )
-        const queryRes = User.activateUsers([id], { trx: tr })
+        const queryRes = await User.activateUsers([id], { trx: tr })
         return queryRes[0]
       },
       { trx: options.trx, passedTrxOnly: true },
@@ -250,7 +250,8 @@ const login = async (input): Promise<LoginResponse> => {
         `${USER_CONTROLLER} login: searching for user with email ${email}`,
       )
       const identity = await Identity.findOne({ email })
-      if (!identity) throw new AuthorizationError('Wrong username or password.')
+      if (!identity)
+        throw new AuthenticationError('Wrong username or password.')
 
       user = await User.findById(identity.userId)
     } else {
@@ -259,7 +260,7 @@ const login = async (input): Promise<LoginResponse> => {
       )
 
       user = await User.findOne({ username })
-      if (!user) throw new AuthorizationError('Wrong username or password.')
+      if (!user) throw new AuthenticationError('Wrong username or password.')
     }
 
     logger.info(
@@ -269,7 +270,7 @@ const login = async (input): Promise<LoginResponse> => {
     isValid = await user.isPasswordValid(password)
 
     if (!isValid) {
-      throw new AuthorizationError('Wrong username or password.')
+      throw new AuthenticationError('Wrong username or password.')
     }
 
     logger.info(`${USER_CONTROLLER} login: password is valid`)

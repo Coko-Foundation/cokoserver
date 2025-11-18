@@ -1,5 +1,5 @@
 import { SentMessageInfo } from 'nodemailer'
-import config from '../configManager/config'
+
 import { sendEmail as mailerSendEmail } from './sendEmail'
 import logger from '../logger'
 
@@ -12,7 +12,6 @@ const sendEmail = async (data): Promise<SentMessageInfo> => {
   const { subject, to, content, text } = data
 
   const emailData = {
-    from: config.has('mailer.from') && config.get('mailer.from'),
     html: `<div>${content}</div>`,
     subject: `${subject}`,
     text: text || content,

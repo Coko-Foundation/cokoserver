@@ -7,9 +7,20 @@ import ChatChannel from '../chatChannel.model'
 import ChatMessage from '../../chatMessage/chatMessage.model'
 import User from '../../user/user.model'
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 describe('ChatChannel Model', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/chatMessage',
+        'src/models/chatChannel',
+      ],
+    })
+
     await migrationManager.migrate()
   })
 

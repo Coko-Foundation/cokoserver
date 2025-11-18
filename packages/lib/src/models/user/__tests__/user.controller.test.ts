@@ -1,8 +1,17 @@
-import { describe, beforeEach, afterAll, it, expect, vi } from 'vitest'
+import {
+  describe,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+  vi,
+} from 'vitest'
 import User from '../user.model'
 import Identity from '../../identity/identity.model'
 
-import { db } from '../../../db'
+import { db, migrationManager } from '../../../db'
+import config from '../../../configManager/config'
 
 import {
   createUser,
@@ -36,11 +45,21 @@ vi.mock('../../../services/notify.js')
 vi.mock('../../_helpers/emailTemplates.js')
 
 describe('User Controller', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/user', 'src/models/identity'],
+    })
+
+    await migrationManager.migrate()
+  })
+
   beforeEach(async () => {
     await clearDb()
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
   })
 

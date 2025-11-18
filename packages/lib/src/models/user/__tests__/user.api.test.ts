@@ -1,19 +1,33 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import gql from 'graphql-tag'
+import { ApolloServer } from '@apollo/server'
 
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 import User from '../user.model'
 import Identity from '../../identity/identity.model'
 import { QueryResult } from '../../base.model'
 
 describe('User API', async () => {
-  const gqlServer = await createGraphqlTestServer()
+  let gqlServer: ApolloServer
 
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+      ],
+    })
+
+    gqlServer = await createGraphqlTestServer()
+
     await migrationManager.migrate()
   })
 
@@ -22,6 +36,7 @@ describe('User API', async () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })

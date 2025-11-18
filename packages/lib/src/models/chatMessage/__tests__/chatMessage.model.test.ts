@@ -6,9 +6,31 @@ import subscriptionManager from '../../../graphql/pubsub'
 import { createChatChannelTeamWithUsers } from '../../__tests__/helpers/teams'
 import { ChatMessage, ChatChannel, User } from '../../index'
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 describe('ChatMessage model', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+        'src/models/chatChannel',
+        'src/models/chatMessage',
+      ],
+      teams: {
+        global: [],
+        nonGlobal: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+    })
+
     await migrationManager.migrate()
   })
 
@@ -17,6 +39,7 @@ describe('ChatMessage model', () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })

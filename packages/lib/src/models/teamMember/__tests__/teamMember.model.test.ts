@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid'
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 import User from '../../user/user.model'
 import Team from '../../team/team.model'
@@ -11,6 +12,25 @@ import TeamMember from '../teamMember.model'
 
 describe('Team Member Model', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/team', 'src/models/teamMember'],
+      teams: {
+        global: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+        nonGlobal: [
+          {
+            displayName: 'Author',
+            role: 'author',
+          },
+        ],
+      },
+    })
+
     await migrationManager.migrate()
   })
 
@@ -19,6 +39,7 @@ describe('Team Member Model', () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })

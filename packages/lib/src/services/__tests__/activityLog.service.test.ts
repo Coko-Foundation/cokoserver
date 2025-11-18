@@ -1,18 +1,33 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import activityLog from '../activityLog'
 
 import { createUser } from '../../models/__tests__/helpers/users'
 import clearDb from '../../models/_helpers/clearDb'
 import ActivityLog from '../../models/activityLog/activityLog.model'
 import { actionTypes } from '../../models/activityLog/constants'
-import { db } from '../../db'
+import { db, migrationManager } from '../../db'
+import config from '../../configManager/config'
 
 describe('Activity Log Service', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/activityLog',
+      ],
+    })
+
+    await migrationManager.migrate()
+  })
+
   beforeEach(async () => {
     await clearDb()
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
   })
 

@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 
 import { db, migrationManager } from '../../../db'
@@ -8,8 +8,22 @@ import ChatChannel from '../chatChannel.model'
 import ChatMessage from '../../chatMessage/chatMessage.model'
 import User from '../../user/user.model'
 import Fake from '../../__tests__/helpers/fake/fake.model'
+import config from '../../../configManager/config'
 
 describe('Chat channel migrations', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/chatMessage',
+        'src/models/chatChannel',
+        'src/models/__tests__/helpers/fake',
+      ],
+    })
+  })
+
   beforeEach(async () => {
     const tables = await db('pg_tables')
       .select('tablename')
@@ -92,7 +106,7 @@ describe('Chat channel migrations', () => {
     // Column is still not nullable
     await expect(
       ChatMessage.insert({
-        chatChannelId: null,
+        chatChannelId: undefined,
         userId: user.id,
         content: 'hello again',
       }),

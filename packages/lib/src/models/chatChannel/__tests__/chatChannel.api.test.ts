@@ -1,5 +1,6 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import gql from 'graphql-tag'
+import { ApolloServer } from '@apollo/server'
 
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
@@ -9,11 +10,26 @@ import Fake from '../../__tests__/helpers/fake/fake.model'
 
 import ChatChannel from '../chatChannel.model'
 import { QueryResult } from '../../base.model'
+import config from '../../../configManager/config'
 
 describe('Chat channel api', async () => {
-  const gqlServer = await createGraphqlTestServer()
+  let gqlServer: ApolloServer
 
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+        'src/models/chatMessage',
+        'src/models/chatChannel',
+        'src/models/__tests__/helpers/fake',
+      ],
+    })
+
+    gqlServer = await createGraphqlTestServer()
     await migrationManager.migrate()
   })
 

@@ -15,9 +15,31 @@ import {
 } from '../chatMessage.controller'
 
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 describe('ChatChannel Controller', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+        'src/models/chatChannel',
+        'src/models/chatMessage',
+      ],
+      teams: {
+        global: [],
+        nonGlobal: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+    })
+
     await migrationManager.migrate()
   })
 
@@ -26,6 +48,7 @@ describe('ChatChannel Controller', () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })

@@ -8,9 +8,20 @@ import ChatChannel from '../chatChannel.model'
 import { getChatChannels, getChatChannel } from '../chatChannel.controller'
 
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
 
 describe('ChatChannel Controller', () => {
   beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/chatMessage',
+        'src/models/chatChannel',
+      ],
+    })
+
     await migrationManager.migrate()
   })
 

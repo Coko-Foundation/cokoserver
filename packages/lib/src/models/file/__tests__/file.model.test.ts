@@ -1,14 +1,28 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 import { File } from '../../index'
 import { createFilesForObjectId } from '../../__tests__/helpers/files'
 
 import clearDb from '../../_helpers/clearDb'
+import config from '../../../configManager/config'
+import { migrationManager } from '../../../db'
 
 describe('File model', () => {
-  beforeEach(() => clearDb())
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/file'],
+    })
+
+    await migrationManager.migrate()
+  })
+
+  beforeEach(async () => {
+    await clearDb()
+  })
 
   afterAll(() => {
+    config.reset()
     const knex = File.knex()
     knex.destroy()
   })
@@ -51,7 +65,7 @@ describe('File model', () => {
     const files = await createFilesForObjectId(objectId)
 
     expect(files[0].storedObjects[0].id).toBeDefined()
-    expect(files[0].storedObjects[0].imageMetadata.id).toBeDefined()
+    expect(files[0].storedObjects[0].imageMetadata?.id).toBeDefined()
   })
 
   it('does not create ids for storedObjects and imageMetadata when exist', async () => {
@@ -59,6 +73,6 @@ describe('File model', () => {
     const files = await createFilesForObjectId(objectId)
 
     expect(files[1].storedObjects[0].id).toEqual(objectId)
-    expect(files[1].storedObjects[0].imageMetadata.id).toEqual(objectId)
+    expect(files[1].storedObjects[0].imageMetadata?.id).toEqual(objectId)
   })
 })

@@ -1,6 +1,7 @@
-import { describe, beforeEach, it, afterAll, expect, vi } from 'vitest'
+import { describe, beforeAll, beforeEach, it, afterAll, expect } from 'vitest'
 import gql from 'graphql-tag'
 import { v4 as uuid } from 'uuid'
+import { ApolloServer } from '@apollo/server'
 
 import clearDb from '../../models/_helpers/clearDb'
 import { User } from '../../models'
@@ -8,46 +9,39 @@ import { db } from '../../db'
 import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
 import subscriptionManager from '../../graphql/pubsub'
 import { LoginResponse } from '../../models/user/user.controller'
-
-vi.mock('../../configManager/config', async () => {
-  const { default: Config } = await import(
-    '../../configManager/ConfigConstructor'
-  )
-
-  const config = new Config()
-  config.init({
-    components: [
-      './src/models/user',
-      './src/models/identity',
-      './src/models/team',
-      './src/models/teamMember',
-    ],
-    teams: {
-      global: [
-        {
-          displayName: 'Editor',
-          role: 'editor',
-        },
-      ],
-      nonGlobal: [],
-    },
-  })
-
-  return { default: config }
-})
+import config from '../../configManager/config'
 
 describe('GraphQL authentication', async () => {
   let user: User
-  const gqlServer = await createGraphqlTestServer()
+  let gqlServer: ApolloServer
 
   const userData = {
     username: 'testuser',
     password: 'password',
   }
 
-  // beforeAll(() => {
-  //   vi.resetModules()
-  // })
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
+      ],
+      teams: {
+        global: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+        nonGlobal: [],
+      },
+    })
+
+    gqlServer = await createGraphqlTestServer()
+  })
 
   beforeEach(async () => {
     await clearDb()
@@ -55,6 +49,7 @@ describe('GraphQL authentication', async () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })
@@ -118,7 +113,7 @@ describe('GraphQL authentication', async () => {
       if (!errors) throw new Error('Expected an error in the reponse')
 
       expect(errors[0]?.message).toEqual(
-        'AuthorizationError: Wrong username or password.',
+        'AuthenticationError: Wrong username or password.',
       )
     })
   })

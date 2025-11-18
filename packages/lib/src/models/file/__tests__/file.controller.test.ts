@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 import fs from 'fs-extra'
 import path from 'path'
@@ -7,6 +7,8 @@ import File from '../file.model'
 import { deleteFiles, createFile } from '../file.controller'
 import clearDb from '../../_helpers/clearDb'
 import { tempFolderPath } from '../../../utils/filesystem'
+import config from '../../../configManager/config'
+import { migrationManager } from '../../../db'
 
 const testFilePath = path.join(
   __dirname,
@@ -19,9 +21,21 @@ const testFilePath = path.join(
 )
 
 describe('File Controller', () => {
-  beforeEach(() => clearDb())
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/file'],
+    })
+
+    await migrationManager.migrate()
+  })
+
+  beforeEach(async () => {
+    await clearDb()
+  })
 
   afterAll(async () => {
+    config.reset()
     const knex = File.knex()
     knex.destroy()
 

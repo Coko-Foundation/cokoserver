@@ -28,6 +28,7 @@ import MigrationResolverRulesError from './errors/MigrationResolverRulesError'
 
 type Migration = {
   name: string
+  path: string
   up: MigrationFn
   down?: MigrationFn
 }
@@ -43,11 +44,15 @@ export default class MigrationRunner {
       .concat(path.join(__dirname, 'coreMigrations'))
       .filter(fs.pathExistsSync)
 
-    const pattern = migrationPaths
-      .map(migrationPath => `${migrationPath}/*.{js,ts,sql}`)
-      .join(',')
+    const globPatterns = migrationPaths.map(
+      migrationPath => `${migrationPath}/*.{js,ts,sql}`,
+    )
 
-    this.pattern = `{${pattern}}`
+    if (globPatterns.length === 1) {
+      this.pattern = globPatterns[0]
+    } else {
+      this.pattern = `{${globPatterns.join(',')}}`
+    }
   }
 
   static stripMigrationExtensionName(filename: string): string {
@@ -65,7 +70,8 @@ export default class MigrationRunner {
    * coko server v4).
    */
   static async findThreshold(): Promise<number> {
-    if (!(await metaTable.exists())) return null
+    const metaExists = await metaTable.exists()
+    if (!metaExists) return null
     const data = await metaTable.getData()
 
     const createdDateAsUnixTimestamp = Math.floor(
@@ -111,6 +117,7 @@ export default class MigrationRunner {
 
       return {
         name,
+        path: filePath,
         up: async (): Promise<void> => {
           const fileContents = fs.readFileSync(filePath).toString()
           return db.raw(fileContents)
@@ -131,6 +138,7 @@ export default class MigrationRunner {
 
     return {
       name,
+      path: filePath,
       up: async (): Promise<void> => up(db),
       down: async (): Promise<void> => down(db),
     }

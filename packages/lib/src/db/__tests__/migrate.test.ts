@@ -37,13 +37,21 @@ describe('Migrations', () => {
     await db.destroy()
   })
 
-  it('get pending migrations', async () => {
+  it('gets pending migrations', async () => {
     await migrate(config, { step: 3 })
+    const pend = await pending(config)
+    expect(pend).toHaveLength(4)
+    expect(pend[0].name).toBeDefined()
+    expect(pend[0].path).toBeDefined()
+  })
+
+  it('gets core migrations as pending if no components declared', async () => {
+    config.reset()
     const pend = await pending(config)
     expect(pend).toHaveLength(4)
   })
 
-  it('get executed migrations', async () => {
+  it('gets executed migrations', async () => {
     await migrate(config)
     const exec = await executed(config)
     expect(exec).toHaveLength(7)

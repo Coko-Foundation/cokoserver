@@ -27,7 +27,12 @@ const makeTransportConfig = async (
     ...mailerConfigOverrides,
   }
 
-  const hasConfig = Object.keys(foundConfig).length > 0
+  const hasConfig =
+    Object.keys(foundConfig).length > 0 &&
+    foundConfig.host &&
+    foundConfig.port &&
+    foundConfig.auth?.user &&
+    foundConfig.auth?.pass
 
   let testTransportUsed = false
 
@@ -69,7 +74,10 @@ const sendEmail = async (
   const transporter = nodemailer.createTransport(transportConfig)
 
   try {
-    const info = await transporter.sendMail(mailData)
+    const info = await transporter.sendMail({
+      from: config.get('mailer.from'),
+      ...mailData,
+    })
 
     if (testTransportUsed) {
       logger.info(

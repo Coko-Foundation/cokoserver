@@ -233,7 +233,7 @@ export const migrationManager = {
   },
 
   rollback: async (options?: RollbackOptions): Promise<void> => {
-    rollback(config, options)
+    await rollback(config, options)
   },
 
   pending: async (): Promise<MigrationMeta[]> => pending(config),

@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 
@@ -6,8 +6,33 @@ import ChatMessage from '../chatMessage.model'
 import ChatChannel from '../../chatChannel/chatChannel.model'
 import User from '../../user/user.model'
 import Fake from '../../__tests__/helpers/fake/fake.model'
+import config from '../../../configManager/config'
 
 describe('Chat message migrations', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        'src/models/user',
+        'src/models/identity',
+        'src/models/team',
+        'src/models/teamMember',
+        'src/models/chatChannel',
+        'src/models/chatMessage',
+        'src/models/__tests__/helpers/fake',
+      ],
+      teams: {
+        global: [],
+        nonGlobal: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+    })
+  })
+
   beforeEach(async () => {
     const tables = await db('pg_tables')
       .select('tablename')
@@ -20,6 +45,7 @@ describe('Chat message migrations', () => {
   })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
   })

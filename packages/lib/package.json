@@ -24,7 +24,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc && yarn copy-assets",
     "copy-assets": "copyfiles -u 1 'src/**/*.{json,graphql}' dist",
-    "test:vite": "NODE_ENV=test vitest run --reporter=tree"
+    "test": "NODE_ENV=test vitest run --reporter=tree"
   },
   "dependencies": {
     "@apollo/server": "^4.10.4",

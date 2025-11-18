@@ -7,7 +7,7 @@ class AuthenticationError extends Error {
     super(message)
     Error.captureStackTrace(this, AuthenticationError)
     this.name = 'AuthenticationError'
-    this.message = message
+    this.message = `AuthenticationError: ${message}`
     this.status = status || StatusCodes.UNAUTHORIZED
   }
 }

@@ -1,8 +1,9 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 
-import { db } from '../../../db'
+import { db, migrationManager } from '../../../db'
 import { TeamMember } from '../../index'
+import config from '../../../configManager/config'
 
 import {
   getTeam,
@@ -19,9 +20,30 @@ import { createUser } from '../../__tests__/helpers/users'
 import clearDb from '../../_helpers/clearDb'
 
 describe('Team Controller', () => {
-  beforeEach(() => clearDb())
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['src/models/team', 'src/models/teamMember'],
+      teams: {
+        nonGlobal: [],
+        global: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+    })
+
+    await migrationManager.migrate()
+  })
+
+  beforeEach(async () => {
+    await clearDb()
+  })
 
   afterAll(async () => {
+    config.reset()
     await db.destroy()
   })
 
