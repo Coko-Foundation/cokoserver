@@ -16,7 +16,7 @@
     }
   },
   "devDependencies": {
-    "@coko/lint": "3.0.0-alpha.7",
+    "@coko/lint": "3.0.0-alpha.8",
     "lint-staged": "^15.2.8",
     "lodash": "^4.17.21",
     "standard-version": "^7.1.0"

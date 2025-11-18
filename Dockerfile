@@ -4,6 +4,10 @@ RUN corepack enable
 
 WORKDIR /home/node/app
 
+COPY eslint.config.mjs .
+COPY .prettierrc.mjs .
+COPY .prettierignore .
+
 COPY package.json .
 COPY yarn.lock .
 COPY .yarnrc.yml .
