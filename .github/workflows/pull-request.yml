@@ -9,4 +9,9 @@ jobs:
     uses: ./.github/workflows/lint.yml
 
   typecheck:
+    name: Typecheck
     uses: ./.github/workflows/typecheck.yml
+
+  test:
+    name: Test
+    uses: ./.github/workflows/test.yml
