@@ -4,6 +4,7 @@ import db from '../db'
 import { migrate } from '../migrate'
 import config from '../../configManager/config'
 
+import DbTestUtils from '../DbTestUtils'
 import {
   migrations,
   migrationsMeta,
@@ -26,25 +27,11 @@ describe('Migrate db helpers', () => {
 
   describe('Migration db helper', () => {
     beforeAll(async () => {
-      const tables = await db('pg_tables')
-        .select('tablename')
-        .where('schemaname', 'public')
-
-      for (const t of tables) {
-        /* eslint-disable-next-line no-await-in-loop */
-        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-      }
+      await DbTestUtils.dropAllTables()
     })
 
     afterEach(async () => {
-      const tables = await db('pg_tables')
-        .select('tablename')
-        .where('schemaname', 'public')
-
-      for (const t of tables) {
-        /* eslint-disable-next-line no-await-in-loop */
-        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-      }
+      await DbTestUtils.dropAllTables()
     })
 
     it('creates migration table', async () => {
@@ -94,25 +81,11 @@ describe('Migrate db helpers', () => {
 
   describe('Meta db helper', () => {
     beforeAll(async () => {
-      const tables = await db('pg_tables')
-        .select('tablename')
-        .where('schemaname', 'public')
-
-      for (const t of tables) {
-        /* eslint-disable-next-line no-await-in-loop */
-        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-      }
+      await DbTestUtils.dropAllTables()
     })
 
     afterEach(async () => {
-      const tables = await db('pg_tables')
-        .select('tablename')
-        .where('schemaname', 'public')
-
-      for (const t of tables) {
-        /* eslint-disable-next-line no-await-in-loop */
-        await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-      }
+      await DbTestUtils.dropAllTables()
     })
 
     it('clears a migration checkpoint', async () => {

@@ -9,6 +9,7 @@ import ChatMessage from '../../chatMessage/chatMessage.model'
 import User from '../../user/user.model'
 import Fake from '../../__tests__/helpers/fake/fake.model'
 import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('Chat channel migrations', () => {
   beforeAll(async () => {
@@ -25,14 +26,7 @@ describe('Chat channel migrations', () => {
   })
 
   beforeEach(async () => {
-    const tables = await db('pg_tables')
-      .select('tablename')
-      .where('schemaname', 'public')
-
-    for (const t of tables) {
-      /* eslint-disable-next-line no-await-in-loop */
-      await db.raw(`DROP TABLE IF EXISTS public.${t.tablename} CASCADE`)
-    }
+    await DbTestUtils.dropAllTables()
   })
 
   afterAll(async () => {

@@ -2,7 +2,15 @@ import db from './db'
 import config from '../configManager/config'
 
 export default class DbTestUtils {
+  static checkEnv(): void {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('DbTestUtils should only be used in test environments!')
+    }
+  }
+
   static async dropAllTables(): Promise<void> {
+    DbTestUtils.checkEnv()
+
     await db.raw(`
       DROP SCHEMA IF EXISTS public CASCADE;
       CREATE SCHEMA public;
@@ -12,6 +20,8 @@ export default class DbTestUtils {
   }
 
   static async clearDb(): Promise<void> {
+    DbTestUtils.checkEnv()
+
     await db.raw(`
       DO
       $$
