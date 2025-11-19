@@ -68,7 +68,7 @@ const createUserWithPasswordAndIdentities = async (
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
     password,
-    username: faker.internet.userName(),
+    username: faker.internet.username(),
   })
 
   const id = await Identity.query().insert({
@@ -95,7 +95,7 @@ const createUserWithPasswordAndDefaultIdentity = async (
     givenNames: faker.person.firstName(),
     surname: faker.person.lastName(),
     password,
-    username: faker.internet.userName(),
+    username: faker.internet.username(),
   })
 
   const id = await Identity.query().insert({

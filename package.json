@@ -8,6 +8,7 @@
     "cz": "lint-staged && ./node_modules/.bin/git-cz",
     "lint": "yarn coko-lint run --skip-stylelint",
     "release": "standard-version",
+    "test": "docker compose run --rm --remove-orphans server yarn workspace @coko/server test",
     "typecheck": "yarn workspace @coko/server tsc --noEmit -p tsconfig.typecheck.json"
   },
   "config": {
