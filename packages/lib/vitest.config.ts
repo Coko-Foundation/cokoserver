@@ -7,11 +7,8 @@ export default defineConfig({
     // silent: true,
     fileParallelism: false,
 
-    // coverage: {
-    //   provider: 'v8', // or 'istanbul'
-    //   reporter: ['text', 'json-summary', 'html'],
-    // },
-
-    // setupFiles: ['./vitest.setup.js'],
+    coverage: {
+      provider: 'v8',
+    },
   },
 })
