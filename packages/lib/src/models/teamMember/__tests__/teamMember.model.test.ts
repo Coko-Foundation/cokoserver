@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
-import clearDb from '../../_helpers/clearDb'
+import DbTestUtils from '../../../db/DbTestUtils'
 import config from '../../../configManager/config'
 
 import User from '../../user/user.model'
@@ -35,7 +35,7 @@ describe('Team Member Model', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

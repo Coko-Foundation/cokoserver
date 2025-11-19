@@ -39,7 +39,7 @@ import {
   updatePassword,
 } from '../user.controller'
 
-import clearDb from '../../_helpers/clearDb'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 vi.mock('../../../services/notify.js')
 vi.mock('../../_helpers/emailTemplates.js')
@@ -55,7 +55,7 @@ describe('User Controller', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

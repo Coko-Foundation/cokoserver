@@ -20,7 +20,7 @@ import {
 } from './models'
 
 import * as modelJsonSchemaTypes from './models/_helpers/types'
-import clearDb from './models/_helpers/clearDb'
+import DbTestUtils from './db/DbTestUtils'
 import fileStorage from './fileStorage'
 import FileStorageConstructor from './fileStorage/FileStorage'
 
@@ -83,7 +83,7 @@ export {
   uuid,
   uuidValidate,
   WaxToDocxConverter,
-  clearDb,
+  DbTestUtils,
 
   // file storage
   fileStorage,

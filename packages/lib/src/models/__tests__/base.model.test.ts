@@ -11,9 +11,9 @@ import { v4 as uuid } from 'uuid'
 
 import Fake from './helpers/fake/fake.model'
 import { createUser } from './helpers/users'
-import clearDb from '../_helpers/clearDb'
 import config from '../../configManager/config'
 import { migrationManager } from '../../db'
+import DbTestUtils from '../../db/DbTestUtils'
 
 describe('Base model', () => {
   beforeAll(async () => {
@@ -25,7 +25,7 @@ describe('Base model', () => {
     await migrationManager.migrate()
   })
 
-  beforeEach(async () => clearDb())
+  beforeEach(async () => DbTestUtils.clearDb())
 
   afterAll(() => {
     config.reset()

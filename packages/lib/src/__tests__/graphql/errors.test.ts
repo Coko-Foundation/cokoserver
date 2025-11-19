@@ -2,10 +2,10 @@ import { vi, describe, it, expect, afterAll, beforeEach } from 'vitest'
 
 import gql from 'graphql-tag'
 
-import clearDb from '../../models/_helpers/clearDb'
 import { db } from '../../db'
 import subscriptionManager from '../../graphql/pubsub'
 import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
+import DbTestUtils from '../../db/DbTestUtils'
 
 vi.mock('../../configManager/config', async () => {
   const { default: Config } = await import(
@@ -29,7 +29,7 @@ describe('GraphQL errors', async () => {
   const gqlServer = await createGraphqlTestServer()
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {
@@ -52,6 +52,10 @@ describe('GraphQL errors', async () => {
 
     if (response.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
+    }
+
+    if (!response.body.singleResult.errors) {
+      throw new Error('Expected errors')
     }
 
     expect(response.body.singleResult.errors[0].message).toEqual(

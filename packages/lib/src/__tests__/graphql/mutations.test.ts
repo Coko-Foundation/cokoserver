@@ -3,10 +3,10 @@ import { vi, describe, beforeEach, afterAll, it, expect } from 'vitest'
 import gql from 'graphql-tag'
 
 import { User } from '../../models'
-import clearDb from '../../models/_helpers/clearDb'
 import { db } from '../../db'
 import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
 import subscriptionManager from '../../graphql/pubsub'
+import DbTestUtils from '../../db/DbTestUtils'
 
 vi.mock('../../configManager/config', async () => {
   const { default: Config } = await import(
@@ -36,7 +36,7 @@ describe('GraphQL core mutations', async () => {
   }
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
     user = await User.insert(userData)
   })
 

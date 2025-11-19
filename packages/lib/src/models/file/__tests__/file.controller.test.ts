@@ -5,10 +5,10 @@ import path from 'path'
 
 import File from '../file.model'
 import { deleteFiles, createFile } from '../file.controller'
-import clearDb from '../../_helpers/clearDb'
 import { tempFolderPath } from '../../../utils/filesystem'
 import config from '../../../configManager/config'
 import { migrationManager } from '../../../db'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 const testFilePath = path.join(
   __dirname,
@@ -31,7 +31,7 @@ describe('File Controller', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

@@ -27,7 +27,7 @@ import { foreverDate } from '../../../utils/time'
 import Identity from '../identity.model'
 
 import { createUser } from '../../__tests__/helpers/users'
-import clearDb from '../../_helpers/clearDb'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 vi.mock('../../../jobManager', () => {
   return {
@@ -166,7 +166,7 @@ describe('Identity Controller', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

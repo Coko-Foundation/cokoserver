@@ -5,9 +5,9 @@ import Identity from '../identity.model'
 import { db } from '../../../db'
 import { createUser } from '../../__tests__/helpers/users'
 import identityFixture from '../../__tests__/fixtures/identities'
-import clearDb from '../../_helpers/clearDb'
 import config from '../../../configManager/config'
 import { migrationManager } from '../../../db/migrate'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 const { identityWithProfileData } = identityFixture
 
@@ -22,7 +22,7 @@ describe('Identity model', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

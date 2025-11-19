@@ -3,13 +3,13 @@ import gql from 'graphql-tag'
 import { v4 as uuid } from 'uuid'
 import { ApolloServer } from '@apollo/server'
 
-import clearDb from '../../models/_helpers/clearDb'
 import { User } from '../../models'
 import { db } from '../../db'
 import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
 import subscriptionManager from '../../graphql/pubsub'
 import { LoginResponse } from '../../models/user/user.controller'
 import config from '../../configManager/config'
+import DbTestUtils from '../../db/DbTestUtils'
 
 describe('GraphQL authentication', async () => {
   let user: User
@@ -44,7 +44,7 @@ describe('GraphQL authentication', async () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
     user = await User.insert(userData)
   })
 

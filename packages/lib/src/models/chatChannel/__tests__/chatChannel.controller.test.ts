@@ -7,8 +7,8 @@ import subscriptionManager from '../../../graphql/pubsub'
 import ChatChannel from '../chatChannel.model'
 import { getChatChannels, getChatChannel } from '../chatChannel.controller'
 
-import clearDb from '../../_helpers/clearDb'
 import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('ChatChannel Controller', () => {
   beforeAll(async () => {
@@ -25,7 +25,7 @@ describe('ChatChannel Controller', () => {
     await migrationManager.migrate()
   })
 
-  beforeEach(() => clearDb())
+  beforeEach(() => DbTestUtils.clearDb())
 
   afterAll(async () => {
     await db.destroy()

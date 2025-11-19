@@ -3,9 +3,9 @@ import { v4 as uuid } from 'uuid'
 import { File } from '../../index'
 import { createFilesForObjectId } from '../../__tests__/helpers/files'
 
-import clearDb from '../../_helpers/clearDb'
 import config from '../../../configManager/config'
 import { migrationManager } from '../../../db'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('File model', () => {
   beforeAll(async () => {
@@ -18,7 +18,7 @@ describe('File model', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(() => {

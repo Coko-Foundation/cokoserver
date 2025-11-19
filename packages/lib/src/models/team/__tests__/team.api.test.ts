@@ -6,10 +6,10 @@ import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
 import { Team, TeamMember, User } from '../..'
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
-import clearDb from '../../_helpers/clearDb'
 import Fake from '../../__tests__/helpers/fake/fake.model'
 import { QueryResult } from '../../base.model'
 import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('Team API', async () => {
   let gqlServer: ApolloServer
@@ -54,7 +54,7 @@ describe('Team API', async () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

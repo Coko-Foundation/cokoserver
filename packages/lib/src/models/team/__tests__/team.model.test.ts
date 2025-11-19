@@ -1,8 +1,9 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
+
 import { Team, TeamMember, User } from '../../index'
 import { createGlobalTeamWithUsers } from '../../__tests__/helpers/teams'
-import clearDb from '../../_helpers/clearDb'
+import DbTestUtils from '../../../db/DbTestUtils'
 import config from '../../../configManager/config'
 
 describe('Team Model', () => {
@@ -39,7 +40,7 @@ describe('Team Model', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(() => {

@@ -5,7 +5,7 @@ import { ApolloServer } from '@apollo/server'
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
-import clearDb from '../../_helpers/clearDb'
+import DbTestUtils from '../../../db/DbTestUtils'
 import config from '../../../configManager/config'
 
 import User from '../user.model'
@@ -32,7 +32,7 @@ describe('User API', async () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

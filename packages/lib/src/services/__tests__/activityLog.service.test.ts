@@ -2,11 +2,11 @@ import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import activityLog from '../activityLog'
 
 import { createUser } from '../../models/__tests__/helpers/users'
-import clearDb from '../../models/_helpers/clearDb'
 import ActivityLog from '../../models/activityLog/activityLog.model'
 import { actionTypes } from '../../models/activityLog/constants'
 import { db, migrationManager } from '../../db'
 import config from '../../configManager/config'
+import DbTestUtils from '../../db/DbTestUtils'
 
 describe('Activity Log Service', () => {
   beforeAll(async () => {
@@ -23,7 +23,7 @@ describe('Activity Log Service', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

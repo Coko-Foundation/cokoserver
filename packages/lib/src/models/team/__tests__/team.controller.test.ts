@@ -17,7 +17,7 @@ import { createGlobalTeamWithUsers } from '../../__tests__/helpers/teams'
 
 import { createUser } from '../../__tests__/helpers/users'
 
-import clearDb from '../../_helpers/clearDb'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('Team Controller', () => {
   beforeAll(async () => {
@@ -39,7 +39,7 @@ describe('Team Controller', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

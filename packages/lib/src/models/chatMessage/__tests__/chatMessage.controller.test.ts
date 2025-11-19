@@ -14,8 +14,8 @@ import {
   deleteMessage,
 } from '../chatMessage.controller'
 
-import clearDb from '../../_helpers/clearDb'
 import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('ChatChannel Controller', () => {
   beforeAll(async () => {
@@ -44,7 +44,7 @@ describe('ChatChannel Controller', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

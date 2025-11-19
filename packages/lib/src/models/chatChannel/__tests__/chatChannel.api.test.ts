@@ -4,13 +4,13 @@ import { ApolloServer } from '@apollo/server'
 
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
-import clearDb from '../../_helpers/clearDb'
 import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
 import Fake from '../../__tests__/helpers/fake/fake.model'
 
 import ChatChannel from '../chatChannel.model'
 import { QueryResult } from '../../base.model'
 import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('Chat channel api', async () => {
   let gqlServer: ApolloServer
@@ -34,7 +34,7 @@ describe('Chat channel api', async () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

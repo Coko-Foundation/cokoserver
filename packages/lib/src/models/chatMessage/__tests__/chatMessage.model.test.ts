@@ -5,8 +5,8 @@ import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 import { createChatChannelTeamWithUsers } from '../../__tests__/helpers/teams'
 import { ChatMessage, ChatChannel, User } from '../../index'
-import clearDb from '../../_helpers/clearDb'
 import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('ChatMessage model', () => {
   beforeAll(async () => {
@@ -35,7 +35,7 @@ describe('ChatMessage model', () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(async () => {

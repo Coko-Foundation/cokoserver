@@ -1,10 +1,11 @@
 import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
 import { Transaction } from 'objection'
+
 import useTransaction from '../useTransaction'
-import clearDb from '../_helpers/clearDb'
 import { migrationManager } from '../../db'
 import config from '../../configManager/config'
 import Team from '../team/team.model'
+import DbTestUtils from '../../db/DbTestUtils'
 
 const createInvalidTeams = async (trx?: Transaction): Promise<void> => {
   // works
@@ -48,7 +49,7 @@ const createValidTeams = async (trx?: Transaction): Promise<void> => {
 
 describe('Use transaction', () => {
   beforeAll(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
 
     config.reset()
     await config.init({
@@ -77,7 +78,7 @@ describe('Use transaction', () => {
   })
 
   afterEach(async () => {
-    await clearDb()
+    await DbTestUtils.clearDb()
   })
 
   afterAll(() => {
