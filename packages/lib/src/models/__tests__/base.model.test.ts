@@ -1,4 +1,12 @@
-import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
+import {
+  describe,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+  vi,
+} from 'vitest'
 import { v4 as uuid } from 'uuid'
 
 import Fake from './helpers/fake/fake.model'
@@ -348,6 +356,10 @@ describe('Base model', () => {
   it('updates updated field when an update is executed', async () => {
     const entity = await Fake.insert({})
 
+    const futureTime = new Date(new Date().getTime() + 24 * 3600 * 1000) // 24H
+    vi.useFakeTimers()
+    vi.setSystemTime(futureTime)
+
     const updatedEntity = await Fake.patchAndFetchById(entity.id, {
       status: 'new',
     })
@@ -355,5 +367,7 @@ describe('Base model', () => {
     expect(new Date(updatedEntity.updated).getTime()).toBeGreaterThan(
       new Date(entity.created).getTime(),
     )
+
+    vi.useRealTimers()
   })
 })
