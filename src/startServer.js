@@ -1,3 +1,6 @@
+/* eslint-disable-next-line import/order */
+require('./startup/sentry')
+
 const express = require('express')
 const { promisify } = require('util')
 const http = require('http')
@@ -6,6 +9,7 @@ const passport = require('passport')
 const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const morgan = require('morgan')
+const Sentry = require('@sentry/node')
 
 const logger = require('./logger')
 const { logInit, logTask, logTaskItem } = require('./logger/internals')
@@ -41,6 +45,8 @@ if (
   useGraphQLServer = false
 }
 
+const sentryDsn = config.has('sentry.dsn') && config.get('sentry.dsn')
+
 const startServer = async () => {
   if (server) return server
 
@@ -62,10 +68,6 @@ const startServer = async () => {
   app.set('port', port)
   const httpServer = http.createServer(app)
   httpServer.app = app
-  logTask(`Starting HTTP server`)
-  const startListening = promisify(httpServer.listen).bind(httpServer)
-  await startListening(port)
-  logTaskItem(`App is listening on port ${port}`)
 
   app.use(express.json({ limit: '50mb' }))
   app.use(express.urlencoded({ extended: false }))
@@ -142,11 +144,23 @@ const startServer = async () => {
 
   mountStatic(app)
   registerComponents(app)
+  if (useGraphQLServer) await setupGraphqlServer(httpServer, app, passport)
+  await startJobManager()
+
+  logTask(`Starting HTTP server`)
+
+  if (sentryDsn) {
+    Sentry.setupExpressErrorHandler(app)
+    logTaskItem('Sentry initialized')
+  } else {
+    logTaskItem('Skipping sentry initialization: no dsn key found in config')
+  }
+
   errorStatuses(app)
 
-  if (useGraphQLServer) await setupGraphqlServer(httpServer, app, passport)
-
-  await startJobManager()
+  const startListening = promisify(httpServer.listen).bind(httpServer)
+  await startListening(port)
+  logTaskItem(`App is listening on port ${port}`)
 
   server = httpServer
 

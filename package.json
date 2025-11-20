@@ -37,6 +37,7 @@
     "@aws-sdk/lib-storage": "^3.806.0",
     "@aws-sdk/s3-request-presigner": "^3.806.0",
     "@graphql-tools/schema": "^10.0.4",
+    "@sentry/node": "^10.26.0",
     "ajv-formats": "^3.0.1",
     "axios": "^1.7.2",
     "axios-retry": "^4.3.0",

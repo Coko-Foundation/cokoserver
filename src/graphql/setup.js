@@ -15,11 +15,14 @@ const {
   ApolloServerPluginLandingPageLocalDefault,
 } = require('@apollo/server/plugin/landingPage/default')
 
+const SentryPlugin = require('./sentryPlugin')
 const AuthenticationError = require('../errors/AuthenticationError')
 const logger = require('../logger')
 
 const loaders = require('./loaders')
 const generateSchema = require('./generateSchema')
+
+const sentryDsn = config.has('sentry.dsn') && config.get('sentry.dsn')
 
 const setup = async (httpServer, app, passport) => {
   // it is important that this runs before generateSchema (applyMiddleware specifically),
@@ -60,7 +63,9 @@ const setup = async (httpServer, app, passport) => {
   const subscriptionServerCleanup = useServer(
     {
       schema,
-      context: (ctx, msg, args) => getDynamicContext(ctx, msg, args),
+      context: (ctx, msg, args) => {
+        return getDynamicContext(ctx, msg, args)
+      },
     },
     wsServer,
   )
@@ -70,6 +75,7 @@ const setup = async (httpServer, app, passport) => {
   const apolloServer = new ApolloServer({
     schema,
     plugins: [
+      sentryDsn && SentryPlugin(),
       // Proper shutdown for the HTTP server
       ApolloServerPluginDrainHttpServer({ httpServer }),
 
