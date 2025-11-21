@@ -142,6 +142,7 @@ describe('Job queues', () => {
           name,
           { id: 5 },
           {
+            // @ts-ignore
             startAfter: '3 seconds',
           },
         ),
@@ -153,6 +154,7 @@ describe('Job queues', () => {
           name,
           { id: 6 },
           {
+            // @ts-ignore
             custom: true,
           },
         ),

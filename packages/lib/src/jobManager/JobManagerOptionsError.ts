@@ -1,5 +1,5 @@
 class JobManagerOptionsError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message)
 
     this.name = 'JobManagerOptionsError'

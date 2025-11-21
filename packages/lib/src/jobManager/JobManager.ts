@@ -1,31 +1,33 @@
 import PgBoss from 'pg-boss'
-import Joi from 'joi'
+import { z } from 'zod'
 
 import { boss } from './boss'
 import JobManagerOptionsError from './JobManagerOptionsError'
 
+const sendOptionsSchema = z.strictObject({
+  startAfter: z.number().int().positive().optional(),
+})
+
+type SendOptions = z.infer<typeof sendOptionsSchema>
+
 class JobManager {
   #boss: PgBoss
-  #validationSchemas = {
-    send: Joi.object({
-      startAfter: Joi.number().integer().positive().optional(),
-    }),
-  }
 
   constructor(passedBoss) {
     this.#boss = passedBoss
   }
 
-  static #validateOptions(schema, options): void {
-    const validationResult = schema.validate(options)
-
-    if (validationResult.error) {
-      throw new JobManagerOptionsError(validationResult.error)
+  async sendToQueue(
+    queueName: string,
+    data,
+    options: SendOptions = {},
+  ): Promise<void> {
+    try {
+      sendOptionsSchema.parse(options)
+    } catch (error) {
+      throw new JobManagerOptionsError(error.message)
     }
-  }
 
-  async sendToQueue(queueName, data, options = {}): Promise<void> {
-    JobManager.#validateOptions(this.#validationSchemas.send, options)
     await this.#boss.send(queueName, data, options)
   }
 }
