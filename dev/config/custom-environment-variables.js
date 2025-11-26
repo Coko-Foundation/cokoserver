@@ -58,5 +58,6 @@ module.exports = {
   corsOrigin: 'CORS_ORIGIN',
   sentry: {
     dsn: 'SENTRY_DSN',
+    environment: 'SENTRY_ENVIRONMENT',
   },
 }

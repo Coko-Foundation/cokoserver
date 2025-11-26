@@ -3,9 +3,13 @@ const config = require('config')
 
 const dsn = config.has('sentry.dsn') && config.get('sentry.dsn')
 
+const environment =
+  config.has('sentry.environment') && config.get('sentry.environment')
+
 if (dsn) {
   Sentry.init({
-    dsn: config.get('sentry.dsn'),
+    dsn,
+    environment,
     sendDefaultPii: true,
   })
 }

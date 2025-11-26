@@ -42,6 +42,7 @@ services:
       - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
       # - CORS_ORIGIN=https://studio.apollographql.com
       - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-local}
     volumes:
       - ./dev:/home/node/app/dev
       - ./src:/home/node/app/src
@@ -49,7 +50,7 @@ services:
     tty: true
 
   db:
-    image: postgres:15
+    image: postgres:18
     ports:
       - ${POSTGRES_PORT:-5432}:5432
     environment:
