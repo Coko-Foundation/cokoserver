@@ -120,7 +120,11 @@ class Image {
   }
 
   /* eslint-disable class-methods-use-this */
-  async #rotate(fileBuffer, filePath, metadata): Promise<Buffer> {
+  async #rotate(
+    fileBuffer: Buffer,
+    filePath: string,
+    metadata: sharp.Metadata,
+  ): Promise<Buffer> {
     if (!metadata.exif) return fileBuffer
 
     let exifMetadata
@@ -171,7 +175,7 @@ class Image {
     if (this.shouldConvert) filePath = await this.#createConvertedFile()
 
     const fileReadStream = fs.createReadStream(filePath)
-    let fileBuffer = await buffer(fileReadStream)
+    let fileBuffer = (await buffer(fileReadStream)) as Buffer
 
     const metadata = await getMetadata(fileBuffer)
     const originalImageWidth = metadata.width
