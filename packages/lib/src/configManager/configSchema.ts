@@ -84,6 +84,11 @@ const IntegrationConfigSchema = z.strictObject({
   tokenUrl: z.url(),
 })
 
+const SentrySchema = z.strictObject({
+  dsn: z.string(),
+  environment: z.string(),
+})
+
 export const ConfigSchema = z.strictObject({
   // database
   db: DatabaseConfigSchema,
@@ -99,6 +104,7 @@ export const ConfigSchema = z.strictObject({
   passwordReset: PasswordResetConfigSchema.optional(),
   port: z.number().int().positive(),
   secret: z.string(),
+  sentry: SentrySchema,
   serverUrl: z.url(),
   staticFolders: z.array(StaticFolderSchema),
   suppressLoggerInTestEnv: z.boolean(),

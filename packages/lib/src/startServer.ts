@@ -4,6 +4,7 @@ import http from 'http'
 import passport from 'passport'
 import cookieParser from 'cookie-parser'
 import helmet, { HelmetOptions } from 'helmet'
+import Sentry from '@sentry/node'
 // import morgan from 'morgan'
 
 import internalLogger from './logger/internals'
@@ -30,6 +31,8 @@ import {
 } from './startup/customScripts'
 
 let server: http.Server
+
+const sentryDsn = config.get('sentry.dsn')
 
 /**
  * startServer is run with no parameters, but we allow a testConfig so that
@@ -65,10 +68,6 @@ export const startServer = async (
   app.set('port', port)
   const httpServer = http.createServer(app)
   // httpServer.app = app
-  internalLogger.section(`Starting HTTP server`)
-  const startListening = promisify(httpServer.listen).bind(httpServer)
-  await startListening(port)
-  internalLogger.point(`App is listening on port ${port}`)
 
   app.use(express.json({ limit: '50mb' }))
   app.use(express.urlencoded({ extended: false }))
@@ -147,12 +146,28 @@ export const startServer = async (
 
   mountStatic(app)
   await registerComponents(app)
-  errorStatuses(app)
 
   if (config.get('useGraphQLServer'))
     await setupGraphqlServer(httpServer, app, passport)
 
   await jobManager.init()
+
+  internalLogger.section(`Starting HTTP server`)
+
+  if (sentryDsn) {
+    Sentry.setupExpressErrorHandler(app)
+    internalLogger.success('Sentry initialized')
+  } else {
+    internalLogger.warn(
+      'Skipping sentry initialization: no dsn key found in config',
+    )
+  }
+
+  errorStatuses(app)
+
+  const startListening = promisify(httpServer.listen).bind(httpServer)
+  await startListening(port)
+  internalLogger.point(`App is listening on port ${port}`)
 
   server = httpServer
 

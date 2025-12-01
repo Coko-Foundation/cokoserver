@@ -78,6 +78,12 @@ export default {
 
   port: env('SERVER_PORT', { type: 'number' }) || 3000,
   secret: env('SECRET')!,
+
+  sentry: {
+    dsn: env('SENTRY_DSN'),
+    environment: env('SENTRY_ENVIRONMENT'),
+  },
+
   serverUrl: env('SERVER_URL')!,
   staticFolders: [],
   suppressLoggerInTestEnv:

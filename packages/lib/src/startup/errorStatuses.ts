@@ -9,11 +9,7 @@ interface HttpError extends Error {
 
 const errorStatuses = (app: Express): void => {
   app.use((err: HttpError, _req: Request, res: Response): Response => {
-    // Development error handler, will print stacktrace
-    if (app.get('env') === 'development' || app.get('env') === 'test') {
-      logger.error(err)
-      logger.error(err.stack)
-    }
+    logger.error(err)
 
     if (err.name === 'ValidationError') {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message })

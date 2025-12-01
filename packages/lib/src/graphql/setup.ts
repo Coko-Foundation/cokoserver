@@ -11,6 +11,7 @@ import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 
+import sentryPlugin from './sentryPlugin'
 import AuthenticationError from '../errors/AuthenticationError'
 import config from '../configManager/config'
 import logger from '../logger'
@@ -21,6 +22,8 @@ import generateSchema from './generateSchema'
 type Context = {
   userId: string | null
 }
+
+const sentryDsn = config.get('sentry.dsn')
 
 const setup = async (
   httpServer: http.Server,
@@ -65,7 +68,9 @@ const setup = async (
   const subscriptionServerCleanup = useServer(
     {
       schema,
-      context: (ctx, _msg, _args) => getDynamicContext(ctx),
+      context: (ctx, _msg, _args) => {
+        return getDynamicContext(ctx)
+      },
     },
     wsServer,
   )
@@ -75,6 +80,8 @@ const setup = async (
   const apolloServer = new ApolloServer({
     schema,
     plugins: [
+      sentryDsn && sentryPlugin(),
+
       // Proper shutdown for the HTTP server
       /* eslint-disable-next-line new-cap */
       ApolloServerPluginDrainHttpServer({ httpServer }),
