@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.20.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.19.0...v4.20.0) (2025-11-26)
+
+
+### Features
+
+* **server:** add sentry environment variable ([d549ad4](https://github.com/Coko-Foundation/cokoserver/commit/d549ad42efd134197c23f3674f7db38794167a40))
+
 ## [4.19.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.18.0...v4.19.0) (2025-11-20)
 
 
