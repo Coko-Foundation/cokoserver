@@ -23,9 +23,9 @@ export default class Config {
   }
 
   async init(overrideValues?: Partial<ConfigType>): Promise<void> {
-    const { default: loadBuilderConfig } = await import(
-      '../cli/loadBuilderConfig'
-    )
+    const { default: loadBuilderConfig } =
+      await import('../cli/loadBuilderConfig')
+
     const builderConfig = loadBuilderConfig()
 
     const configPath = findConfigurationFile('config', {

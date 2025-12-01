@@ -174,6 +174,7 @@ describe('ChatMessage model', () => {
     expect(message.mentions[0]).toEqual(user.id)
   })
 
+  /* eslint-disable-next-line vitest/no-disabled-tests */
   it.skip('throws when mentioned user is not team member of channel', async () => {
     const user2 = await User.insert({})
     const relatedObject = uuid()
@@ -195,6 +196,7 @@ describe('ChatMessage model', () => {
     ).rejects.toThrow()
   })
 
+  /* eslint-disable-next-line vitest/no-disabled-tests */
   it.skip('throws when updating a message mentions array with a user who is not team member of channel', async () => {
     const user2 = await User.insert({})
     const relatedObject = uuid()

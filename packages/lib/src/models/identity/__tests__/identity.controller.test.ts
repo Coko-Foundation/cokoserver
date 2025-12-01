@@ -175,7 +175,7 @@ describe('Identity Controller', () => {
     await subscriptionManager.client.end()
   })
 
-  it.only('authorizes access and inserts the Oauth tokens', async () => {
+  it('authorizes access and inserts the Oauth tokens', async () => {
     ;(axios as any).mockImplementationOnce(fakePostResponse)
     const user = await createUser()
     // Mock authorization
@@ -223,7 +223,7 @@ describe('Identity Controller', () => {
     )
   })
 
-  it.only('invalidates access token', async () => {
+  it('invalidates access token', async () => {
     ;(axios as any).mockImplementationOnce(fakePostResponse)
     const user = await createUser()
     // Mock authorization
@@ -243,7 +243,7 @@ describe('Identity Controller', () => {
     expect(oauthAccessTokenExpiration).toEqual(specificDate)
   })
 
-  it.only('invalidates provider tokens', async () => {
+  it('invalidates provider tokens', async () => {
     ;(axios as any).mockImplementationOnce(fakePostResponse)
     const user = await createUser()
     // Mock authorization
@@ -265,7 +265,7 @@ describe('Identity Controller', () => {
     expect(oauthRefreshTokenExpiration).toEqual(specificDate)
   })
 
-  it.only('authorizes access and inserts the Oauth tokens with never-expiring refresh token and not schedule a expiration job', async () => {
+  it('authorizes access and inserts the Oauth tokens with never-expiring refresh token and not schedule a expiration job', async () => {
     ;(axios as any).mockResolvedValueOnce({
       status: 200,
       data: {

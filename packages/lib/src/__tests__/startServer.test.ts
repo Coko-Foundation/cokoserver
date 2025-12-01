@@ -18,13 +18,5 @@ describe('Starting the server', () => {
       // expect(server).toHaveProperty('app')
       await shutdownFn()
     })
-
-    it.skip('returns the server if it is already running', async () => {
-      // const server = await startServer()
-      // server.originalServer = true
-      const secondAccess = await startServer()
-      expect(secondAccess).toHaveProperty('originalServer')
-      await shutdownFn()
-    })
   })
 })

@@ -606,6 +606,7 @@ const document: WaxDocument = {
   ],
 }
 
+/* eslint-disable-next-line vitest/no-disabled-tests */
 describe.skip('Docx service', () => {
   test('Generic document', async () => {
     const imageData: ImageData = {}

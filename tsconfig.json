@@ -3,6 +3,17 @@
     "baseUrl": ".",
     "paths": {
       "@coko/server": ["./packages/lib/src"]
-    }
+    },
+
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "es2022"
   }
 }

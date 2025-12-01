@@ -310,6 +310,7 @@ describe('File Storage Service', () => {
   })
 
   // Doesn't work with minio
+  /* eslint-disable-next-line vitest/no-disabled-tests */
   it.skip('reads a public url for a public file', async () => {
     const file = await uploadOneFile(true)
     const url = await fileStorage.getPublicURL(file.key)
@@ -318,6 +319,7 @@ describe('File Storage Service', () => {
   })
 
   // Doesn't work with minio
+  /* eslint-disable-next-line vitest/no-disabled-tests */
   it.skip('reads a public url for a public image', async () => {
     const filePath = path.join(testFilePath, 'test.png')
     const fileStream = fs.createReadStream(filePath)

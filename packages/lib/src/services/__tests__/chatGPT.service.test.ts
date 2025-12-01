@@ -8,9 +8,8 @@ import { describe, afterAll, it, expect } from 'vitest'
 describe('ChatGPT', () => {
   afterAll(async () => {
     const { db } = await import('../../db')
-    const { default: subscriptionManager } = await import(
-      '../../graphql/pubsub'
-    )
+    const { default: subscriptionManager } =
+      await import('../../graphql/pubsub')
 
     await db.destroy()
     await subscriptionManager.client.end()
@@ -21,6 +20,7 @@ describe('ChatGPT', () => {
    * might be down, causing pipelines to fail through no fault of our own.
    */
 
+  /* eslint-disable-next-line vitest/no-disabled-tests */
   it.skip('returns text given a prompt', async () => {
     const { default: chatGPT } = await import('../chatGPT/chatGPT.controllers')
 
@@ -30,10 +30,10 @@ describe('ChatGPT', () => {
     expect(result).toBeTruthy()
   }, 20000)
 
+  /* eslint-disable-next-line vitest/no-disabled-tests */
   it.skip('uses the graphql resolver to call the openai api', async () => {
-    const { default: createGraphqlTestServer } = await import(
-      '../../utils/createGraphqlTestServer'
-    )
+    const { default: createGraphqlTestServer } =
+      await import('../../utils/createGraphqlTestServer')
     const gqlServer = await createGraphqlTestServer()
 
     const CHAT_GPT = `

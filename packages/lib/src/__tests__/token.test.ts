@@ -47,9 +47,8 @@ describe('token management', () => {
 
   it('accepts a configuration option for expiry', async () => {
     vi.doMock('../configManager/config', async () => {
-      const { default: Config } = await import(
-        '../configManager/ConfigConstructor'
-      )
+      const { default: Config } =
+        await import('../configManager/ConfigConstructor')
 
       const config = new Config()
       config.init({

@@ -10,9 +10,8 @@ import subscriptionManager from '../../graphql/pubsub'
 import DbTestUtils from '../../db/DbTestUtils'
 
 vi.mock('../../configManager/config', async () => {
-  const { default: Config } = await import(
-    '../../configManager/ConfigConstructor'
-  )
+  const { default: Config } =
+    await import('../../configManager/ConfigConstructor')
 
   const config = new Config()
   config.init({

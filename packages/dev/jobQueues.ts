@@ -1,4 +1,4 @@
-/* eslint-disable no-console, import/no-unresolved */
+/* eslint-disable no-console */
 
 import { config } from '@coko/server'
 import { JobHandlerArguments } from '@coko/server/src/jobManager/JobManager'
