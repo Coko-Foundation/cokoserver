@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.19.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.18.0...v4.19.0) (2025-11-20)
+
+
+### Features
+
+* **server:** add sentry support ([2dec5f5](https://github.com/Coko-Foundation/cokoserver/commit/2dec5f53838a7e41951da4685a256fd576391cf2))
+
 ## [4.18.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.17.0...v4.18.0) (2025-08-22)
 
 
