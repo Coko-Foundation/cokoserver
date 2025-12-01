@@ -21,4 +21,5 @@ RUN yarn install --immutable
 COPY packages/dev ./packages/dev
 COPY packages/lib ./packages/lib
 
+COPY ./startDev.js .
 # RUN yarn workspace @coko/server build

@@ -102,6 +102,5 @@ export default {
   // chatGPT
 
   // move out
-  // jobQueues
   // permissions
 }

@@ -1,7 +1,14 @@
 import config from '../configManager/config'
 import db from '../db/db'
-import { logTask, logTaskItem, logErrorTask } from '../logger/internals'
+import internalLogger from '../logger/internals'
 import fileStorage from '../fileStorage'
+
+class DatabaseConnectionError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'DatabaseConnectionError'
+  }
+}
 
 const sleep = (ms: number): Promise<void> =>
   new Promise(resolve => {
@@ -19,16 +26,21 @@ const checkDbConnection = async (): Promise<void> => {
 
   for (const attempt of iterable) {
     try {
+      if (attempt > 1) {
+        internalLogger.wait(
+          `Connecting to database: Attempt ${attempt}/${retries}`,
+        )
+      }
+
       /* eslint-disable-next-line no-await-in-loop */
       await db.raw('SELECT 1+1 AS result')
-      logTaskItem('Database connection successful')
+      internalLogger.success('Database connection successful')
       break
     } catch (e) {
       if (attempt === retries) {
-        logErrorTask('Could not establish connection to the database')
-        throw e
+        internalLogger.error('Could not establish connection to the database')
+        throw new DatabaseConnectionError(e.message)
       } else {
-        // console.log(`attempt ${attempt} failed. retrying...`)
         const timeout = attempt * 1000
         /* eslint-disable-next-line no-await-in-loop */
         await sleep(timeout)
@@ -38,22 +50,20 @@ const checkDbConnection = async (): Promise<void> => {
 }
 
 const checkConnections = async (): Promise<void> => {
-  logTask('Checking external connections')
+  internalLogger.section('Checking external connections')
 
   await checkDbConnection()
 
   if (config.has('useFileStorage') && config.get('useFileStorage')) {
     try {
       await fileStorage.healthCheck()
-      logTaskItem('File storage connection successful')
+      internalLogger.success('File storage connection successful')
     } catch (e) {
-      logErrorTask('Could not establish connection to file storage')
+      internalLogger.error('Could not establish connection to file storage')
       throw e
     }
   } else {
-    logTaskItem(
-      "Skipping file storage. Set 'useFileStorage' to true to enable.",
-    )
+    internalLogger.warn('Skipping file storage as it is disabled')
   }
 }
 

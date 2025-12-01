@@ -15,14 +15,14 @@ describe('Migrations', () => {
   async function setSucceedingConfig(): Promise<void> {
     config.reset()
     await config.init({
-      components: ['src/db/__tests__/mocks/succeeding'],
+      components: ['./src/db/__tests__/mocks/succeeding'],
     })
   }
 
   async function setFailingConfig(): Promise<void> {
     config.reset()
     await config.init({
-      components: ['src/db/__tests__/mocks/failing'],
+      components: ['./src/db/__tests__/mocks/failing'],
     })
   }
 

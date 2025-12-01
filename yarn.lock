@@ -1761,9 +1761,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@coko/lint@npm:3.0.0-alpha.8":
-  version: 3.0.0-alpha.8
-  resolution: "@coko/lint@npm:3.0.0-alpha.8"
+"@coko/lint@npm:3.0.0-alpha.9":
+  version: 3.0.0-alpha.9
+  resolution: "@coko/lint@npm:3.0.0-alpha.9"
   dependencies:
     "@babel/core": "npm:^7.28.4"
     "@babel/eslint-parser": "npm:^7.28.4"
@@ -1792,6 +1792,7 @@ __metadata:
     eslint-plugin-promise: "npm:^7.2.1"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.0.0"
+    eslint-plugin-workspaces: "npm:^0.11.0"
     globals: "npm:^16.4.0"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^16.2.6"
@@ -1809,7 +1810,7 @@ __metadata:
     typescript-eslint: "npm:^8.46.2"
   bin:
     coko-lint: ./src/cli.js
-  checksum: 10c0/0b980a3a2a67aba7984299bffe1c1b59cf560a577ce062f4905e1fb008c0dfe971f00a531244997b17a20b0f0d4d876ed6aa8b24a47ca1fa0dd4794a9b10d74f
+  checksum: 10c0/c6fe996a325cbb7f6880bd5f36ab8c4ca542e58142cf39e96f5fe18bccb8a685df665bcd7f9638041095e73668e6d7aeb0e4c525ecf21a49dbf6ce77fb3a3779
   languageName: node
   linkType: hard
 
@@ -6634,7 +6635,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coko-server-monorepo@workspace:."
   dependencies:
-    "@coko/lint": "npm:3.0.0-alpha.8"
+    "@coko/lint": "npm:3.0.0-alpha.9"
+    chalk: "npm:^4.1.2"
     lint-staged: "npm:^15.2.8"
     lodash: "npm:^4.17.21"
     standard-version: "npm:^7.1.0"
@@ -6863,6 +6865,13 @@ __metadata:
     readable-stream: "npm:^3.0.2"
     typedarray: "npm:^0.0.6"
   checksum: 10c0/29565dd9198fe1d8cf57f6cc71527dbc6ad67e12e4ac9401feb389c53042b2dceedf47034cbe702dfc4fd8df3ae7e6bfeeebe732cc4fa2674e484c13f04c219a
+  languageName: node
+  linkType: hard
+
+"confbox@npm:^0.1.8":
+  version: 0.1.8
+  resolution: "confbox@npm:0.1.8"
+  checksum: 10c0/fc2c68d97cb54d885b10b63e45bd8da83a8a71459d3ecf1825143dd4c7f9f1b696b3283e07d9d12a144c1301c2ebc7842380bdf0014e55acc4ae1c9550102418
   languageName: node
   linkType: hard
 
@@ -8655,6 +8664,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-workspaces@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "eslint-plugin-workspaces@npm:0.11.0"
+  dependencies:
+    find-workspaces: "npm:^0.3.1"
+  checksum: 10c0/50506e150ba11d11eb0260782c3744060a72a645ea17baeac6b9a4c9df85feebba673338699562267cb579a6dbc4574e4a2bf79031863662edb4ca35f6fd54af
+  languageName: node
+  linkType: hard
+
 "eslint-scope@npm:5.1.1":
   version: 5.1.1
   resolution: "eslint-scope@npm:5.1.1"
@@ -9228,6 +9246,17 @@ __metadata:
     path-exists: "npm:^5.0.0"
     unicorn-magic: "npm:^0.1.0"
   checksum: 10c0/e6ee3e6154560bc0ab3bc3b7d1348b31513f9bdf49a5dd2e952495427d559fa48cdf33953e85a309a323898b43fa1bfbc8b80c880dfc16068384783034030008
+  languageName: node
+  linkType: hard
+
+"find-workspaces@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "find-workspaces@npm:0.3.1"
+  dependencies:
+    fast-glob: "npm:^3.3.2"
+    pkg-types: "npm:^1.0.3"
+    yaml: "npm:^2.3.4"
+  checksum: 10c0/e28dd30a753d9cabc1c9e94746ef75be181ce6403d9987c9efac7379ab94c8f776f541acd342907f3077cf288b6464dc807b30b57b2ded96a3e1caca0da3b10a
   languageName: node
   linkType: hard
 
@@ -12248,6 +12277,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mlly@npm:^1.7.4":
+  version: 1.8.0
+  resolution: "mlly@npm:1.8.0"
+  dependencies:
+    acorn: "npm:^8.15.0"
+    pathe: "npm:^2.0.3"
+    pkg-types: "npm:^1.3.1"
+    ufo: "npm:^1.6.1"
+  checksum: 10c0/f174b844ae066c71e9b128046677868e2e28694f0bbeeffbe760b2a9d8ff24de0748d0fde6fabe706700c1d2e11d3c0d7a53071b5ea99671592fac03364604ab
+  languageName: node
+  linkType: hard
+
 "modify-values@npm:^1.0.0":
   version: 1.0.1
   resolution: "modify-values@npm:1.0.1"
@@ -13121,7 +13162,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pathe@npm:^2.0.3":
+"pathe@npm:^2.0.1, pathe@npm:^2.0.3":
   version: 2.0.3
   resolution: "pathe@npm:2.0.3"
   checksum: 10c0/c118dc5a8b5c4166011b2b70608762e260085180bb9e33e80a50dcdb1e78c010b1624f4280c492c92b05fc276715a4c357d1f9edc570f8f1b3d90b6839ebaca1
@@ -13352,6 +13393,17 @@ __metadata:
   version: 3.0.0
   resolution: "pify@npm:3.0.0"
   checksum: 10c0/fead19ed9d801f1b1fcd0638a1ac53eabbb0945bf615f2f8806a8b646565a04a1b0e7ef115c951d225f042cca388fdc1cd3add46d10d1ed6951c20bd2998af10
+  languageName: node
+  linkType: hard
+
+"pkg-types@npm:^1.0.3, pkg-types@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "pkg-types@npm:1.3.1"
+  dependencies:
+    confbox: "npm:^0.1.8"
+    mlly: "npm:^1.7.4"
+    pathe: "npm:^2.0.1"
+  checksum: 10c0/19e6cb8b66dcc66c89f2344aecfa47f2431c988cfa3366bdfdcfb1dd6695f87dcce37fbd90fe9d1605e2f4440b77f391e83c23255347c35cf84e7fd774d7fcea
   languageName: node
   linkType: hard
 
@@ -15955,6 +16007,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ufo@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "ufo@npm:1.6.1"
+  checksum: 10c0/5a9f041e5945fba7c189d5410508cbcbefef80b253ed29aa2e1f8a2b86f4bd51af44ee18d4485e6d3468c92be9bf4a42e3a2b72dcaf27ce39ce947ec994f1e6b
+  languageName: node
+  linkType: hard
+
 "uglify-js@npm:^3.1.4":
   version: 3.19.3
   resolution: "uglify-js@npm:3.19.3"
@@ -16661,6 +16720,15 @@ __metadata:
   version: 5.0.0
   resolution: "yallist@npm:5.0.0"
   checksum: 10c0/a499c81ce6d4a1d260d4ea0f6d49ab4da09681e32c3f0472dee16667ed69d01dae63a3b81745a24bd78476ec4fcf856114cb4896ace738e01da34b2c42235416
+  languageName: node
+  linkType: hard
+
+"yaml@npm:^2.3.4":
+  version: 2.8.2
+  resolution: "yaml@npm:2.8.2"
+  bin:
+    yaml: bin.mjs
+  checksum: 10c0/703e4dc1e34b324aa66876d63618dcacb9ed49f7e7fe9b70f1e703645be8d640f68ab84f12b86df8ac960bac37acf5513e115de7c970940617ce0343c8c9cd96
   languageName: node
   linkType: hard
 

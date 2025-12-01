@@ -1,11 +1,6 @@
 import { MigrationMeta, MigrateUpOptions, MigrateDownOptions } from 'umzug'
 
-import {
-  logTask,
-  logTaskItem,
-  logErrorTask,
-  logSuccessTask,
-} from '../logger/internals'
+import internalLogger from '../logger/internals'
 
 import config from '../configManager/config'
 import logger from '../logger'
@@ -37,7 +32,7 @@ const updateCheckpoint = async (): Promise<void> => {
   const baseMsg = 'Last successful migrate checkpoint:'
 
   if (!(await migrationsMeta.exists())) {
-    logErrorTask(
+    internalLogger.error(
       `Coko server meta table does not exist! Not updating last successful migrate checkpoint`,
     )
     return
@@ -47,16 +42,16 @@ const updateCheckpoint = async (): Promise<void> => {
   const currentCheckpoint = await migrationsMeta.getCheckpoint()
 
   if (lastMigration === currentCheckpoint) {
-    logTaskItem(`${baseMsg} Checkpoint already at latest migration.`)
-    logTaskItem(`${baseMsg} Performing no operation.`)
+    internalLogger.point(`${baseMsg} Checkpoint already at latest migration.`)
+    internalLogger.point(`${baseMsg} Performing no operation.`)
     return
   }
 
-  logTaskItem(`${baseMsg} updating`)
+  internalLogger.point(`${baseMsg} updating`)
 
   await migrationsMeta.setCheckpoint(lastMigration)
 
-  logTaskItem(`${baseMsg} updated`)
+  internalLogger.point(`${baseMsg} updated`)
 }
 // #endregion helpers
 
@@ -65,7 +60,7 @@ export const migrate = async (
   passedConfig,
   options: MigrateOptions = {},
 ): Promise<void> => {
-  logTask(`Run migrations`)
+  internalLogger.section(`Run migrations`)
 
   const migrationRunner = new MigrationRunner(passedConfig.get('components'))
   await migrationRunner.init()
@@ -107,7 +102,7 @@ export const migrate = async (
     await migrationRunner.up(otherOptions)
   }
 
-  logSuccessTask('All migrations ran successfully!')
+  internalLogger.success('All migrations ran successfully!')
   await updateCheckpoint()
 }
 

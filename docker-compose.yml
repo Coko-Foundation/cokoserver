@@ -8,7 +8,8 @@ services:
       - filehosting
       - createbucket
       - mailhog
-    command: ['yarn', 'workspace', 'dev', 'coko-server', 'start-dev']
+    # command: ['yarn', 'workspace', 'dev', 'coko-server', 'start-dev']
+    command: node ./startDev.js
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
       - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
@@ -40,11 +41,15 @@ services:
       # - CORS_ORIGIN=https://studio.apollographql.com
       - SUPPRESS_LOGGER_IN_TEST_ENV=true
     volumes:
+      # - ./packages/dev:/home/node/app/packages/dev
       - ./packages/dev/ignoreMe:/home/node/app/packages/dev/ignoreMe
-      - ./packages/dev/scripts:/home/node/app/packages/dev/scripts
       - ./packages/dev/static:/home/node/app/packages/dev/static
+      - ./packages/dev/builder.json:/home/node/app/packages/dev/builder.json
       - ./packages/dev/config.ts:/home/node/app/packages/dev/config.ts
+      - ./packages/dev/jobQueues.ts:/home/node/app/packages/dev/jobQueues.ts
       - ./packages/dev/permissions.js:/home/node/app/packages/dev/permissions.js
+      - ./packages/dev/shutdown.ts:/home/node/app/packages/dev/shutdown.ts
+      - ./packages/dev/startup.ts:/home/node/app/packages/dev/startup.ts
       - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts
       - ./packages/lib/src:/home/node/app/packages/lib/src
       - ./packages/lib/vitest.config.ts:/home/node/app/packages/lib/vitest.config.ts

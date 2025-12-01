@@ -10,6 +10,7 @@ type FindConfigurationFileOptions = {
 
 const tempFolderPath = path.join(process.cwd(), 'tmp')
 
+// returns path
 const findConfigurationFile = (
   filename: string,
   options: FindConfigurationFileOptions = {},
@@ -36,6 +37,16 @@ const findConfigurationFile = (
   }
 
   return foundFiles[0]
+}
+
+// returns component
+const readConfigurationFile = async (
+  filename: string,
+  options: FindConfigurationFileOptions = {},
+): Promise<any> => {
+  const filePath = findConfigurationFile(filename, options)
+  if (!filePath) return null
+  return await import(filePath)
 }
 
 const writeFileToTemp = async (
@@ -80,6 +91,7 @@ const ensureTempFolderExists = async (): Promise<void> => {
 
 export {
   findConfigurationFile,
+  readConfigurationFile,
   deleteFileFromTemp,
   emptyTemp,
   writeFileToTemp,

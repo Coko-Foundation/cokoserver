@@ -9,7 +9,7 @@ import { shield } from 'graphql-shield'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 
 import config from '../configManager/config'
-import { logReport, logTask, logTaskItem } from '../logger/internals'
+import internalLogger, { logReport } from '../logger/internals'
 import loadComponent from '../utils/loadComponent'
 
 const resolverPerformanceMiddleware = async (
@@ -79,7 +79,7 @@ const generateSchema = async (): Promise<GraphQLSchema> => {
     middleware.push(resolverPerformanceMiddleware)
   }
 
-  logTask('Register graphql middleware')
+  internalLogger.section('Register graphql middleware')
 
   /**
    * Authorization middleware
@@ -95,10 +95,9 @@ const generateSchema = async (): Promise<GraphQLSchema> => {
     })
 
     middleware.push(authorizationMiddleware)
-    // logRegistration('authorization')
-    logTaskItem('Registered permissions middleware')
+    internalLogger.success('Registered permissions middleware')
   } else {
-    logTaskItem('No permissions middleware')
+    internalLogger.warn('No permissions middleware')
   }
 
   const schemaWithMiddleWare = applyMiddleware(schema, ...middleware)

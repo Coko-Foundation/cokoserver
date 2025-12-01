@@ -15,8 +15,7 @@ import {
 import sortBy from 'lodash/sortBy'
 import isFunction from 'lodash/isFunction'
 
-import logger from '../logger/index'
-import { logSuccess } from '../logger/internals'
+import internalLogger from '../logger/internals'
 
 import db from './db'
 import {
@@ -40,7 +39,11 @@ export default class MigrationRunner {
 
   constructor(components: string[] = []) {
     const migrationPaths = components
-      .map(c => path.join(process.cwd(), c, 'migrations'))
+      .map(c => {
+        if (c.startsWith('.')) return path.join(process.cwd(), c)
+        return path.dirname(require.resolve(c))
+      })
+      .map(modulePath => path.join(modulePath, 'migrations'))
       .concat(path.join(__dirname, 'coreMigrations'))
       .filter(fs.pathExistsSync)
 
@@ -175,17 +178,20 @@ export default class MigrationRunner {
 
     this.umzug = new Umzug({
       storage: customStorage,
-      logger,
+      logger: undefined,
       migrations: sortedMigrations,
     })
 
-    this.umzug.on('migrating', e => logger.info(`Migrating ${e.name}`))
-    this.umzug.on('migrated', e =>
-      logSuccess(`Successfully migrated ${e.name}\n`),
-    )
-    this.umzug.on('reverting', e => logger.info(`Reverting ${e.name}`))
+    // this.umzug.on('migrating', e => {
+    //   internalLogger.wait(`Migrating ${e.name}`)
+    // })
+    this.umzug.on('migrated', e => {
+      internalLogger.success(`Successfully migrated ${e.name}`)
+    })
+
+    // this.umzug.on('reverting', e => internalLogger.wait(`Reverting ${e.name}`))
     this.umzug.on('reverted', e =>
-      logSuccess(`Successfully reverted ${e.name}\n`),
+      internalLogger.success(`Successfully reverted ${e.name}`),
     )
   }
 

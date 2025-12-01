@@ -1,24 +1,11 @@
-import {
-  describe,
-  beforeAll,
-  afterAll,
-  afterEach,
-  it,
-  expect,
-  vi,
-  beforeEach,
-} from 'vitest'
+import { describe, beforeAll, afterEach, it, expect, vi } from 'vitest'
 
 import wait from '../../utils/wait'
-import subscriptionManager from '../../graphql/pubsub'
-import { jobManager } from '../JobManager'
+import { JobManager } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
-import { boss, start, stop } from '../boss'
-import JobManagerOptionsError from '../JobManagerOptionsError'
-import config from '../../configManager/config'
+import { JobManagerOptionsError } from '../errors'
 
 const N = 3000
-const noop = (): void => {}
 
 /**
  * Note:
@@ -31,38 +18,32 @@ const noop = (): void => {}
  */
 
 describe('Job queues', () => {
-  afterAll(async () => {
-    await stop({ destroy: true })
-    await subscriptionManager.client.end()
-  })
-
   describe('Job manager', () => {
-    beforeAll(async () => {
-      config.reset()
-      await config.init({
-        jobQueues: [
-          {
-            name: 'test-me',
-            handler: noop,
-          },
-        ],
-      })
+    const jobManager: JobManager = new JobManager({ exposeBossInstance: true })
 
-      await start(config)
+    const jobQueues = [
+      {
+        name: 'test-me',
+        handler: vi.fn(),
+      },
+    ]
+
+    beforeAll(async () => {
+      jobQueues[0].handler.mockClear()
+      await jobManager.init(jobQueues)
     })
 
     afterEach(async () => {
-      await boss.deleteAllQueues()
+      await jobManager.boss.deleteAllQueues()
     })
 
     it('sends a job to the queue', async () => {
-      const name = 'test-me'
-      const queues = config.get('jobQueues')
-      const spy = vi.spyOn(queues[0], 'handler')
+      const name = jobQueues[0].name
+      const spy = jobQueues[0].handler
 
       await jobManager.sendToQueue(name, { id: 1 })
 
-      const size = await boss.getQueueSize(name)
+      const size = await jobManager.boss.getQueueSize(name)
       expect(size).toBe(1)
 
       await wait(N)
@@ -73,31 +54,30 @@ describe('Job queues', () => {
         expect.objectContaining({
           data: { id: 1 },
         }),
-        expect.objectContaining({ config: expect.any(Object) }),
       )
 
-      const newSize = await boss.getQueueSize(name)
+      const newSize = await jobManager.boss.getQueueSize(name)
       expect(newSize).toBe(0)
     })
 
     it('defers a job to run later', async () => {
-      const name = 'test-me'
+      const name = jobQueues[0].name
 
       await jobManager.sendToQueue(name, { id: 1 }, { startAfter: 5 })
 
       // should still have one pending job after 2.5 seconds
       await wait(N)
-      const size = await boss.getQueueSize(name)
+      const size = await jobManager.boss.getQueueSize(name)
       expect(size).toBe(1)
 
       // it should have now been picked up by now
       await wait(4000)
-      const newSize = await boss.getQueueSize(name)
+      const newSize = await jobManager.boss.getQueueSize(name)
       expect(newSize).toBe(0)
     }, 10000)
 
     it('cannot accept invalid options when sending a job', async () => {
-      const name = 'test-me'
+      const name = jobQueues[0].name
 
       // no options valid
       await jobManager.sendToQueue(name, { id: 0 })
@@ -163,70 +143,43 @@ describe('Job queues', () => {
   })
 
   describe('Boss', () => {
-    beforeEach(async () => {
-      config.reset()
-    })
-
-    /**
-     * If I run stop more than once, I get the dreaded open handles in jest.
-     * Needs investigation.
-     */
-
-    it.skip('gets started and stopped', async () => {
-      // expect(boss.stopped).toBe(true)
-      // const config = new TestConfig({})
-      // await start(config)
-      // expect(boss.started).toBe(true)
-      // await stop()
-      // expect(boss.stopped).toBe(true)
-    })
-
     it('registers built-in queues when started', async () => {
-      await config.init({})
-      await start(config)
+      const jobManager = new JobManager({ exposeBossInstance: true })
+      await jobManager.init()
 
-      const refreshTokenQueueSize = await boss.getQueueSize(
+      const refreshTokenQueueSize = await jobManager.boss.getQueueSize(
         defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
       )
 
       expect(refreshTokenQueueSize).toBe(0)
-
-      // await stop()
     })
 
     it('registers custom queues when started', async () => {
-      await config.init({
-        jobQueues: [
-          {
-            name: 'test-me',
-            handler: noop,
-          },
-        ],
-      })
+      const jobManager = new JobManager({ exposeBossInstance: true })
+      await jobManager.init([
+        {
+          name: 'test-me',
+          handler: vi.fn(),
+        },
+      ])
 
-      await start(config)
-
-      const testQueueSize = await boss.getQueueSize('test-me')
+      const testQueueSize = await jobManager.boss.getQueueSize('test-me')
       expect(testQueueSize).toBe(0)
-
-      // await stop()
     })
 
     it('registers schedules', async () => {
-      await config.init({
-        jobQueues: [
-          {
-            name: 'test-schedule',
-            handler: noop,
-            schedule: '0 1 * * *',
-            scheduleTimezone: 'Europe/Athens',
-          },
-        ],
-      })
+      const jobManager = new JobManager({ exposeBossInstance: true })
 
-      await start(config)
+      await jobManager.init([
+        {
+          name: 'test-schedule',
+          handler: vi.fn(),
+          schedule: '0 1 * * *',
+          scheduleTimezone: 'Europe/Athens',
+        },
+      ])
 
-      const schedules = await boss.getSchedules()
+      const schedules = await jobManager.boss.getSchedules()
 
       expect(schedules).toHaveLength(1)
       expect(schedules[0].name).toBe('test-schedule')
@@ -234,72 +187,53 @@ describe('Job queues', () => {
       // @ts-ignore
       expect(schedules[0].timezone).toBe('Europe/Athens')
 
-      await boss.unschedule('test-schedule')
-      // await stop()
+      await jobManager.boss.unschedule('test-schedule')
     })
 
     it('cleans up orphan schedules when the queue is removed', async () => {
-      await config.init({
-        jobQueues: [
-          {
-            name: 'test-schedule',
-            handler: noop,
-            schedule: '0 1 * * *',
-            scheduleTimezone: 'Europe/Athens',
-          },
-        ],
-      })
+      const jobManager = new JobManager({ exposeBossInstance: true })
 
-      await start(config)
+      await jobManager.init([
+        {
+          name: 'test-schedule',
+          handler: vi.fn(),
+          schedule: '0 1 * * *',
+          scheduleTimezone: 'Europe/Athens',
+        },
+      ])
 
-      const schedules = await boss.getSchedules()
+      const schedules = await jobManager.boss.getSchedules()
       expect(schedules).toHaveLength(1)
 
-      // await stop()
+      await jobManager.init([])
 
-      config.reset()
-      await config.init({
-        jobQueues: [],
-      })
-
-      await start(config)
-
-      const newSchedules = await boss.getSchedules()
+      const newSchedules = await jobManager.boss.getSchedules()
       expect(newSchedules).toHaveLength(0)
     })
 
     it('cleans up orphan schedules when the schedule is removed from the queue', async () => {
-      await config.init({
-        jobQueues: [
-          {
-            name: 'test-schedule',
-            handler: noop,
-            schedule: '0 1 * * *',
-            scheduleTimezone: 'Europe/Athens',
-          },
-        ],
-      })
+      const jobManager = new JobManager({ exposeBossInstance: true })
 
-      await start(config)
+      await jobManager.init([
+        {
+          name: 'test-schedule',
+          handler: vi.fn(),
+          schedule: '0 1 * * *',
+          scheduleTimezone: 'Europe/Athens',
+        },
+      ])
 
-      const schedules = await boss.getSchedules()
+      const schedules = await jobManager.boss.getSchedules()
       expect(schedules).toHaveLength(1)
 
-      // await stop()
+      await jobManager.init([
+        {
+          name: 'test-schedule',
+          handler: vi.fn(),
+        },
+      ])
 
-      config.reset()
-      await config.init({
-        jobQueues: [
-          {
-            name: 'test-schedule',
-            handler: noop,
-          },
-        ],
-      })
-
-      await start(config)
-
-      const newSchedules = await boss.getSchedules()
+      const newSchedules = await jobManager.boss.getSchedules()
       expect(newSchedules).toHaveLength(0)
     })
   })

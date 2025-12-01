@@ -1,13 +1,13 @@
 import config from '../configManager/config'
-import { logTask, logTaskItem } from '../logger/internals'
+import internalLogger from '../logger/internals'
 import useTransaction from '../models/useTransaction'
 import Team from '../models/team/team.model'
 
 const seedGlobalTeams = async (): Promise<void> => {
-  logTask('Seed global teams')
+  internalLogger.section('Seed global teams')
 
   if (!config.has('teams.global')) {
-    logTaskItem('No global teams declared in config')
+    internalLogger.warn('No global teams declared in config')
     return
   }
 
@@ -25,7 +25,7 @@ const seedGlobalTeams = async (): Promise<void> => {
         )
 
         if (exists) {
-          logTaskItem(`Global team "${t.role}" already exists`)
+          internalLogger.point(`Global team "${t.role}" already exists`)
           return
         }
 
@@ -37,7 +37,7 @@ const seedGlobalTeams = async (): Promise<void> => {
           { trx },
         )
 
-        logTaskItem(`Added global team "${t.role}"`)
+        internalLogger.success(`Added global team "${t.role}"`)
       }),
     )
   })

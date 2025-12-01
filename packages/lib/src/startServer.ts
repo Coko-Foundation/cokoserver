@@ -6,10 +6,9 @@ import cookieParser from 'cookie-parser'
 import helmet, { HelmetOptions } from 'helmet'
 // import morgan from 'morgan'
 
-// import logger from './logger'
-import { logInit, logTask, logTaskItem } from './logger/internals'
+import internalLogger from './logger/internals'
 import { db, migrationManager } from './db'
-import { startJobManager, stopJobManager } from './jobManager'
+import { jobManager } from './jobManager'
 import authentication from './authentication'
 import healthcheck from './healthcheck'
 import setupGraphqlServer from './graphql/setup'
@@ -43,19 +42,20 @@ export const startServer = async (
 
   const startTime = performance.now()
 
-  logInit('Coko server init tasks')
+  internalLogger.init('Coko server init tasks', { newLineBefore: true })
 
-  logTask('Loading config')
+  internalLogger.section('Load config')
   await config.init(testConfig)
   config.validate()
-  logTaskItem('Configuration valid!')
+  internalLogger.success('Configuration valid!')
 
-  logTask(`Ensure tmp folder exists`)
+  internalLogger.section(`Ensure tmp folder exists`)
   await ensureTempFolderExists()
-  logTaskItem(`tmp folder now exists`)
+  internalLogger.success(`tmp folder now exists`)
 
   await checkConnections()
   await migrationManager.migrate()
+
   await seedGlobalTeams()
   await runCustomStartupScripts()
 
@@ -65,10 +65,10 @@ export const startServer = async (
   app.set('port', port)
   const httpServer = http.createServer(app)
   // httpServer.app = app
-  logTask(`Starting HTTP server`)
+  internalLogger.section(`Starting HTTP server`)
   const startListening = promisify(httpServer.listen).bind(httpServer)
   await startListening(port)
-  logTaskItem(`App is listening on port ${port}`)
+  internalLogger.point(`App is listening on port ${port}`)
 
   app.use(express.json({ limit: '50mb' }))
   app.use(express.urlencoded({ extended: false }))
@@ -152,15 +152,19 @@ export const startServer = async (
   if (config.get('useGraphQLServer'))
     await setupGraphqlServer(httpServer, app, passport)
 
-  await startJobManager()
+  await jobManager.init()
 
   server = httpServer
 
   const endTime = performance.now()
   const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
 
-  logInit(
+  internalLogger.init(
     `Coko server init finished in ${durationInSeconds.toFixed(4)} seconds`,
+    {
+      newLineBefore: true,
+      newLineAfter: true,
+    },
   )
 
   return server
@@ -169,33 +173,35 @@ export const startServer = async (
 export const shutdownFn = async (): Promise<void> => {
   await runCustomShutdownScripts()
 
-  logTask('Shut down http server')
+  internalLogger.section('Shut down http server')
   server.close()
   server = undefined
-  logTaskItem('Http server successfully shut down')
+  internalLogger.success('Http server successfully shut down')
 
-  await stopJobManager({ destroy: true })
+  await jobManager.stop({ destroy: true })
 
   if (config.get('useGraphQLServer')) {
-    logTask('Shut down subscription client')
+    internalLogger.section('Shut down subscription client')
     await subscriptionManager.client.end()
-    logTaskItem('Subscription client successfully shut down')
+    internalLogger.success('Subscription client successfully shut down')
   }
 
-  logTask('Shut down database connection')
+  internalLogger.section('Shut down database connection')
   await db.destroy()
-  logTaskItem('Database connection successfully shut down')
+  internalLogger.success('Database connection successfully shut down')
 }
 
 const shutdown = async (signal: string): Promise<void> => {
-  logInit(`Coko server graceful shutdown after receiving signal ${signal}`)
+  internalLogger.init(
+    `Coko server graceful shutdown after receiving signal ${signal}`,
+  )
   const startTime = performance.now()
 
   await shutdownFn()
 
   const endTime = performance.now()
   const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
-  logInit(
+  internalLogger.init(
     `Coko server graceful shutdown finished in ${durationInSeconds.toFixed(
       4,
     )} seconds`,

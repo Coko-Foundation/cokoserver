@@ -10,7 +10,14 @@ type Component = {
 
 const loadComponent = async (componentPath: string): Promise<Component> => {
   try {
-    const p = path.join(process.cwd(), componentPath)
+    let p: string
+
+    if (componentPath.startsWith('.')) {
+      p = path.join(process.cwd(), componentPath)
+    } else {
+      p = path.dirname(require.resolve(componentPath))
+    }
+
     const { default: component } = await import(p)
     return component
   } catch (e) {

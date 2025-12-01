@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { logTask, logTaskItem, logErrorTask } from '../logger/internals'
+import internalLogger from '../logger/internals'
 import { findConfigurationFile } from '../utils/filesystem'
 
 const LifeCycleScriptSchema = z.object({
@@ -11,12 +11,12 @@ const LifeCycleScriptSchema = z.object({
 const LifeCycleArraySchema = z.array(LifeCycleScriptSchema)
 
 const runCustomScripts = async (name: string): Promise<void> => {
-  logTask(`Run custom ${name} functions`)
+  internalLogger.section(`Run custom ${name} functions`)
 
   const filePath = findConfigurationFile(name)
 
   if (!filePath) {
-    logTaskItem(`No ${name} tasks file found.`)
+    internalLogger.point(`No ${name} file found.`)
     return
   }
 
@@ -25,12 +25,12 @@ const runCustomScripts = async (name: string): Promise<void> => {
   try {
     LifeCycleArraySchema.parse(items)
   } catch (e) {
-    logErrorTask(`Incorrect shape exported from file ${filePath}.`)
+    internalLogger.error(`Incorrect shape exported from file ${filePath}.`)
     throw e
   }
 
   if (items.length === 0) {
-    logTaskItem(`No custom ${name} functions provided`)
+    internalLogger.point(`No custom ${name} functions provided`)
     return
   }
 
@@ -38,14 +38,14 @@ const runCustomScripts = async (name: string): Promise<void> => {
   for (const item of items) {
     const { label, execute } = item
 
-    logTaskItem(`Executing '${label}'`)
+    internalLogger.point(`Executing '${label}'`)
 
     try {
       /* eslint-disable-next-line no-await-in-loop */
       await execute()
     } catch (e) {
       if (e instanceof Error) {
-        logErrorTask(`Error while executing '${label}': ${e.message}`)
+        internalLogger.error(`Error while executing '${label}': ${e.message}`)
       }
 
       throw e

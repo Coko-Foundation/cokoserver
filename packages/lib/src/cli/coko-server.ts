@@ -8,7 +8,7 @@ import ora from 'ora'
 import nodemon from 'nodemon'
 
 import logger from '../logger'
-import { logNodemon } from '../logger/internals'
+import internalLogger from '../logger/internals'
 import loadBuilderConfig from './loadBuilderConfig'
 import generateTsConfig from './generateTsConfig'
 import { MigrateOptions, RollbackOptions } from '../db/migrate'
@@ -87,16 +87,14 @@ program
 
     nodemon
       .on('start', () => {
-        logNodemon('\nStarting dev server...')
+        internalLogger.nodemon('Starting dev server...')
       })
       .on('quit', () => {
-        logNodemon('\nStopping dev server...\n')
+        internalLogger.nodemon('Stopping dev server...')
         process.exit()
       })
       .on('restart', files => {
-        logNodemon(`Retarting dev server due to files ${files}...`, {
-          withLines: true,
-        })
+        internalLogger.nodemon(`Retarting dev server due to files ${files}...`)
       })
   })
 

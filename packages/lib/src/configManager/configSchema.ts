@@ -1,13 +1,4 @@
 import { z } from 'zod'
-import { isValidCron } from 'cron-validator'
-
-import defaultJobQueueNames from '../jobManager/defaultJobQueueNames'
-
-const cron = z
-  .string()
-  .refine(val => isValidCron(val, { alias: true, seconds: false }), {
-    message: 'Invalid cron string',
-  })
 
 // Zod doesn't have a specific type for Knex.PoolConfig, so we define it loosely
 // or only include the fields you intend to validate.
@@ -93,51 +84,6 @@ const IntegrationConfigSchema = z.strictObject({
   tokenUrl: z.url(),
 })
 
-const JobQueueName = z.string().refine(
-  val => {
-    const reservedQueueNames = Object.keys(defaultJobQueueNames).map(
-      key => defaultJobQueueNames[key],
-    )
-
-    // reserving email, as it will be implemented
-    const disallowed = [...reservedQueueNames, 'email']
-
-    return !disallowed.includes(val.toLowerCase())
-  },
-  {
-    message:
-      'The provided string is a reserved job queue name and is not allowed.',
-  },
-)
-
-const Timezone = z
-  .string()
-  .optional()
-  .refine(
-    val => {
-      if (!val) return false
-
-      try {
-        new Intl.DateTimeFormat('en-US', { timeZone: val }).format()
-        return true
-      } catch (_error) {
-        return false
-      }
-    },
-    {
-      message: 'Not a valid timezone.',
-    },
-  )
-
-const JobQueueSchema = z.strictObject({
-  name: JobQueueName,
-  handler: z.function(),
-  teamSize: z.number().int().positive().optional(),
-  teamConcurrency: z.number().int().positive().optional(),
-  schedule: cron.optional(),
-  scheduleTimezone: Timezone,
-})
-
 export const ConfigSchema = z.strictObject({
   // database
   db: DatabaseConfigSchema,
@@ -162,11 +108,9 @@ export const ConfigSchema = z.strictObject({
 
   // drop
   integrations: z.record(z.string(), IntegrationConfigSchema).optional(),
-  jobQueues: z.array(JobQueueSchema).optional(),
   permissions: z.object().optional(),
 })
 
-export type JobQueue = z.infer<typeof JobQueueSchema>
 export type Teams = z.infer<typeof TeamsConfigSchema>
 export type MailerTransport = z.infer<typeof MailerTransportSchema>
 export type FileStorageConfig = z.infer<typeof FileStorageConfigSchema>

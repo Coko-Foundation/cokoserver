@@ -33,8 +33,9 @@ const migrations = {
     return row.id
   },
 
-  getRows: async (): Promise<MigrationRow[]> =>
-    db(MIGRATIONS_TABLE).orderBy('runAt', 'asc'),
+  getRows: async (): Promise<MigrationRow[]> => {
+    return await db(MIGRATIONS_TABLE).orderBy('runAt', 'asc')
+  },
 
   logMigration: async (migrationName: string): Promise<void> => {
     await db.raw(`INSERT INTO ${MIGRATIONS_TABLE} (id) VALUES (?)`, [

@@ -4,7 +4,7 @@ import cors from 'cors'
 import config from '../configManager/config'
 import { clientUrl } from '../utils/urls'
 
-import { logTask, logTaskItem } from '../logger/internals'
+import internalLogger from '../logger/internals'
 
 type CorsConfig = {
   origin: string[]
@@ -12,7 +12,7 @@ type CorsConfig = {
 }
 
 const createCORSConfig = (): CorsConfig => {
-  logTask('Setting CORS origin')
+  internalLogger.section('Setting CORS origin')
 
   const fromConfig = config.has('corsOrigin') && config.get('corsOrigin')
 
@@ -37,7 +37,9 @@ const createCORSConfig = (): CorsConfig => {
 
 const middleware = (): RequestHandler => {
   const corsConfig = createCORSConfig()
-  logTaskItem(`CORS origin set to: ${corsConfig?.origin?.toString() || 'null'}`)
+  internalLogger.point(
+    `CORS origin set to: ${corsConfig?.origin?.toString() || 'null'}`,
+  )
   return cors(corsConfig)
 }
 
