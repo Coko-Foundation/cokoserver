@@ -15,18 +15,6 @@ import { MigrateOptions, RollbackOptions } from '../db/migrate'
 
 const pkg = require('../../package.json')
 
-async function ensureTsSupport(): Promise<void> {
-  const { buildPath } = loadBuilderConfig()
-  const tsConfigPath = generateTsConfig(buildPath)
-
-  const { register } = await import('ts-node')
-
-  register({
-    transpileOnly: true,
-    project: tsConfigPath,
-  })
-}
-
 const outDir = path.join(process.cwd(), 'dist')
 
 program
@@ -71,12 +59,11 @@ program
     const tsConfigPath = generateTsConfig(buildPath)
     const scriptPath = path.join(__dirname, '..', 'init.js')
 
-    const tsNodePath = path.dirname(require.resolve('ts-node'))
-    const tsNodeBinaryPath = path.join(tsNodePath, 'bin.js')
-    const nodeOptions = `NODE_OPTIONS="--inspect=0.0.0.0:${inspectorPort}"`
-    const configOption = `--project ${tsConfigPath}`
-    // const exec = `${nodeOptions} ${tsNodeBinaryPath} ${configOption} ${scriptPath}`
-    const exec = `${nodeOptions} ${tsNodeBinaryPath} ${configOption}`
+    const tsxPath = path.dirname(require.resolve('tsx'))
+    const tsxBinaryPath = path.join(tsxPath, 'cli.mjs')
+    const nodeOptions = `--inspect=0.0.0.0:${inspectorPort}`
+    const configOption = `--tsconfig ${tsConfigPath}`
+    const exec = `${tsxBinaryPath} ${nodeOptions} ${configOption}`
 
     nodemon({
       script: scriptPath,
@@ -101,13 +88,6 @@ program
 const migrateCommand = program
   .command('migrate')
   .description('Run or roll back migrations')
-  .hook('preAction', async () => {
-    /**
-     * We want to register ts-node and import migration manager on the fly, to
-     * make sure that typescript code will work without a pre-compile step.
-     */
-    await ensureTsSupport()
-  })
   .showHelpAfterError()
 
 migrateCommand
