@@ -34,10 +34,10 @@ describe('User model', () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/user',
-        'src/models/identity',
-        'src/models/team',
-        'src/models/teamMember',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
       ],
       teams: {
         global: [

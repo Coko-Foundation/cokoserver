@@ -1,6 +1,7 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 
+import { migrationManager } from '../../../db'
 import { Team, TeamMember, User } from '../../index'
 import { createGlobalTeamWithUsers } from '../../__tests__/helpers/teams'
 import DbTestUtils from '../../../db/DbTestUtils'
@@ -10,6 +11,12 @@ describe('Team Model', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
+      components: [
+        './src/models/team',
+        './src/models/teamMember',
+        './src/models/user',
+        './src/models/identity',
+      ],
       teams: {
         global: [
           {
@@ -37,6 +44,8 @@ describe('Team Model', () => {
         ],
       },
     })
+
+    await migrationManager.migrate()
   })
 
   beforeEach(async () => {

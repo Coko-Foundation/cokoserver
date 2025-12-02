@@ -16,11 +16,11 @@ describe('Chat channel migrations', () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/user',
-        'src/models/identity',
-        'src/models/chatMessage',
-        'src/models/chatChannel',
-        'src/models/__tests__/helpers/fake',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/chatMessage',
+        './src/models/chatChannel',
+        './src/models/__tests__/helpers/fake',
       ],
     })
   })

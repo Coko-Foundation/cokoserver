@@ -19,7 +19,7 @@ describe('Base model', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
-      components: ['src/models/user', 'src/models/__tests__/helpers/fake'],
+      components: ['./src/models/user', './src/models/__tests__/helpers/fake'],
     })
 
     await migrationManager.migrate()

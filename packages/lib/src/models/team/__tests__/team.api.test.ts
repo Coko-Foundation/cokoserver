@@ -18,11 +18,11 @@ describe('Team API', async () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/__tests__/helpers/fake',
-        'src/models/user',
-        'src/models/identity',
-        'src/models/team',
-        'src/models/teamMember',
+        './src/models/__tests__/helpers/fake',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
       ],
       teams: {
         nonGlobal: [

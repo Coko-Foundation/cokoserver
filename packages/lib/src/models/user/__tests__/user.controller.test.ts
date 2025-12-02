@@ -48,7 +48,7 @@ describe('User Controller', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
-      components: ['src/models/user', 'src/models/identity'],
+      components: ['./src/models/user', './src/models/identity'],
     })
 
     await migrationManager.migrate()

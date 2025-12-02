@@ -13,9 +13,9 @@ describe('Activity Log Service', () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/user',
-        'src/models/identity',
-        'src/models/activityLog',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/activityLog',
       ],
     })
 

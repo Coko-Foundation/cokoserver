@@ -17,7 +17,7 @@ describe('Migrate db helpers', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
-      components: ['src/db/__tests__/mocks/succeeding'],
+      components: ['./src/db/__tests__/mocks/succeeding'],
     })
   })
 

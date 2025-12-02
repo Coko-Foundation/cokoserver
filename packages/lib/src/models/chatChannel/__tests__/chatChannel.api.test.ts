@@ -19,13 +19,13 @@ describe('Chat channel api', async () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/user',
-        'src/models/identity',
-        'src/models/team',
-        'src/models/teamMember',
-        'src/models/chatMessage',
-        'src/models/chatChannel',
-        'src/models/__tests__/helpers/fake',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
+        './src/models/chatMessage',
+        './src/models/chatChannel',
+        './src/models/__tests__/helpers/fake',
       ],
     })
 

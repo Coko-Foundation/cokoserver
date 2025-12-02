@@ -23,7 +23,7 @@ describe('Team Controller', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
-      components: ['src/models/team', 'src/models/teamMember'],
+      components: ['./src/models/team', './src/models/teamMember'],
       teams: {
         nonGlobal: [],
         global: [

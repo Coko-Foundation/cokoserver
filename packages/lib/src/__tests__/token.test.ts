@@ -1,22 +1,21 @@
-import { vi, describe, beforeEach, it, expect } from 'vitest'
+import { vi, describe, afterAll, it, expect } from 'vitest'
+
+import config from '../configManager/config'
+import authentication from '../authentication'
 
 describe('token management', () => {
-  beforeEach(() => {
-    vi.resetModules()
+  afterAll(() => {
+    config.reset()
   })
 
   it('creates and verifies a token', async () => {
-    const { default: authentication } = await import('../authentication')
     const {
       token: { create: createToken, verify: verifyToken },
     } = authentication
     const token = createToken({ id: 1, username: 'test' })
 
-    const callback = (err, id, user): void => {
-      if (err) {
-        throw new Error()
-      }
-
+    const callback = (err, _id, user): void => {
+      if (err) throw new Error()
       expect(user.token).toEqual(token)
     }
 
@@ -24,7 +23,6 @@ describe('token management', () => {
   })
 
   it('does not verify an expired token', async () => {
-    const { default: authentication } = await import('../authentication')
     const {
       token: { create: createToken, verify: verifyToken },
     } = authentication
@@ -46,19 +44,11 @@ describe('token management', () => {
   })
 
   it('accepts a configuration option for expiry', async () => {
-    vi.doMock('../configManager/config', async () => {
-      const { default: Config } =
-        await import('../configManager/ConfigConstructor')
-
-      const config = new Config()
-      config.init({
-        tokenExpiresIn: 48 * 3600,
-      })
-
-      return { default: config }
+    config.reset()
+    await config.init({
+      tokenExpiresIn: 48 * 3600,
     })
 
-    const { default: authentication } = await import('../authentication')
     const {
       token: { create: createToken, verify: verifyToken },
     } = authentication

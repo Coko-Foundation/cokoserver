@@ -13,12 +13,12 @@ describe('ChatMessage model', () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/user',
-        'src/models/identity',
-        'src/models/team',
-        'src/models/teamMember',
-        'src/models/chatChannel',
-        'src/models/chatMessage',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
+        './src/models/chatChannel',
+        './src/models/chatMessage',
       ],
       teams: {
         global: [],

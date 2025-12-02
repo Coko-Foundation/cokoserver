@@ -14,13 +14,13 @@ describe('Chat message migrations', () => {
     config.reset()
     await config.init({
       components: [
-        'src/models/user',
-        'src/models/identity',
-        'src/models/team',
-        'src/models/teamMember',
-        'src/models/chatChannel',
-        'src/models/chatMessage',
-        'src/models/__tests__/helpers/fake',
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
+        './src/models/chatChannel',
+        './src/models/chatMessage',
+        './src/models/__tests__/helpers/fake',
       ],
       teams: {
         global: [],

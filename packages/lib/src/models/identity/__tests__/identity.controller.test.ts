@@ -153,6 +153,7 @@ describe('Identity Controller', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
+      components: ['./src/models/user', './src/models/identity'],
       integrations: {
         test: {
           clientId: 'the-client-id',

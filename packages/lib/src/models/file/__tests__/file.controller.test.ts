@@ -24,7 +24,7 @@ describe('File Controller', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
-      components: ['src/models/file'],
+      components: ['./src/models/file'],
     })
 
     await migrationManager.migrate()

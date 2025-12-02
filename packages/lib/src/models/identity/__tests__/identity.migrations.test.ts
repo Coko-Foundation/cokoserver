@@ -12,7 +12,7 @@ describe('Identity migrations', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
-      components: ['src/models/user', 'src/models/identity'],
+      components: ['./src/models/user', './src/models/identity'],
     })
   })
 

@@ -4,7 +4,7 @@ import http from 'http'
 import passport from 'passport'
 import cookieParser from 'cookie-parser'
 import helmet, { HelmetOptions } from 'helmet'
-import Sentry from '@sentry/node'
+import * as Sentry from '@sentry/node'
 // import morgan from 'morgan'
 
 import internalLogger from './logger/internals'
