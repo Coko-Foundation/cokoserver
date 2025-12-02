@@ -117,18 +117,23 @@ class JobManager {
 
     internalLogger.section('Register built-in job queues')
     const { defaultJobQueues } = await import('./defaultJobQueues')
-    await this.#registerQueues(defaultJobQueues)
+    await this.#registerQueues(defaultJobQueues, false)
 
     internalLogger.point('Registering custom job queues')
 
     const jobQueuesFile = await readConfigurationFile('jobQueues')
     let queues = jobQueuesFile?.default || []
+
+    try {
+      JobQueuesArraySchema.parse(queues)
+    } catch (e) {
+      throw new JobManagerError(`Malformed jobQueues file: ${e}`)
+    }
+
     if (passedQueues) queues = [...queues, ...passedQueues]
 
-    JobQueuesArraySchema.parse(queues)
-
     if (queues.length === 0) {
-      internalLogger.success('No custom job queues found', 2)
+      internalLogger.point('No custom job queues found', 2)
     }
 
     await this.#registerQueues(queues)
@@ -165,11 +170,11 @@ class JobManager {
     )
 
     if (!orphanFound) {
-      internalLogger.success('No orphaned schedules found', 2)
+      internalLogger.point('No orphaned schedules found', 2)
     }
   }
 
-  async #registerQueues(queues): Promise<void> {
+  async #registerQueues(queues, indent: boolean = true): Promise<void> {
     await Promise.all(
       queues.map(async (q: JobQueue) => {
         const options = {} as JobQueue
@@ -181,7 +186,7 @@ class JobManager {
           q.handler(job)
 
         await this.#boss.work(q.name, options, handler)
-        internalLogger.success(`Registered queue "${q.name}"`, 2)
+        internalLogger.success(`Registered queue "${q.name}"`, indent ? 2 : 0)
 
         if (q.schedule) {
           const scheduleOptions = {} as PgBoss.ScheduleOptions
@@ -200,7 +205,7 @@ class JobManager {
             }" to run: ${readablePattern}, in the ${
               q.scheduleTimezone || 'UTC'
             } timezone`,
-            2,
+            4,
           )
         }
       }),

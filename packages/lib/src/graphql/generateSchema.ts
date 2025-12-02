@@ -9,7 +9,7 @@ import { shield } from 'graphql-shield'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 
 import config from '../configManager/config'
-import internalLogger, { logReport } from '../logger/internals'
+import internalLogger from '../logger/internals'
 import loadComponent from '../utils/loadComponent'
 
 const resolverPerformanceMiddleware = async (
@@ -28,7 +28,7 @@ const resolverPerformanceMiddleware = async (
     const endTime = performance.now()
     const durationInSeconds = (endTime - startTime) / 1000 // Convert to seconds
 
-    logReport(
+    internalLogger.report(
       'Resolver performance:',
       `${info.operation.operation} ${
         info.operation.name?.value || 'anonymous'
@@ -70,8 +70,6 @@ const generateSchema = async (): Promise<GraphQLSchema> => {
   }
 
   const schema = makeExecutableSchema({ typeDefs, resolvers })
-
-  // console.log(schema)
 
   const middleware = []
 

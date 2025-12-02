@@ -2,8 +2,6 @@
 
 import chalk from 'chalk'
 
-import logger from './index'
-
 const BULLET = '\u25cf'
 const CHECK = '\u2713'
 const COG = '\u2699'
@@ -16,19 +14,15 @@ type NewLineOptions = {
   newLineAfter?: boolean
 }
 
-const logReport = (header: string, str: string): void => {
-  logger.info(`${chalk.magenta(header)} ${str}`)
-}
-
 class InternalLogger {
   primary = chalk.hex('#4169E1')
 
   error(str: string): void {
-    logger.error(`${chalk.red(CROSS)} ${str}`)
+    console.log(`${chalk.red(CROSS)} ${str}`)
   }
 
   init(str: string, options: NewLineOptions = {}): void {
-    logger.info(
+    console.log(
       chalk.yellow(
         `${options.newLineBefore ? '\n' : ''}${PICKAXE}   ${str}  ${PICKAXE}${options.newLineAfter ? '\n' : ''}`,
       ),
@@ -44,27 +38,29 @@ class InternalLogger {
   }
 
   point(str: string, indent: number = 0): void {
-    logger.info(`${' '.repeat(indent)}${this.primary(BULLET)} ${str}`)
+    console.log(`${' '.repeat(indent)}${this.primary(BULLET)} ${str}`)
+  }
+
+  report(header: string, str: string): void {
+    console.log(`${chalk.magenta(header)} ${str}`)
   }
 
   section(str: string): void {
-    logger.info(`\n${this.primary.bold.underline(`${str}`)}`)
+    console.log(`\n${this.primary.bold.underline(`${str}`)}`)
   }
 
   success(str: string, indent: number = 0): void {
-    logger.info(`${' '.repeat(indent)}${chalk.green(CHECK)} ${str}`)
+    console.log(`${' '.repeat(indent)}${chalk.green(CHECK)} ${str}`)
   }
 
   wait(str: string): void {
-    logger.info(`${HOURGLASS} ${str}`)
+    console.log(`${HOURGLASS} ${str}`)
   }
 
   warn(str: string): void {
-    logger.info(`${chalk.yellow(BULLET)} ${str}`)
+    console.log(`${chalk.yellow(BULLET)} ${str}`)
   }
 }
 
 const internalLogger = new InternalLogger()
 export default internalLogger
-
-export { logReport }
