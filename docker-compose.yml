@@ -45,11 +45,12 @@ services:
     volumes:
       # - ./packages/dev:/home/node/app/packages/dev
       - ./packages/dev/ignoreMe:/home/node/app/packages/dev/ignoreMe
+      - ./packages/dev/models:/home/node/app/packages/dev/models
       - ./packages/dev/static:/home/node/app/packages/dev/static
       - ./packages/dev/builder.json:/home/node/app/packages/dev/builder.json
       - ./packages/dev/config.ts:/home/node/app/packages/dev/config.ts
       - ./packages/dev/jobQueues.ts:/home/node/app/packages/dev/jobQueues.ts
-      - ./packages/dev/permissions.js:/home/node/app/packages/dev/permissions.js
+      - ./packages/dev/permissions.ts:/home/node/app/packages/dev/permissions.ts
       - ./packages/dev/shutdown.ts:/home/node/app/packages/dev/shutdown.ts
       - ./packages/dev/startup.ts:/home/node/app/packages/dev/startup.ts
       - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts

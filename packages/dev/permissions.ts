@@ -1,8 +1,6 @@
-const {
-  allow,
-  deny,
-  // isAdmin
-} = require('@coko/server/authorization')
+import { authorization } from '@coko/server'
+
+const { allow, deny } = authorization
 
 const permissions = {
   Query: {
@@ -15,4 +13,4 @@ const permissions = {
   },
 }
 
-module.exports = permissions
+export default permissions

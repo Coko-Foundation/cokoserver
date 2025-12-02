@@ -6,6 +6,7 @@ import mergeWith from 'lodash/mergeWith'
 import { findConfigurationFile } from '../utils/filesystem'
 import defaultConfig from './defaultConfig'
 import { ConfigSchema, ConfigType } from './configSchema'
+import logger from '../logger'
 
 function arrayCustomizer(objValue: any, srcValue: any): any[] | undefined {
   if (Array.isArray(objValue) && Array.isArray(srcValue)) {
@@ -37,6 +38,8 @@ export default class Config {
     if (configPath) {
       const { default: importedConfig } = await import(configPath)
       providedConfig = importedConfig
+    } else {
+      logger.warn('No config file found')
     }
 
     this.#values = mergeWith(

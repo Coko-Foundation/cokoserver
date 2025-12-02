@@ -44,9 +44,7 @@ const migrations = {
   },
 
   unlogMigration: async (migrationName: string): Promise<void> => {
-    await db.raw(`DELETE FROM ${MIGRATIONS_TABLE} WHERE id = ?`, [
-      migrationName,
-    ])
+    await db(MIGRATIONS_TABLE).where({ id: migrationName }).delete()
   },
 }
 

@@ -22,7 +22,7 @@ const findConfigurationFile = (
 
   const foundFiles = extensions.reduce((found, ext) => {
     const searchPath = path.join(basePath, `${filename}.${ext}`)
-    const exists = fs.existsSync(searchPath)
+    const exists = fs.existsSync(searchPath) && fs.statSync(searchPath).isFile()
 
     if (exists) found.push(searchPath)
     return found

@@ -47,6 +47,7 @@ import { clientUrl, serverUrl } from './utils/urls'
 import createGraphqlTestServer from './utils/createGraphqlTestServer'
 
 import config from './configManager/config'
+import * as authorization from './authorization'
 
 const createJWT = authentication.token.create
 const verifyJWT = authentication.token.verify
@@ -56,6 +57,7 @@ export {
   db,
   logger,
   config,
+  authorization,
 
   /* MODELS */
   BaseModel,

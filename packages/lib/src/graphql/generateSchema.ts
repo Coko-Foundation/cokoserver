@@ -11,6 +11,8 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import config from '../configManager/config'
 import internalLogger from '../logger/internals'
 import loadComponent from '../utils/loadComponent'
+import { readConfigurationFile } from '../utils/filesystem'
+import logger from '../logger'
 
 const resolverPerformanceMiddleware = async (
   resolve,
@@ -83,7 +85,9 @@ const generateSchema = async (): Promise<GraphQLSchema> => {
    * Authorization middleware
    */
 
-  const permissions = config.has('permissions') && config.get('permissions')
+  const permissionsFile = await readConfigurationFile('permissions')
+  if (!permissionsFile) logger.warn('No permissions file found...')
+  const permissions = permissionsFile?.default
   const isProduction = process.env.NODE_ENV === 'production'
 
   if (!isEmpty(permissions)) {

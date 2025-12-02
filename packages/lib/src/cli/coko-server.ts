@@ -17,6 +17,9 @@ const pkg = require('../../package.json')
 
 const outDir = path.join(process.cwd(), 'dist')
 
+const tsxPath = path.dirname(require.resolve('tsx'))
+const tsx = path.join(tsxPath, 'cli.mjs')
+
 program
   .command('build')
   .description('Build production server')
@@ -59,11 +62,9 @@ program
     const tsConfigPath = generateTsConfig(buildPath)
     const scriptPath = path.join(__dirname, '..', 'init.js')
 
-    const tsxPath = path.dirname(require.resolve('tsx'))
-    const tsxBinaryPath = path.join(tsxPath, 'cli.mjs')
     const nodeOptions = `--inspect=0.0.0.0:${inspectorPort}`
     const configOption = `--tsconfig ${tsConfigPath}`
-    const exec = `${tsxBinaryPath} ${nodeOptions} ${configOption}`
+    const exec = `${tsx} ${nodeOptions} ${configOption}`
 
     nodemon({
       script: scriptPath,
@@ -88,6 +89,17 @@ program
 const migrateCommand = program
   .command('migrate')
   .description('Run or roll back migrations')
+  .hook('preAction', async () => {
+    const { buildPath } = loadBuilderConfig()
+    const tsConfigPath = generateTsConfig(buildPath, true)
+
+    const { register } = await import('ts-node')
+
+    register({
+      transpileOnly: true,
+      project: tsConfigPath,
+    })
+  })
   .showHelpAfterError()
 
 migrateCommand
@@ -100,7 +112,11 @@ migrateCommand
   .description('Run migrations')
   .alias('run')
   .action(async options => {
+    const { default: config } = await import('../configManager/config')
     const { migrationManager } = await import('../db/index')
+
+    await config.init()
+    config.validate()
 
     try {
       const optionsToPass: Partial<MigrateOptions> = {}
@@ -131,7 +147,11 @@ migrateCommand
   .description('Roll back migrations')
   .alias('rollback')
   .action(async options => {
+    const { default: config } = await import('../configManager/config')
     const { migrationManager } = await import('../db/index')
+
+    await config.init()
+    config.validate()
 
     const optionsToPass: Partial<RollbackOptions> = {}
     const lastSuccessfulRun = options.lastSuccessfulRun === true
@@ -156,7 +176,11 @@ migrateCommand
   .command('pending')
   .description('Display pending migrations')
   .action(async () => {
+    const { default: config } = await import('../configManager/config')
     const { migrationManager } = await import('../db/index')
+
+    await config.init()
+    config.validate()
 
     try {
       await migrationManager.pending()
@@ -171,7 +195,11 @@ migrateCommand
   .command('executed')
   .description('Display executed migrations')
   .action(async () => {
+    const { default: config } = await import('../configManager/config')
     const { migrationManager } = await import('../db/index')
+
+    await config.init()
+    config.validate()
 
     try {
       await migrationManager.executed()

@@ -42,8 +42,9 @@ const updateCheckpoint = async (): Promise<void> => {
   const currentCheckpoint = await migrationsMeta.getCheckpoint()
 
   if (lastMigration === currentCheckpoint) {
-    internalLogger.point(`${baseMsg} Checkpoint already at latest migration.`)
-    internalLogger.point(`${baseMsg} Performing no operation.`)
+    internalLogger.point(
+      `${baseMsg} Checkpoint already at latest migration. Performing no operation.`,
+    )
     return
   }
 
@@ -51,7 +52,7 @@ const updateCheckpoint = async (): Promise<void> => {
 
   await migrationsMeta.setCheckpoint(lastMigration)
 
-  internalLogger.point(`${baseMsg} updated`)
+  internalLogger.success(`${baseMsg} updated`)
 }
 // #endregion helpers
 

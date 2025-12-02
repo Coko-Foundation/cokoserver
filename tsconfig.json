@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@coko/server": ["./packages/lib/src"]
+      "@coko/server": ["./packages/lib/dist"]
     },
 
     "allowJs": true,

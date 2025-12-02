@@ -106,7 +106,4 @@ export default {
   // integrations
   // services
   // chatGPT
-
-  // move out
-  // permissions
 }

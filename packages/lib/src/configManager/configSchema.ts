@@ -104,7 +104,7 @@ export const ConfigSchema = z.strictObject({
   passwordReset: PasswordResetConfigSchema.optional(),
   port: z.number().int().positive(),
   secret: z.string(),
-  sentry: SentrySchema,
+  sentry: SentrySchema.optional(),
   serverUrl: z.url(),
   staticFolders: z.array(StaticFolderSchema),
   suppressLoggerInTestEnv: z.boolean(),
@@ -114,7 +114,6 @@ export const ConfigSchema = z.strictObject({
 
   // drop
   integrations: z.record(z.string(), IntegrationConfigSchema).optional(),
-  permissions: z.object().optional(),
 })
 
 export type Teams = z.infer<typeof TeamsConfigSchema>

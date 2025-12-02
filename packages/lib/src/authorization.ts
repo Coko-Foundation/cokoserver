@@ -10,14 +10,14 @@ import {
   race,
 } from 'graphql-shield'
 
+import User from './models/user/user.model'
+
 const isAuthenticated = rule()(async (_parent, _args, ctx) => {
   return !!ctx.userId
 })
 
 const isAdmin = rule()(async (_parent, _args, ctx) => {
   if (!ctx.userId) return false
-
-  const { default: User } = await import('./src/models/user/user.model')
   return User.hasGlobalRole(ctx.userId, 'admin')
 })
 

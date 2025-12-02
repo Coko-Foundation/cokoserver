@@ -1,5 +1,3 @@
-import permissions from './permissions'
-
 export default {
   components: [
     '@coko/server/dist/models/activityLog',
@@ -11,6 +9,7 @@ export default {
     '@coko/server/dist/models/team',
     '@coko/server/dist/models/teamMember',
     '@coko/server/dist/models/user',
+    './models/myModel',
   ],
   teams: {
     global: [
@@ -54,6 +53,5 @@ export default {
         'https://api.sandbox.lulu.com/auth/realms/glasstree/protocol/openid-connect/token',
     },
   },
-  permissions,
   // random: true,
 }
