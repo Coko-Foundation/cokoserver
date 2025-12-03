@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
 import Config from '../ConfigConstructor'
+import { ConfigUnknownPropertyError } from '../errors'
 
 describe('Config', () => {
   it('does not allow custom properties outside of values', async () => {
@@ -29,5 +30,17 @@ describe('Config', () => {
     const config = new Config()
     await config.init({ secret: 'secretTest' })
     expect(config.get('secret')).toBe('secretTest')
+  })
+
+  it('throws an error if an unknown property is requested', async () => {
+    const config = new Config()
+    await config.init({
+      sentry: false,
+    })
+
+    expect(config.get('sentry')).toBe(false)
+
+    expect(config.has('unknown')).toBe(false)
+    expect(() => config.get('unknown')).toThrow(ConfigUnknownPropertyError)
   })
 })

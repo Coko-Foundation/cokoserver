@@ -2,11 +2,12 @@ import get from 'lodash/get'
 import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
 import mergeWith from 'lodash/mergeWith'
+import { ZodObject } from 'zod'
 
 import { findConfigurationFile } from '../utils/filesystem'
 import defaultConfig from './defaultConfig'
 import { ConfigSchema, ConfigType } from './configSchema'
-import ConfigSchemaError from './ConfigSchemaError'
+import { ConfigSchemaError, ConfigUnknownPropertyError } from './errors'
 import logger from '../logger'
 
 function arrayCustomizer(objValue: any, srcValue: any): any[] | undefined {
@@ -17,8 +18,34 @@ function arrayCustomizer(objValue: any, srcValue: any): any[] | undefined {
   return undefined
 }
 
+function extractOptions(schema: ZodObject, parent: string[] = []): string[] {
+  if (!schema.keyof) return []
+  const paths = []
+
+  let keys = schema.keyof().options
+  if (parent) keys = keys.map(k => [...parent, k].join('.'))
+  paths.push(...keys)
+
+  for (const key of Object.keys(schema.shape)) {
+    const item = schema.shape[key]
+
+    if (item.keyof) {
+      paths.push(...extractOptions(item, [...parent, key]))
+    } else if (item.def?.innerType?.keyof) {
+      paths.push(...extractOptions(item.def.innerType, [...parent, key]))
+    } else if (item.type === 'union') {
+      item.options.forEach(option => {
+        paths.push(...extractOptions(option, [...parent, key]))
+      })
+    }
+  }
+
+  return paths.sort()
+}
+
 export default class Config {
   #values: ConfigType
+  #allowedKeys: string[]
 
   constructor() {
     this.#values = defaultConfig
@@ -51,6 +78,8 @@ export default class Config {
       arrayCustomizer,
     )
 
+    this.#allowedKeys = extractOptions(ConfigSchema)
+
     Object.freeze(this)
   }
 
@@ -63,6 +92,10 @@ export default class Config {
   }
 
   get(key: string): any {
+    if (!this.#allowedKeys.includes(key)) {
+      throw new ConfigUnknownPropertyError(key)
+    }
+
     return get(this.#values, key)
   }
 
