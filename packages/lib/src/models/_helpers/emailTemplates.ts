@@ -90,11 +90,7 @@ const requestResetPasswordEmailNotFound = (context): EmailData => {
 
 const requestResetPassword = (context): EmailData => {
   const { email, token } = context
-
-  const pathToPage = config.has('passwordReset.pathToPage')
-    ? config.get('passwordReset.pathToPage')
-    : '/password-reset'
-
+  const pathToPage = config.get('passwordResetRedirect')
   const link = `${clientUrl}${pathToPage}/${token}`
 
   const content = `

@@ -59,10 +59,6 @@ const MailerConfigSchema = z.strictObject({
   transport: MailerTransportSchema,
 })
 
-const PasswordResetConfigSchema = z.strictObject({
-  path: z.string(),
-})
-
 const TeamConfigSchema = z.strictObject({
   displayName: z.string(),
   role: z.string(),
@@ -101,7 +97,7 @@ export const ConfigSchema = z.strictObject({
   corsOrigin: z.union([z.string(), z.array(z.string())]).optional(),
   fileStorage: z.union([FileStorageConfigSchema, z.literal(false)]),
   mailer: z.union([MailerConfigSchema, z.literal(false)]),
-  passwordReset: PasswordResetConfigSchema.optional(),
+  passwordResetRedirect: z.string(),
   port: z.number().int().positive(),
   secret: z.string(),
   sentry: z.union([SentrySchema, z.literal(false)]),

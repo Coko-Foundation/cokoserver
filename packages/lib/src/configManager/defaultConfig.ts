@@ -72,9 +72,7 @@ export default {
     },
   },
 
-  passwordReset: {
-    path: env('PASSWORD_RESET_PATH') || '/password-reset',
-  },
+  passwordResetRedirect: '/password-reset',
 
   port: env('SERVER_PORT', { type: 'number' }) || 3000,
   secret: env('SECRET')!,
