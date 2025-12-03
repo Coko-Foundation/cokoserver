@@ -43,4 +43,26 @@ describe('Config', () => {
     expect(config.has('unknown')).toBe(false)
     expect(() => config.get('unknown')).toThrow(ConfigUnknownPropertyError)
   })
+
+  it('validates the schema', async () => {
+    const configOne = new Config()
+    await configOne.init({
+      fileStorage: false,
+      mailer: false,
+      sentry: false,
+    })
+
+    configOne.validate()
+
+    const configTwo = new Config()
+    await configTwo.init({
+      // @ts-ignore
+      random: true,
+      fileStorage: false,
+      mailer: false,
+      sentry: false,
+    })
+
+    expect(configTwo.validate).toThrow()
+  })
 })

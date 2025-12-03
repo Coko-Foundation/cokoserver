@@ -104,6 +104,12 @@ export default class Config {
   }
 
   validate(): void {
+    // const result = ConfigSchema.safeParse(this.#values)
+
+    // if (result.error) {
+    //   throw new ConfigSchemaError(z.prettifyError(result.error))
+    // }
+
     try {
       ConfigSchema.parse(this.#values)
     } catch (e) {
