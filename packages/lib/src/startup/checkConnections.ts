@@ -54,7 +54,7 @@ const checkConnections = async (): Promise<void> => {
 
   await checkDbConnection()
 
-  if (config.has('useFileStorage') && config.get('useFileStorage')) {
+  if (config.get('fileStorage')) {
     try {
       await fileStorage.healthCheck()
       internalLogger.success('File storage connection successful')
