@@ -24,7 +24,6 @@ services:
       - SUBSCRIPTIONS_POSTGRES_DB=${SUBSCRIPTIONS_POSTGRES_DB}
       - SECRET=${SECRET:-secret}
       - SERVER_PORT=${SERVER_PORT:-3000}
-      - ALLOW_CONFIG_MUTATIONS=${ALLOW_CONFIG_MUTATIONS:-''}
       # - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
       # - SERVER_URL=http://www.google.com///
       # - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
