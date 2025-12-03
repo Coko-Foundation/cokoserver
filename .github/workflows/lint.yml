@@ -13,6 +13,7 @@ jobs:
         run: |
           corepack enable
           yarn install
+          yarn workspace @coko/server build
 
       - name: Lint
         run: yarn coko-lint run --skip-stylelint
