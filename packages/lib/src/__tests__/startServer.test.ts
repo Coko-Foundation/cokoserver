@@ -6,6 +6,7 @@ describe('Starting the server', () => {
     it('starts the server and returns it with express app attached', async () => {
       const server = await startServer({
         mailer: false,
+        sentry: false,
         components: [
           './src/models/user',
           './src/models/identity',

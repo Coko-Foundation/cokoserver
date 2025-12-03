@@ -39,7 +39,7 @@ services:
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-password}
       # - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
       # - CORS_ORIGIN=https://studio.apollographql.com
-      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_DSN=${SENTRY_DSN:-fake}
       - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-local}
       - SUPPRESS_LOGGER_IN_TEST_ENV=true
     volumes:

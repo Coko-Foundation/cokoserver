@@ -104,7 +104,7 @@ export const ConfigSchema = z.strictObject({
   passwordReset: PasswordResetConfigSchema.optional(),
   port: z.number().int().positive(),
   secret: z.string(),
-  sentry: SentrySchema.optional(),
+  sentry: z.union([SentrySchema, z.literal(false)]),
   serverUrl: z.url(),
   staticFolders: z.array(StaticFolderSchema),
   suppressLoggerInTestEnv: z.boolean(),

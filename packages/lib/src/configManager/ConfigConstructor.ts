@@ -6,6 +6,7 @@ import mergeWith from 'lodash/mergeWith'
 import { findConfigurationFile } from '../utils/filesystem'
 import defaultConfig from './defaultConfig'
 import { ConfigSchema, ConfigType } from './configSchema'
+import ConfigSchemaError from './ConfigSchemaError'
 import logger from '../logger'
 
 function arrayCustomizer(objValue: any, srcValue: any): any[] | undefined {
@@ -70,6 +71,10 @@ export default class Config {
   }
 
   validate(): void {
-    ConfigSchema.parse(this.#values)
+    try {
+      ConfigSchema.parse(this.#values)
+    } catch (e) {
+      throw new ConfigSchemaError(e)
+    }
   }
 }
