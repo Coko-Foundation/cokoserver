@@ -31,6 +31,8 @@ describe('Job queues', () => {
         {
           name: 'test-me',
           handler: () => {},
+          teamConcurrency: 5,
+          teamSize: 5,
         },
       ],
     })
@@ -68,6 +70,21 @@ describe('Job queues', () => {
       expect(newSize).toBe(0)
     })
 
+    it('gets the queue size', async () => {
+      const name = 'test-me'
+
+      await jobManager.sendToQueue(name, { id: 1 })
+      await jobManager.sendToQueue(name, { id: 2 })
+
+      const size = await jobManager.getQueueSize(name)
+      expect(size).toBe(2)
+
+      await wait(N)
+
+      const updatedSize = await jobManager.getQueueSize(name)
+      expect(updatedSize).toBe(0)
+    })
+
     it('defers a job to run later', async () => {
       const name = 'test-me'
 
@@ -83,6 +100,42 @@ describe('Job queues', () => {
       const newSize = await boss.getQueueSize(name)
       expect(newSize).toBe(0)
     }, 10000)
+
+    it('waits for a queue to empty', async () => {
+      const name = 'test-me'
+
+      await jobManager.sendToQueue(name, { id: 1 })
+      await jobManager.sendToQueue(name, { id: 2 })
+      await jobManager.sendToQueue(name, { id: 3 })
+      await jobManager.sendToQueue(name, { id: 4 })
+      await jobManager.sendToQueue(name, { id: 5 })
+      await jobManager.sendToQueue(name, { id: 6 })
+      await jobManager.sendToQueue(name, { id: 7 })
+      await jobManager.sendToQueue(name, { id: 8 })
+      await jobManager.sendToQueue(name, { id: 9 })
+
+      await jobManager.waitFotQueueToEmpty(name)
+      const size = await jobManager.getQueueSize(name)
+      expect(size).toBe(0)
+    })
+
+    it('throws when waiting for a queue to empty exceeds timeout', async () => {
+      const name = 'test-me'
+
+      await jobManager.sendToQueue(name, { id: 1 })
+      await jobManager.sendToQueue(name, { id: 2 })
+      await jobManager.sendToQueue(name, { id: 3 })
+      await jobManager.sendToQueue(name, { id: 4 })
+      await jobManager.sendToQueue(name, { id: 5 })
+      await jobManager.sendToQueue(name, { id: 6 })
+      await jobManager.sendToQueue(name, { id: 7 })
+      await jobManager.sendToQueue(name, { id: 8 })
+      await jobManager.sendToQueue(name, { id: 9 })
+
+      await expect(() =>
+        jobManager.waitFotQueueToEmpty(name, { timeout: 1000 }),
+      ).rejects.toThrow()
+    })
 
     it('cannot accept invalid options when sending a job', async () => {
       const name = 'test-me'

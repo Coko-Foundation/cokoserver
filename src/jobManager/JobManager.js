@@ -29,6 +29,51 @@ class JobManager {
     JobManager.#validateOptions(this.#validationSchemas.send, options)
     await this.#boss.send(queueName, data, options)
   }
+
+  async getQueueSize(queueName) {
+    const size = await this.#boss.getQueueSize(queueName)
+    return size
+  }
+
+  async waitFotQueueToEmpty(queueName, options = {}) {
+    const interval = options.interval || 500
+    const timeout = options.timeout || 60000
+    const selfBoss = this.#boss
+
+    return new Promise((resolve, reject) => {
+      /* eslint-disable prefer-const */
+      let intervalId
+      let timeoutId
+      /* eslint-enable prefer-const */
+
+      async function checkIsEmpty() {
+        try {
+          const size = await selfBoss.getQueueSize(queueName)
+
+          if (size === 0) {
+            clearInterval(intervalId)
+            clearTimeout(timeoutId)
+            resolve()
+          }
+        } catch (e) {
+          clearInterval(intervalId)
+          clearTimeout(timeoutId)
+          reject(e)
+        }
+      }
+
+      intervalId = setInterval(checkIsEmpty, interval)
+
+      timeoutId = setTimeout(() => {
+        clearInterval(intervalId)
+        reject(
+          new Error(
+            `Waiting for queue ${queueName} to empty timed out after ${timeout} ms.`,
+          ),
+        )
+      }, timeout)
+    })
+  }
 }
 
 module.exports = { JobManager, jobManager: new JobManager(boss) }
