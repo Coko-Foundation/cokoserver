@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.21.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.20.0...v4.21.0) (2025-12-09)
+
+
+### Features
+
+* **job manager:** add getQueueSize and waitForQueueToEmpty methods ([b8bd673](https://github.com/Coko-Foundation/cokoserver/commit/b8bd6731039dc443ee5e6c25cd7400ccca373a85))
+
 ## [4.20.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.19.0...v4.20.0) (2025-11-26)
 
 
