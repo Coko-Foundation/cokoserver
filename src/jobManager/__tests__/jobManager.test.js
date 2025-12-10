@@ -114,7 +114,7 @@ describe('Job queues', () => {
       await jobManager.sendToQueue(name, { id: 8 })
       await jobManager.sendToQueue(name, { id: 9 })
 
-      await jobManager.waitFotQueueToEmpty(name)
+      await jobManager.waitForQueueToEmpty(name)
       const size = await jobManager.getQueueSize(name)
       expect(size).toBe(0)
     })
@@ -133,7 +133,7 @@ describe('Job queues', () => {
       await jobManager.sendToQueue(name, { id: 9 })
 
       await expect(() =>
-        jobManager.waitFotQueueToEmpty(name, { timeout: 1000 }),
+        jobManager.waitForQueueToEmpty(name, { timeout: 1000 }),
       ).rejects.toThrow()
     })
 

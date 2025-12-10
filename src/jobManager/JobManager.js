@@ -35,7 +35,7 @@ class JobManager {
     return size
   }
 
-  async waitFotQueueToEmpty(queueName, options = {}) {
+  async waitForQueueToEmpty(queueName, options = {}) {
     const interval = options.interval || 500
     const timeout = options.timeout || 60000
     const selfBoss = this.#boss
