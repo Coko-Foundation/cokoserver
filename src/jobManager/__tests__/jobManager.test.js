@@ -34,6 +34,14 @@ describe('Job queues', () => {
           teamConcurrency: 5,
           teamSize: 5,
         },
+        {
+          name: 'long-running',
+          handler: async () => {
+            await wait(N * 1.2)
+          },
+          teamConcurrency: 5,
+          teamSize: 5,
+        },
       ],
     })
 
@@ -41,8 +49,12 @@ describe('Job queues', () => {
       await start(config)
     })
 
-    afterEach(async () => {
-      await boss.deleteAllQueues()
+    beforeEach(async () => {
+      await boss.clearStorage()
+    })
+
+    afterAll(async () => {
+      await boss.clearStorage()
     })
 
     it('sends a job to the queue', async () => {
@@ -118,6 +130,21 @@ describe('Job queues', () => {
       const size = await jobManager.getQueueSize(name)
       expect(size).toBe(0)
     })
+
+    it('waits for a job to complete', async () => {
+      const queueName = 'long-running'
+
+      const initialSize = await jobManager.getQueueSize(queueName)
+      expect(initialSize).toBe(0)
+
+      await jobManager.sendToQueue(queueName, { someId: 'hello' })
+      await jobManager.sendToQueue(queueName, { someId: 'goodbye' })
+
+      await jobManager.waitForJobsToFinish(queueName, { someId: 'hello' })
+
+      const size = await jobManager.getQueueSize(queueName)
+      expect(size).toBe(0)
+    }, 20000)
 
     it('throws when waiting for a queue to empty exceeds timeout', async () => {
       const name = 'test-me'
