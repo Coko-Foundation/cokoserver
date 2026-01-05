@@ -48,6 +48,7 @@ services:
       - ./packages/dev/static:/home/node/app/packages/dev/static
       - ./packages/dev/builder.json:/home/node/app/packages/dev/builder.json
       - ./packages/dev/config.ts:/home/node/app/packages/dev/config.ts
+      - ./packages/dev/configSchema.ts:/home/node/app/packages/dev/configSchema.ts
       - ./packages/dev/jobQueues.ts:/home/node/app/packages/dev/jobQueues.ts
       - ./packages/dev/permissions.ts:/home/node/app/packages/dev/permissions.ts
       - ./packages/dev/shutdown.ts:/home/node/app/packages/dev/shutdown.ts

@@ -52,17 +52,15 @@ describe('Config', () => {
       sentry: false,
     })
 
-    configOne.validate()
-
     const configTwo = new Config()
-    await configTwo.init({
-      // @ts-ignore
-      random: true,
-      fileStorage: false,
-      mailer: false,
-      sentry: false,
-    })
-
-    expect(configTwo.validate).toThrow()
+    await expect(() =>
+      configTwo.init({
+        // @ts-ignore
+        random: true,
+        fileStorage: false,
+        mailer: false,
+        sentry: false,
+      }),
+    ).rejects.toThrow()
   })
 })

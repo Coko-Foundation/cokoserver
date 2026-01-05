@@ -2,11 +2,11 @@ import get from 'lodash/get'
 import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
 import mergeWith from 'lodash/mergeWith'
-import { ZodObject } from 'zod'
+import { z, ZodObject } from 'zod'
 
-import { findConfigurationFile } from '../utils/filesystem'
+import { readConfigurationFile } from '../utils/filesystem'
 import defaultConfig from './defaultConfig'
-import { ConfigSchema, ConfigType } from './configSchema'
+import { ConfigSchema as defaultSchema, ConfigType } from './configSchema'
 import { ConfigSchemaError, ConfigUnknownPropertyError } from './errors'
 import logger from '../logger'
 
@@ -52,22 +52,27 @@ export default class Config {
   }
 
   async init(overrideValues?: Partial<ConfigType>): Promise<void> {
-    const { default: loadBuilderConfig } =
-      await import('../cli/loadBuilderConfig')
+    let providedSchema = z.object({})
+    const providedSchemaFile = await readConfigurationFile('configSchema')
 
-    const builderConfig = loadBuilderConfig()
+    if (!providedSchemaFile) {
+      logger.warn('No config schema file')
+    } else {
+      providedSchema = providedSchemaFile.default
+    }
 
-    const configPath = findConfigurationFile('config', {
-      basePath: builderConfig.configPath,
+    const schema = z.strictObject({
+      ...defaultSchema.shape,
+      ...providedSchema.shape,
     })
 
     let providedConfig = {}
+    const providedConfigFile = await readConfigurationFile('config')
 
-    if (configPath) {
-      const { default: importedConfig } = await import(configPath)
-      providedConfig = importedConfig
-    } else {
+    if (!providedConfigFile) {
       logger.warn('No config file found')
+    } else {
+      providedConfig = providedConfigFile.default
     }
 
     this.#values = mergeWith(
@@ -78,7 +83,8 @@ export default class Config {
       arrayCustomizer,
     )
 
-    this.#allowedKeys = extractOptions(ConfigSchema)
+    this.validate(schema)
+    this.#allowedKeys = extractOptions(schema)
 
     Object.freeze(this)
   }
@@ -103,15 +109,9 @@ export default class Config {
     return has(this.#values, key) && !isEmpty(get(this.#values, key))
   }
 
-  validate(): void {
-    // const result = ConfigSchema.safeParse(this.#values)
-
-    // if (result.error) {
-    //   throw new ConfigSchemaError(z.prettifyError(result.error))
-    // }
-
+  validate(schema): void {
     try {
-      ConfigSchema.parse(this.#values)
+      schema.parse(this.#values)
     } catch (e) {
       throw new ConfigSchemaError(e)
     }

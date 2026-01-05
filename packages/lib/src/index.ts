@@ -1,4 +1,6 @@
 import { v4 as uuid, validate as uuidValidate } from 'uuid'
+import { z } from 'zod'
+
 import { withFilter } from 'graphql-subscriptions'
 import { sendEmail } from './services/sendEmail'
 import logger from './logger'
@@ -58,6 +60,7 @@ export {
   logger,
   config,
   authorization,
+  z,
 
   /* MODELS */
   BaseModel,

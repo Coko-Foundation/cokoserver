@@ -116,7 +116,6 @@ migrateCommand
     const { migrationManager } = await import('../db/index')
 
     await config.init()
-    config.validate()
 
     try {
       const optionsToPass: Partial<MigrateOptions> = {}
@@ -151,7 +150,6 @@ migrateCommand
     const { migrationManager } = await import('../db/index')
 
     await config.init()
-    config.validate()
 
     const optionsToPass: Partial<RollbackOptions> = {}
     const lastSuccessfulRun = options.lastSuccessfulRun === true
@@ -180,7 +178,6 @@ migrateCommand
     const { migrationManager } = await import('../db/index')
 
     await config.init()
-    config.validate()
 
     try {
       await migrationManager.pending()
@@ -199,7 +196,6 @@ migrateCommand
     const { migrationManager } = await import('../db/index')
 
     await config.init()
-    config.validate()
 
     try {
       await migrationManager.executed()

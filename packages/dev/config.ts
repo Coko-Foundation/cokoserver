@@ -53,5 +53,5 @@ export default {
         'https://api.sandbox.lulu.com/auth/realms/glasstree/protocol/openid-connect/token',
     },
   },
-  // random: true,
+  random: false,
 }

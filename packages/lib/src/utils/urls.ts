@@ -12,7 +12,11 @@ const sanitizeUrlByConfigKey = (configKey: string): string => {
   return sanitizeUrl(url)
 }
 
-const clientUrl = sanitizeUrlByConfigKey('clientUrl')
-const serverUrl = sanitizeUrlByConfigKey('serverUrl')
+let clientUrl: string, serverUrl: string
 
-export { sanitizeUrlByConfigKey, clientUrl, serverUrl }
+function initUrls(): void {
+  clientUrl = sanitizeUrlByConfigKey('clientUrl')
+  serverUrl = sanitizeUrlByConfigKey('serverUrl')
+}
+
+export { sanitizeUrlByConfigKey, clientUrl, serverUrl, initUrls }

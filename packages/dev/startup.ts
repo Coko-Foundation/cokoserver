@@ -1,3 +1,4 @@
+// import { clientUrl, serverUrl } from '@coko/server'
 import typescriptTest from './testme'
 
 export default [
@@ -48,13 +49,15 @@ export default [
     },
   },
   // {
-  //   label: 'Make a config object',
-  //   execute: async () => {
-  //     const { default: Config } = await import(
-  //       '../../src/configManager/Config'
-  //     )
-  //     const x = new Config()
-  //     await x.init()
+  //   label: 'Test urls',
+  //   execute: (): void => {
+  //     console.log(`client url ${clientUrl}`)
+  //     console.log('client url:', clientUrl)
+  //     console.log('client url split:', clientUrl.split(':'))
+
+  //     console.log(`server url ${serverUrl}`)
+  //     console.log('server url:', serverUrl)
+  //     console.log('server url split:', serverUrl.split(':'))
   //   },
   // },
 ]

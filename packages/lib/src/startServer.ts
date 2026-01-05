@@ -8,12 +8,16 @@ import * as Sentry from '@sentry/node'
 // import morgan from 'morgan'
 
 import internalLogger from './logger/internals'
+import db from './db/db'
+import subscriptionManager from './graphql/pubsub'
 import healthcheck from './healthcheck'
 import { ensureTempFolderExists } from './utils/filesystem'
 import errorStatuses from './startup/errorStatuses'
 
 import config from './configManager/config'
 import { ConfigType } from './configManager/configSchema'
+import fileStorage from './fileStorage'
+import { initUrls } from './utils/urls'
 
 let server: http.Server
 
@@ -32,13 +36,16 @@ export const startServer = async (
 
   internalLogger.section('Load config')
   await config.init(testConfig)
-  config.validate()
   internalLogger.success('Configuration valid!')
 
   internalLogger.section(`Ensure tmp folder exists`)
   await ensureTempFolderExists()
   internalLogger.success(`tmp folder now exists`)
 
+  db.init()
+  subscriptionManager.init()
+  fileStorage.init()
+  initUrls()
   const { checkConnections } = await import('./startup/checkConnections')
   await checkConnections()
 
@@ -200,13 +207,11 @@ export const shutdownFn = async (): Promise<void> => {
 
   if (config.get('useGraphQLServer')) {
     internalLogger.section('Shut down subscription client')
-    const { default: subscriptionManager } = await import('./graphql/pubsub')
     await subscriptionManager.client.end()
     internalLogger.success('Subscription client successfully shut down')
   }
 
   internalLogger.section('Shut down database connection')
-  const { db } = await import('./db')
   await db.destroy()
 
   internalLogger.success('Database connection successfully shut down')
