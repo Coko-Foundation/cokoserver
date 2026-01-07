@@ -8,8 +8,6 @@ import BuilderConfigError from './BuilderConfigError'
 import logger from '../logger/index'
 
 const builderConfigSchema = z.strictObject({
-  buildPath: z.string(),
-  configPath: z.string().optional(),
   devServer: z.strictObject({
     ignore: z.array(z.string()),
     inspectorPort: z.number().int().positive(),
@@ -19,7 +17,6 @@ const builderConfigSchema = z.strictObject({
 type BuilderConfig = z.infer<typeof builderConfigSchema>
 
 const DEFAULT_CONFIG = {
-  buildPath: `${process.cwd()}/**/*`,
   devServer: {
     ignore: ['./tmp/*'],
     inspectorPort: 9229,

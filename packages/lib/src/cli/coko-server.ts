@@ -32,8 +32,7 @@ program
   .action(() => {
     logger.info('🛠  Building TypeScript...')
 
-    const { buildPath } = loadBuilderConfig()
-    const tsConfig = generateTsConfig(buildPath)
+    const tsConfig = generateTsConfig()
 
     const command = `
       echo ${tsConfig} |
@@ -61,11 +60,10 @@ program
   .showHelpAfterError()
   .action(async () => {
     const {
-      buildPath,
       devServer: { inspectorPort, ignore },
     } = loadBuilderConfig()
 
-    const tsConfig = generateTsConfig(buildPath)
+    const tsConfig = generateTsConfig()
     const scriptPath = path.join(__dirname, '..', 'init.js')
 
     const exec = `
@@ -97,8 +95,7 @@ const migrateCommand = program
   .command('migrate')
   .description('Run or roll back migrations')
   .hook('preAction', async () => {
-    const { buildPath } = loadBuilderConfig()
-    const tsConfig = generateTsConfig(buildPath)
+    const tsConfig = generateTsConfig()
 
     const { register } = await import('ts-node')
 

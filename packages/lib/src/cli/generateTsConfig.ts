@@ -9,9 +9,9 @@ interface TSConfig {
 
 const base = require('./tsConfig.json')
 
-function generateTsConfig(buildPath: string): TSConfig {
+function generateTsConfig(): TSConfig {
   const modified = { ...base }
-  const buildAbsolutePath = path.resolve(buildPath)
+  const buildAbsolutePath = path.resolve(`${process.cwd()}/**/*`)
   modified.include = [buildAbsolutePath]
   return modified
 }
