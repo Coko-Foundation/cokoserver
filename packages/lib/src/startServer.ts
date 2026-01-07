@@ -8,16 +8,27 @@ import * as Sentry from '@sentry/node'
 // import morgan from 'morgan'
 
 import internalLogger from './logger/internals'
-import db from './db/db'
+import { db, migrationManager } from './db'
 import subscriptionManager from './graphql/pubsub'
 import healthcheck from './healthcheck'
 import { ensureTempFolderExists } from './utils/filesystem'
 import errorStatuses from './startup/errorStatuses'
-
 import config from './configManager/config'
 import { ConfigType } from './configManager/configSchema'
 import fileStorage from './fileStorage'
 import { initUrls } from './utils/urls'
+import { checkConnections } from './startup/checkConnections'
+import seedGlobalTeams from './startup/seedGlobalTeams'
+import {
+  runCustomStartupScripts,
+  runCustomShutdownScripts,
+} from './startup/customScripts'
+import cors from './startup/cors'
+import authentication from './authentication'
+import mountStatic from './startup/static'
+import registerComponents from './startup/registerComponents'
+import setupGraphqlServer from './graphql/setup'
+import { jobManager } from './jobManager'
 
 let server: http.Server
 
@@ -46,16 +57,12 @@ export const startServer = async (
   subscriptionManager.init()
   fileStorage.init()
   initUrls()
-  const { checkConnections } = await import('./startup/checkConnections')
   await checkConnections()
 
-  const { migrationManager } = await import('./db')
   await migrationManager.migrate()
 
-  const { default: seedGlobalTeams } = await import('./startup/seedGlobalTeams')
   await seedGlobalTeams()
 
-  const { runCustomStartupScripts } = await import('./startup/customScripts')
   await runCustomStartupScripts()
 
   const app = express()
@@ -110,8 +117,6 @@ export const startServer = async (
   }
 
   app.use(helmet(helmetConfig))
-
-  const { default: cors } = await import('./startup/cors')
   app.use(cors())
 
   // morgan.token('graphql', ({ body }, _res, type) => {
@@ -134,7 +139,6 @@ export const startServer = async (
   //   }),
   // )
 
-  const { default: authentication } = await import('./authentication')
   // @ts-ignore
   app.use(passport.initialize())
   passport.use('bearer', authentication.strategies.bearer)
@@ -143,19 +147,14 @@ export const startServer = async (
 
   app.get('/healthcheck', healthcheck)
 
-  const { default: mountStatic } = await import('./startup/static')
   mountStatic(app)
 
-  const { default: registerComponents } =
-    await import('./startup/registerComponents')
   await registerComponents(app)
 
   if (config.get('useGraphQLServer')) {
-    const { default: setupGraphqlServer } = await import('./graphql/setup')
     await setupGraphqlServer(httpServer, app, passport)
   }
 
-  const { jobManager } = await import('./jobManager')
   await jobManager.init()
 
   internalLogger.section(`Starting HTTP server`)
@@ -194,7 +193,6 @@ export const startServer = async (
 }
 
 export const shutdownFn = async (): Promise<void> => {
-  const { runCustomShutdownScripts } = await import('./startup/customScripts')
   await runCustomShutdownScripts()
 
   internalLogger.section('Shut down http server')
@@ -202,7 +200,6 @@ export const shutdownFn = async (): Promise<void> => {
   server = undefined
   internalLogger.success('Http server successfully shut down')
 
-  const { jobManager } = await import('./jobManager')
   await jobManager.stop({ destroy: true })
 
   if (config.get('useGraphQLServer')) {

@@ -12,6 +12,8 @@ import internalLogger from '../logger/internals'
 import loadBuilderConfig from './loadBuilderConfig'
 import generateTsConfig from './generateTsConfig'
 import { MigrateOptions, RollbackOptions } from '../db/migrate'
+import { db, migrationManager } from '../db'
+import config from '../configManager/config'
 
 const pkg = require('../../package.json')
 
@@ -99,6 +101,9 @@ const migrateCommand = program
       transpileOnly: true,
       project: tsConfigPath,
     })
+
+    await config.init()
+    db.init()
   })
   .showHelpAfterError()
 
@@ -112,11 +117,6 @@ migrateCommand
   .description('Run migrations')
   .alias('run')
   .action(async options => {
-    const { default: config } = await import('../configManager/config')
-    const { migrationManager } = await import('../db/index')
-
-    await config.init()
-
     try {
       const optionsToPass: Partial<MigrateOptions> = {}
 
@@ -146,11 +146,6 @@ migrateCommand
   .description('Roll back migrations')
   .alias('rollback')
   .action(async options => {
-    const { default: config } = await import('../configManager/config')
-    const { migrationManager } = await import('../db/index')
-
-    await config.init()
-
     const optionsToPass: Partial<RollbackOptions> = {}
     const lastSuccessfulRun = options.lastSuccessfulRun === true
     const step = parseInt(options.step, 10)
@@ -174,11 +169,6 @@ migrateCommand
   .command('pending')
   .description('Display pending migrations')
   .action(async () => {
-    const { default: config } = await import('../configManager/config')
-    const { migrationManager } = await import('../db/index')
-
-    await config.init()
-
     try {
       await migrationManager.pending()
       process.exit(0)
@@ -192,11 +182,6 @@ migrateCommand
   .command('executed')
   .description('Display executed migrations')
   .action(async () => {
-    const { default: config } = await import('../configManager/config')
-    const { migrationManager } = await import('../db/index')
-
-    await config.init()
-
     try {
       await migrationManager.executed()
       process.exit(0)

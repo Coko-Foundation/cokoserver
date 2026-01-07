@@ -1,7 +1,7 @@
 import { ApolloServer } from '@apollo/server'
+import generateSchema from '../graphql/generateSchema'
 
 const createGraphqlTestServer = async (): Promise<ApolloServer> => {
-  const { default: generateSchema } = await import('../graphql/generateSchema')
   const schema = await generateSchema()
   return new ApolloServer({ schema })
 }

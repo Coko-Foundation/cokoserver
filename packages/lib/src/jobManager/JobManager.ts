@@ -11,6 +11,7 @@ import { JobManagerError, JobManagerOptionsError } from './errors'
 import wait from '../utils/wait'
 import { readConfigurationFile } from '../utils/filesystem'
 import defaultJobQueueNames from './defaultJobQueueNames'
+import { defaultJobQueues } from './defaultJobQueues'
 
 const sendOptionsSchema = z.strictObject({
   startAfter: z.number().int().positive().optional(),
@@ -116,7 +117,6 @@ class JobManager {
     internalLogger.success('Connected to job queue')
 
     internalLogger.section('Register built-in job queues')
-    const { defaultJobQueues } = await import('./defaultJobQueues')
     await this.#registerQueues(defaultJobQueues, false)
 
     internalLogger.point('Registering custom job queues')

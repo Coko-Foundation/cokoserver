@@ -23,13 +23,13 @@ type Context = {
   userId: string | null
 }
 
-const sentryDsn = config.get('sentry.dsn')
-
 const setup = async (
   httpServer: http.Server,
   app: Express,
   passport,
 ): Promise<void> => {
+  const sentryDsn = config.get('sentry.dsn')
+
   // it is important that this runs before generateSchema (applyMiddleware specifically),
   // otherwise uploads will not work, showing a POST body empty error
   app.use(graphqlUploadExpress())
