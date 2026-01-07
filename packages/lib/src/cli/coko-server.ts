@@ -19,6 +19,9 @@ const pkg = require('../../package.json')
 
 const outDir = path.join(process.cwd(), 'dist')
 
+const tscPath = path.dirname(require.resolve('typescript'))
+const tsc = path.join(tscPath, '..', 'bin', 'tsc')
+
 const tsxPath = path.dirname(require.resolve('tsx'))
 const tsx = path.join(tsxPath, 'cli.mjs')
 
@@ -30,11 +33,12 @@ program
     logger.info('🛠  Building TypeScript...')
 
     const { buildPath } = loadBuilderConfig()
-    const tsConfigPath = generateTsConfig(buildPath)
+    const tsConfig = generateTsConfig(buildPath)
 
-    const typescriptPath = path.dirname(require.resolve('typescript'))
-    const tscBinaryPath = path.join(typescriptPath, '..', 'bin', 'tsc')
-    const command = `${tscBinaryPath} --project ${tsConfigPath} --outDir ${outDir}`
+    const command = `
+      echo ${tsConfig} |
+      ${tsc} --project /dev/stdin --outDir ${outDir}
+    `.trim()
 
     execSync(command, { stdio: 'inherit' })
 
@@ -61,12 +65,13 @@ program
       devServer: { inspectorPort, ignore },
     } = loadBuilderConfig()
 
-    const tsConfigPath = generateTsConfig(buildPath)
+    const tsConfig = generateTsConfig(buildPath)
     const scriptPath = path.join(__dirname, '..', 'init.js')
 
-    const nodeOptions = `--inspect=0.0.0.0:${inspectorPort}`
-    const configOption = `--tsconfig ${tsConfigPath}`
-    const exec = `${tsx} ${nodeOptions} ${configOption}`
+    const exec = `
+      echo ${tsConfig} |
+      ${tsx} --inspect=0.0.0.0:${inspectorPort} --tsconfig /dev/stdin
+    `.trim()
 
     nodemon({
       script: scriptPath,
@@ -93,13 +98,13 @@ const migrateCommand = program
   .description('Run or roll back migrations')
   .hook('preAction', async () => {
     const { buildPath } = loadBuilderConfig()
-    const tsConfigPath = generateTsConfig(buildPath, true)
+    const tsConfig = generateTsConfig(buildPath)
 
     const { register } = await import('ts-node')
 
     register({
       transpileOnly: true,
-      project: tsConfigPath,
+      compilerOptions: tsConfig.compilerOptions,
     })
 
     await config.init()
