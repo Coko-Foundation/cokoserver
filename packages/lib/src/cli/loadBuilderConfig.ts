@@ -5,7 +5,7 @@ import { z } from 'zod'
 import mergeWith from 'lodash/mergeWith'
 
 import BuilderConfigError from './BuilderConfigError'
-import logger from '../logger/index'
+import internalLogger from '../logger/internals'
 
 const builderConfigSchema = z.strictObject({
   devServer: z.strictObject({
@@ -35,7 +35,7 @@ function defineBuilderConfig(): BuilderConfig {
   const configPath = path.join(process.cwd(), 'builder.json')
 
   if (!fs.existsSync(configPath)) {
-    logger.info(
+    internalLogger.builder(
       'Configuration file "builder.json" not found. Using default configuration.',
     )
 
@@ -63,6 +63,7 @@ function defineBuilderConfig(): BuilderConfig {
 
 function loadBuilderConfig(): BuilderConfig {
   const config = defineBuilderConfig()
+  internalLogger.builder(`Ignored files: ${config.devServer.ignore}`)
   return config
 }
 

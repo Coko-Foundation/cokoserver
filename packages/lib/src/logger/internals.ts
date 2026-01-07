@@ -23,6 +23,16 @@ const suppress =
 class InternalLogger {
   primary = chalk.hex('#4169E1')
 
+  builder(str: string, options: NewLineOptions = {}): void {
+    if (suppress) return
+
+    console.log(
+      chalk.yellow(
+        `${options.newLineBefore ? '\n' : ''}${COG}  [builder] ${str}${options.newLineAfter ? '\n' : ''}`,
+      ),
+    )
+  }
+
   error(str: string): void {
     if (suppress) return
     console.log(`${chalk.red(CROSS)} ${str}`)
