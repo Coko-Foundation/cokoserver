@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
+const { logger } = require('@coko/server')
 
 export default function greet(name: string): void {
-  console.log(`Hello, ${name.toUpperCase()}!`)
+  logger.info(`Hello, ${name.toUpperCase()}!`)
 }

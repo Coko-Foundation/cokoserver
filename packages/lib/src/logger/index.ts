@@ -1,32 +1,51 @@
+import pino from 'pino'
+import pretty from 'pino-pretty'
+
 import { env } from '../utils/env'
 
-global.console.debug = (...args: any[]): void => global.console.log(args)
-const logger = global.console
+let logger: pino.Logger
+
+if (env('NODE_ENV') === 'production') {
+  logger = pino({
+    formatters: {
+      level: label => {
+        return { level: label.toUpperCase() }
+      },
+    },
+    timestamp: pino.stdTimeFunctions.isoTime,
+  })
+} else {
+  logger = pino(
+    pretty({
+      sync: true,
+    }),
+  )
+}
 
 /**
  * Do not use config here, as config itself imports the logger, creating a
  * circular dependency.
  */
 
-const isTest = process.env.NODE_ENV === 'test'
+const isTest = env('NODE_ENV') === 'test'
 const suppress =
   isTest && env('SUPPRESS_LOGGER_IN_TEST_ENV', { type: 'boolean' })
 
 export default {
   error: (...args: any[]): void => {
     if (suppress) return
-    logger.error(...args)
+    logger.error(args[0], ...args.slice(1))
   },
   warn: (...args: any[]): void => {
     if (suppress) return
-    logger.warn(...args)
+    logger.warn(args[0], ...args.slice(1))
   },
   info: (...args: any[]): void => {
     if (suppress) return
-    logger.info(...args)
+    logger.info(args[0], ...args.slice(1))
   },
   debug: (...args: any[]): void => {
     if (suppress) return
-    logger.debug(...args)
+    logger.debug(args[0], ...args.slice(1))
   },
 }

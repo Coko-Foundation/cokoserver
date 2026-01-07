@@ -7,7 +7,6 @@ services:
       - db
       - filehosting
       - createbucket
-      - mailhog
     # command: ['yarn', 'workspace', 'dev', 'coko-server', 'start-dev']
     command: node ./startDev.js
     ports:
