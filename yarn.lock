@@ -1860,14 +1860,13 @@ __metadata:
     graphql: "npm:^16.12.0"
     graphql-middleware: "npm:^6.1.35"
     graphql-shield: "npm:^7.6.5"
-    graphql-subscriptions: "npm:2.0.0"
+    graphql-subscriptions: "npm:^3.0.0"
     graphql-tag: "npm:^2.12.6"
     graphql-upload: "npm:^15.0.2"
     graphql-ws: "npm:^5.16.0"
     helmet: "npm:^8.1.0"
     http-status-codes: "npm:^2.3.0"
     image-size: "npm:^1.1.1"
-    iterall: "npm:^1.3.0"
     jsonwebtoken: "npm:^9.0.3"
     knex: "npm:^3.1.0"
     lodash: "npm:^4.17.21"
@@ -10290,14 +10289,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-subscriptions@npm:2.0.0":
-  version: 2.0.0
-  resolution: "graphql-subscriptions@npm:2.0.0"
-  dependencies:
-    iterall: "npm:^1.3.0"
+"graphql-subscriptions@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "graphql-subscriptions@npm:3.0.0"
   peerDependencies:
     graphql: ^15.7.2 || ^16.0.0
-  checksum: 10c0/d48559de5d76a9e5bca882be1b52b779f270039f9e7b2210c005128b08b4dca100d3ee37a5c00862b668f17208c43737ab10322565f30bfabf477a25e76f254e
+  checksum: 10c0/10445c0d376773d15c887237ac460226b03e0b9c76789846f9133e3cfba6275b529f946634cd5a4e1f1f6c728b960714c8efc6c504af20ab05a3a1219ac9cc09
   languageName: node
   linkType: hard
 
@@ -11317,13 +11314,6 @@ __metadata:
     html-escaper: "npm:^2.0.0"
     istanbul-lib-report: "npm:^3.0.0"
   checksum: 10c0/d596317cfd9c22e1394f22a8d8ba0303d2074fe2e971887b32d870e4b33f8464b10f8ccbe6847808f7db485f084eba09e6c2ed706b3a978e4b52f07085b8f9bc
-  languageName: node
-  linkType: hard
-
-"iterall@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "iterall@npm:1.3.0"
-  checksum: 10c0/40de624e5fe937c4c0e511981b91caea9ff2142bfc0316cccc8506eaa03aa253820cc17c5bc5f0a98706c7268a373e5ebee9af9a0c8a359730cf7c05938b57b5
   languageName: node
   linkType: hard
 

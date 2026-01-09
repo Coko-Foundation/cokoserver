@@ -100,7 +100,11 @@ const setup = async (
       // Embed apollo explorer
       process.env.NODE_ENV === 'development' &&
         /* eslint-disable-next-line new-cap */
-        ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+        ApolloServerPluginLandingPageLocalDefault({
+          embed: {
+            endpointIsEditable: true,
+          },
+        }),
     ].filter(Boolean),
     introspection: process.env.NODE_ENV === 'development',
     csrfPrevention: true,

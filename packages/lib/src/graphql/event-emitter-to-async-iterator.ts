@@ -1,12 +1,8 @@
-// @ts-nocheck
 /* eslint-disable */
 
 /**
  * See comment in PostgresPubSub file
  */
-
-// Based on https://github.com/apollographql/graphql-subscriptions/blob/master/src/event-emitter-to-async-iterator.ts
-import { $$asyncIterator } from 'iterall'
 
 function eventEmitterAsyncIterator(
   eventEmitter,
@@ -79,7 +75,7 @@ function eventEmitterAsyncIterator(
 
       return Promise.reject(error)
     },
-    [$$asyncIterator]() {
+    [Symbol.asyncIterator]() {
       return this
     },
   }

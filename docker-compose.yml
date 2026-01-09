@@ -7,7 +7,6 @@ services:
       - db
       - filehosting
       - createbucket
-    # command: ['yarn', 'workspace', 'dev', 'coko-server', 'start-dev']
     command: node ./startDev.js
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
@@ -41,7 +40,6 @@ services:
       - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-local}
       - SUPPRESS_LOGGER_IN_TEST_ENV=true
     volumes:
-      # - ./packages/dev:/home/node/app/packages/dev
       - ./packages/dev/ignoreMe:/home/node/app/packages/dev/ignoreMe
       - ./packages/dev/models:/home/node/app/packages/dev/models
       - ./packages/dev/static:/home/node/app/packages/dev/static
@@ -55,8 +53,6 @@ services:
       - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts
       - ./packages/lib/src:/home/node/app/packages/lib/src
       - ./packages/lib/vitest.config.ts:/home/node/app/packages/lib/vitest.config.ts
-    #   - ./src:/home/node/app/node_modules/@coko/server/src
-    #   - ./authorization.js:/home/node/app/node_modules/@coko/server/authorization.js
     tty: true
 
   db:
