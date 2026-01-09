@@ -5,7 +5,7 @@ import passport from 'passport'
 import cookieParser from 'cookie-parser'
 import helmet, { HelmetOptions } from 'helmet'
 import * as Sentry from '@sentry/node'
-// import morgan from 'morgan'
+import httpLogger from 'pino-http'
 
 import internalLogger from './logger/internals'
 import { db, migrationManager } from './db'
@@ -29,8 +29,12 @@ import mountStatic from './startup/static'
 import registerComponents from './startup/registerComponents'
 import setupGraphqlServer from './graphql/setup'
 import { jobManager } from './jobManager'
+import { env } from './utils/env'
 
 let server: http.Server
+
+const nodeEnv = env('NODE_ENV')
+const isDevelopment = nodeEnv === 'development'
 
 /**
  * startServer is run with no parameters, but we allow a testConfig so that
@@ -91,10 +95,7 @@ export const startServer = async (
    * This makes apollo explorer work in development
    * See https://docs.nestjs.com/security/helmet#use-with-express-default
    */
-  if (
-    process.env.NODE_ENV === 'development' &&
-    config.get('useGraphQLServer')
-  ) {
+  if (isDevelopment && config.get('useGraphQLServer')) {
     helmetConfig = {
       ...helmetConfig,
       crossOriginEmbedderPolicy: false,
@@ -119,25 +120,51 @@ export const startServer = async (
   app.use(helmet(helmetConfig))
   app.use(cors())
 
-  // morgan.token('graphql', ({ body }, _res, type) => {
-  //   if (!body.operationName) return ''
+  app.use(
+    httpLogger({
+      transport: isDevelopment
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              messageFormat:
+                '{req.method} {req.url} {res.statusCode} - {responseTime}ms - request ID: {req.id}',
+              ignore: 'req,res,err,responseTime',
+            },
+          }
+        : undefined,
+      customProps: (req, _res) => {
+        if (!(req.url === '/graphql' && req.body)) return {}
+        const { variables, operationName } = req.body
 
-  //   switch (type) {
-  //     case 'query':
-  //       return body.query.replace(/\s+/g, ' ')
-  //     case 'variables':
-  //       return JSON.stringify(body.variables)
-  //     case 'operation':
-  //     default:
-  //       return body.operationName
-  //   }
-  // })
-
-  // app.use(
-  //   morgan('combined', {
-  //     stream: logger.stream,
-  //   }),
-  // )
+        return {
+          gql: {
+            operation: operationName || 'unnamed',
+            // Do not log variables in production due to PII/GDPR etc.
+            // Maybe at some point we could have a whitelist for variables that are explictly OK to log
+            variables: isDevelopment ? variables : undefined,
+          },
+        }
+      },
+      redact: {
+        paths: [
+          'req.headers.cookie',
+          'req.headers.authorization',
+          'gql.variables.token',
+          'gql.variables.email',
+          'gql.variables.password',
+          'gql.variables.currentPassword',
+          'gql.variables.newPassword',
+          'gql.variables.input.token',
+          'gql.variables.input.email',
+          'gql.variables.input.password',
+          'gql.variables.input.currentPassword',
+          'gql.variables.input.newPassword',
+        ],
+        censor: '*****',
+      },
+    }),
+  )
 
   // @ts-ignore
   app.use(passport.initialize())

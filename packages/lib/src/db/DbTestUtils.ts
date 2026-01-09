@@ -1,9 +1,12 @@
 import db from './db'
 import config from '../configManager/config'
+import { env } from '../utils/env'
+
+const nodeEnv = env('NODE_ENV')
 
 export default class DbTestUtils {
   static checkEnv(): void {
-    if (process.env.NODE_ENV !== 'test') {
+    if (nodeEnv !== 'test') {
       throw new Error('DbTestUtils should only be used in test environments!')
     }
   }
