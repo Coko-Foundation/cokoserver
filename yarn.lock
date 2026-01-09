@@ -69,7 +69,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/server@npm:^5.1.0":
+"@apollo/server@npm:^5.2.0":
   version: 5.2.0
   resolution: "@apollo/server@npm:5.2.0"
   dependencies:
@@ -1815,7 +1815,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@coko/server@workspace:packages/lib"
   dependencies:
-    "@apollo/server": "npm:^5.1.0"
+    "@apollo/server": "npm:^5.2.0"
     "@as-integrations/express4": "npm:^1.1.2"
     "@aws-sdk/client-s3": "npm:^3.965.0"
     "@aws-sdk/lib-storage": "npm:^3.965.0"
