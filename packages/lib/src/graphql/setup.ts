@@ -7,7 +7,7 @@ import { ApolloServer } from '@apollo/server'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { type GraphQLFormattedError } from 'graphql'
 
-import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 
