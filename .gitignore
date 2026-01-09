@@ -75,7 +75,6 @@ uploads/
 # Misc
 .cache/
 .DS_Store
-.nvmrc
 
 # yarn v4
 .pnp.*

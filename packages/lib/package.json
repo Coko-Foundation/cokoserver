@@ -2,7 +2,7 @@
   "name": "@coko/server",
   "version": "4.18.0",
   "engines": {
-    "node": "^22.16.0"
+    "node": "^24.12.0"
   },
   "description": "Reusable server for use by Coko's projects",
   "keywords": [
@@ -101,7 +101,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mime-types": "^3.0.1",
-    "@types/node": "^24.8.1",
+    "@types/node": "^24.10.4",
     "@types/nodemailer": "^7.0.4",
     "@types/passport": "^1.0.17",
     "@types/pg": "^8.16.0",

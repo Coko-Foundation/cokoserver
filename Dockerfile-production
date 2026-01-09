@@ -1,4 +1,4 @@
-FROM cokoapps/base:22
+FROM cokoapps/base:24
 
 RUN corepack enable
 
