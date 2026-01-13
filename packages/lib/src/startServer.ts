@@ -62,11 +62,8 @@ export const startServer = async (
   fileStorage.init()
   initUrls()
   await checkConnections()
-
   await migrationManager.migrate()
-
   await seedGlobalTeams()
-
   await runCustomStartupScripts()
 
   const app = express()
@@ -74,7 +71,6 @@ export const startServer = async (
   const port = config.get('port') || 3000
   app.set('port', port)
   const httpServer = http.createServer(app)
-  // httpServer.app = app
 
   app.use(express.json({ limit: '50mb' }))
   app.use(express.urlencoded({ extended: false }))

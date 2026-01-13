@@ -9,7 +9,7 @@ import cronstrue from 'cronstrue'
 import { isValidCron } from 'cron-validator'
 import { z } from 'zod'
 
-import { getDbConnectionConfig } from '../db'
+import { db, getDbConnectionConfig, migrationsMeta } from '../db'
 import logger from '../logger'
 import internalLogger from '../logger/internals'
 
@@ -92,7 +92,7 @@ const JobQueuesArraySchema = z.array(JobQueueSchema)
 
 type JobQueue = z.infer<typeof JobQueueSchema>
 
-export const newSchemaName = 'pgboss_v12'
+const newSchemaName = 'pgboss_v12'
 
 class JobManager {
   #boss: PgBoss
@@ -183,6 +183,96 @@ class JobManager {
 
     if (!orphanFound) {
       internalLogger.point('No orphaned schedules found', 2)
+    }
+
+    await this.#migrate()
+  }
+
+  async #migrate(): Promise<void> {
+    const metaTableData = await migrationsMeta.getData()
+
+    if (metaTableData.pg_boss_schema === newSchemaName) {
+      // internalLogger.point(
+      //   'Job queue schema unchanged, no migration necessary.',
+      // )
+      return
+    }
+
+    const existingSchema = metaTableData.pg_boss_schema || 'pgboss'
+
+    internalLogger.point(
+      `Migrating job queues from existing schema '${existingSchema}' to new schema '${newSchemaName}'`,
+    )
+
+    const existingTableExists = await db.schema.hasTable(existingSchema)
+
+    if (!existingTableExists) {
+      // internalLogger.point(
+      //   'There is no existing job queue table to migrate from.',
+      // )
+      return
+    }
+
+    const queues = await this.#boss.getQueues()
+
+    for (const queue of queues) {
+      try {
+        const sql = `
+            INSERT INTO ${newSchemaName}.job (
+                id,
+                name,
+                priority,
+                data,
+                retry_limit,
+                retry_count,
+                retry_delay,
+                retry_backoff,
+                start_after,
+                singleton_key,
+                singleton_on,
+                expire_seconds,
+                created_on,
+                keep_until,
+                output,
+                policy
+            )
+            SELECT 
+                id,
+                name,
+                priority,
+                data,
+                retryLimit,
+                retryCount,
+                retryDelay,
+                retryBackoff,
+                startAfter,
+                singletonKey,
+                singletonOn,
+                expireIn,
+                createdOn,
+                keepUntil,
+                output jsonb,
+                '${queue.policy}' as policy
+            FROM ${existingSchema}.job
+            WHERE name = '${queue.name}'
+                AND state = 'created'
+            ON CONFLICT DO NOTHING
+        `
+
+        /* eslint-disable-next-line no-await-in-loop */
+        const { rowCount } = await db.raw(sql)
+
+        if (rowCount) {
+          internalLogger.success(
+            `Migrated ${rowCount} jobs in queue ${queue.name}`,
+            2,
+          )
+        }
+      } catch (error) {
+        throw new JobManagerError(
+          `Migration error while copying jobs from '${queue.name}': ${error.message}`,
+        )
+      }
     }
   }
 
