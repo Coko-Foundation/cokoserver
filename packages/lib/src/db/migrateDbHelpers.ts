@@ -78,6 +78,12 @@ const migrationsMeta = {
       lastSuccessfulMigrateCheckpoint: value,
     })
   },
+
+  setPgBossSchema: async (value: string): Promise<void> => {
+    await db(META_TABLE).update({
+      pg_boss_schema: value,
+    })
+  },
 }
 
 export { migrations, migrationsMeta, MIGRATIONS_TABLE, META_TABLE }

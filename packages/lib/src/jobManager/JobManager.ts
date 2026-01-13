@@ -274,6 +274,9 @@ class JobManager {
         )
       }
     }
+
+    await migrationsMeta.setPgBossSchema(newSchemaName)
+    internalLogger.success(`Saved applied job queue schema: ${newSchemaName}.`)
   }
 
   async #registerQueues(queues, indent: boolean = true): Promise<void> {
