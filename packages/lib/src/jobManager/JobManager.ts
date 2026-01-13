@@ -191,14 +191,14 @@ class JobManager {
   async #migrate(): Promise<void> {
     const metaTableData = await migrationsMeta.getData()
 
-    if (metaTableData.pg_boss_schema === newSchemaName) {
-      // internalLogger.point(
-      //   'Job queue schema unchanged, no migration necessary.',
-      // )
+    if (metaTableData.pgBossSchema === newSchemaName) {
+      internalLogger.point(
+        'Job queue schema unchanged, no migration necessary.',
+      )
       return
     }
 
-    const existingSchema = metaTableData.pg_boss_schema || 'pgboss'
+    const existingSchema = metaTableData.pgBossSchema || 'pgboss'
 
     internalLogger.point(
       `Migrating job queues from existing schema '${existingSchema}' to new schema '${newSchemaName}'`,
@@ -209,9 +209,9 @@ class JobManager {
       .hasTable('job')
 
     if (!existingTableExists) {
-      // internalLogger.point(
-      //   'There is no existing job queue table to migrate from.',
-      // )
+      internalLogger.point(
+        'There is no existing job queue table to migrate from.',
+      )
       return
     }
 
@@ -266,7 +266,7 @@ class JobManager {
 
         if (rowCount) {
           internalLogger.success(
-            `Migrated ${rowCount} jobs in queue ${queue.name}`,
+            `Migrated ${rowCount} job${rowCount > 1 ? 's' : ''} in queue ${queue.name}`,
             2,
           )
         }

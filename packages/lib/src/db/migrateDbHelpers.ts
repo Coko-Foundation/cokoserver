@@ -12,7 +12,7 @@ type MetaRow = {
   id: string
   created: string
   lastSuccessfulMigrateCheckpoint?: string
-  pg_boss_schema?: string
+  pgBossSchema?: string
 }
 
 const migrations = {
