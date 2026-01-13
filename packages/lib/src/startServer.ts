@@ -227,7 +227,7 @@ export const shutdownFn = async (): Promise<void> => {
   server = undefined
   internalLogger.success('Http server successfully shut down')
 
-  await jobManager.stop({ destroy: true })
+  await jobManager.stop()
 
   if (config.get('useGraphQLServer')) {
     internalLogger.section('Shut down subscription client')

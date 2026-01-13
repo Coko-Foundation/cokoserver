@@ -1,4 +1,10 @@
-import PgBoss, { DatabaseOptions } from 'pg-boss'
+import {
+  ConstructorOptions,
+  Job,
+  PgBoss,
+  ScheduleOptions,
+  WorkOptions,
+} from 'pg-boss'
 import cronstrue from 'cronstrue'
 import { isValidCron } from 'cron-validator'
 import { z } from 'zod'
@@ -69,7 +75,6 @@ const JobHandlerArgumentsSchema = z.strictObject({
   id: z.string(),
   name: z.string(),
   data: z.any(),
-  expire_in_seconds: z.string(),
 })
 
 export type JobHandlerArguments = z.infer<typeof JobHandlerArgumentsSchema>
@@ -77,8 +82,8 @@ export type JobHandlerArguments = z.infer<typeof JobHandlerArgumentsSchema>
 const JobQueueSchema = z.strictObject({
   name: JobQueueName,
   handler: z.function().input([JobHandlerArgumentsSchema]),
-  teamSize: z.number().int().positive().optional(),
-  teamConcurrency: z.number().int().positive().optional(),
+  batchSize: z.number().int().positive().optional(),
+  concurrency: z.number().int().positive().optional(),
   schedule: cron.optional(),
   scheduleTimezone: Timezone.optional(),
 })
@@ -86,6 +91,8 @@ const JobQueueSchema = z.strictObject({
 const JobQueuesArraySchema = z.array(JobQueueSchema)
 
 type JobQueue = z.infer<typeof JobQueueSchema>
+
+export const newSchemaName = 'pgboss_v12'
 
 class JobManager {
   #boss: PgBoss
@@ -110,7 +117,12 @@ class JobManager {
     internalLogger.section('Set up job manager')
 
     const connectionConfig = getDbConnectionConfig()
-    const bossInstance = new PgBoss(connectionConfig as DatabaseOptions)
+
+    const bossInstance = new PgBoss({
+      schema: newSchemaName,
+      ...connectionConfig,
+    } as ConstructorOptions)
+
     this.#boss = bossInstance
     this.#boss.on('error', error => logger.error(error))
     await this.#boss.start()
@@ -177,19 +189,24 @@ class JobManager {
   async #registerQueues(queues, indent: boolean = true): Promise<void> {
     await Promise.all(
       queues.map(async (q: JobQueue) => {
-        const options = {} as JobQueue
+        const options = {} as WorkOptions
 
-        if (q.teamSize) options.teamSize = q.teamSize
-        if (q.teamConcurrency) options.teamConcurrency = q.teamConcurrency
+        if (q.batchSize) options.batchSize = q.batchSize
+        if (q.concurrency) options.localConcurrency = q.concurrency
 
-        const handler = async (job: JobHandlerArguments): Promise<any> =>
+        const handler = async (jobs: Job[]): Promise<any> => {
+          const [job] = jobs
           q.handler(job)
+        }
+
+        const exists = await this.#boss.getQueue(q.name)
+        if (!exists) await this.#boss.createQueue(q.name)
 
         await this.#boss.work(q.name, options, handler)
         internalLogger.success(`Registered queue "${q.name}"`, indent ? 2 : 0)
 
         if (q.schedule) {
-          const scheduleOptions = {} as PgBoss.ScheduleOptions
+          const scheduleOptions = {} as ScheduleOptions
 
           if (q.scheduleTimezone) scheduleOptions.tz = q.scheduleTimezone
 
@@ -212,9 +229,9 @@ class JobManager {
     )
   }
 
-  async stop(options): Promise<void> {
+  async stop(): Promise<void> {
     internalLogger.section('Shut down job manager')
-    await this.#boss.stop(options)
+    await this.#boss.stop()
 
     /**
      * await boss.stop() doesn't wait until boss is in a stopped state,

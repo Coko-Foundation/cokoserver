@@ -13,8 +13,8 @@ export default [
       const port = config.get('db.port')
       console.log('db port', port)
     },
-    teamSize: 1,
-    teamConcurrency: 1,
+    batchSize: 1,
+    concurrency: 1,
     // schedule: '*/1 * * * *',
     // scheduleTimezone: 'Europe/Athens',
   },

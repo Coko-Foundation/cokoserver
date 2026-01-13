@@ -4,6 +4,8 @@ import wait from '../../utils/wait'
 import { JobManager } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
 import { JobManagerOptionsError } from '../errors'
+import { db } from '../../db'
+import config from '../../configManager/config'
 
 const N = 3000
 
@@ -29,12 +31,21 @@ describe('Job queues', () => {
     ]
 
     beforeAll(async () => {
+      await config.init({ mailer: false })
+      db.init()
       jobQueues[0].handler.mockClear()
       await jobManager.init(jobQueues)
     })
 
     afterEach(async () => {
-      await jobManager.boss.deleteAllQueues()
+      const queues = await jobManager.boss.getQueues()
+      const queueNames = queues.map(q => q.name)
+
+      await Promise.all(
+        queueNames.map(async name => {
+          await jobManager.boss.deleteAllJobs(name)
+        }),
+      )
     })
 
     it('sends a job to the queue', async () => {
@@ -42,22 +53,20 @@ describe('Job queues', () => {
       const spy = jobQueues[0].handler
 
       await jobManager.sendToQueue(name, { id: 1 })
-
-      const size = await jobManager.boss.getQueueSize(name)
-      expect(size).toBe(1)
+      const stats = await jobManager.boss.getQueueStats(name)
+      expect(stats.queuedCount).toBe(1)
 
       await wait(N)
 
       expect(spy).toHaveBeenCalledTimes(1)
-
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           data: { id: 1 },
         }),
       )
 
-      const newSize = await jobManager.boss.getQueueSize(name)
-      expect(newSize).toBe(0)
+      const newStats = await jobManager.boss.getQueueStats(name)
+      expect(newStats.queuedCount).toBe(0)
     })
 
     it('defers a job to run later', async () => {
@@ -65,15 +74,15 @@ describe('Job queues', () => {
 
       await jobManager.sendToQueue(name, { id: 1 }, { startAfter: 5 })
 
-      // should still have one pending job after 2.5 seconds
+      // should still have one pending job after N seconds
       await wait(N)
-      const size = await jobManager.boss.getQueueSize(name)
-      expect(size).toBe(1)
+      const stats = await jobManager.boss.getQueueStats(name)
+      expect(stats.queuedCount).toBe(1)
 
       // it should have now been picked up by now
       await wait(4000)
-      const newSize = await jobManager.boss.getQueueSize(name)
-      expect(newSize).toBe(0)
+      const newStats = await jobManager.boss.getQueueStats(name)
+      expect(newStats.queuedCount).toBe(0)
     }, 10000)
 
     it('cannot accept invalid options when sending a job', async () => {
@@ -143,15 +152,20 @@ describe('Job queues', () => {
   })
 
   describe('Boss', () => {
+    beforeAll(async () => {
+      await config.init({ mailer: false })
+      db.init()
+    })
+
     it('registers built-in queues when started', async () => {
       const jobManager = new JobManager({ exposeBossInstance: true })
       await jobManager.init()
 
-      const refreshTokenQueueSize = await jobManager.boss.getQueueSize(
+      const refreshTokenQueue = await jobManager.boss.getQueue(
         defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
       )
 
-      expect(refreshTokenQueueSize).toBe(0)
+      expect(refreshTokenQueue).toBeDefined()
     })
 
     it('registers custom queues when started', async () => {
@@ -163,8 +177,8 @@ describe('Job queues', () => {
         },
       ])
 
-      const testQueueSize = await jobManager.boss.getQueueSize('test-me')
-      expect(testQueueSize).toBe(0)
+      const stats = await jobManager.boss.getQueueStats('test-me')
+      expect(stats.queuedCount).toBe(0)
     })
 
     it('registers schedules', async () => {
