@@ -204,7 +204,9 @@ class JobManager {
       `Migrating job queues from existing schema '${existingSchema}' to new schema '${newSchemaName}'`,
     )
 
-    const existingTableExists = await db.schema.hasTable(existingSchema)
+    const existingTableExists = await db.schema
+      .withSchema(existingSchema)
+      .hasTable('job')
 
     if (!existingTableExists) {
       // internalLogger.point(
@@ -248,7 +250,7 @@ class JobManager {
                 startAfter,
                 singletonKey,
                 singletonOn,
-                expireIn,
+                EXTRACT(EPOCH FROM expireIn)::integer,
                 createdOn,
                 keepUntil,
                 output jsonb,
@@ -289,7 +291,7 @@ class JobManager {
 
         const handler = async (jobs: Job[]): Promise<any> => {
           const [job] = jobs
-          q.handler(job)
+          return q.handler(job)
         }
 
         const exists = await this.#boss.getQueue(q.name)
