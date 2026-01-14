@@ -1,10 +1,13 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 
 import Identity from '../models/identity/identity.model'
 import User from '../models/user/user.model'
 import { subscriptions } from '../models/user/constants'
 import subscriptionManager from '../graphql/pubsub'
 import defaultJobQueueNames from './defaultJobQueueNames'
+
+dayjs.extend(utc)
 
 const { USER_UPDATED } = subscriptions
 
@@ -29,7 +32,7 @@ const defaultJobQueues = [
   //         provider: providerLabel,
   //       })
 
-  //       const expiresIn = (oauthRefreshTokenExpiration - moment().utc()) / 1000
+  //       const expiresIn = (oauthRefreshTokenExpiration - dayjs().utc()) / 1000
 
   //       const renewAfter = expiresIn - bufferTime
 
@@ -63,7 +66,7 @@ const defaultJobQueues = [
       }
 
       const { oauthRefreshTokenExpiration } = providerUserIdentity
-      const UTCNowTimestamp = moment().utc().toDate().getTime()
+      const UTCNowTimestamp = dayjs().utc().valueOf()
 
       const refreshTokenExpired =
         oauthRefreshTokenExpiration.getTime() < UTCNowTimestamp

@@ -1,6 +1,8 @@
 import get from 'lodash/get'
 import axios from 'axios'
-import moment from 'moment'
+
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 
 import config from '../configManager/config'
 import subscriptionManager from '../graphql/pubsub'
@@ -17,6 +19,8 @@ import { getUser } from '../models/user/user.controller'
 import { invalidateProviderTokens } from '../models/identity/identity.controller'
 
 import { isValidPositiveIntegerOrZero } from './number'
+
+dayjs.extend(utc)
 
 const { USER_UPDATED } = subscriptions
 
@@ -58,7 +62,7 @@ const requestTokensFromProvider = async (
     oauthRefreshTokenExpiration,
   } = providerUserIdentity
 
-  const UTCNowTimestamp = moment().utc().toDate().getTime()
+  const UTCNowTimestamp = dayjs().utc().valueOf()
 
   if (checkAccessToken) {
     const accessTokenExpired =

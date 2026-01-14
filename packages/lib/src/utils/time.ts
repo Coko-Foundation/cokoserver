@@ -1,9 +1,12 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 
-const foreverDate = moment('9999-12-01').utc().toDate()
+dayjs.extend(utc)
+
+const foreverDate = dayjs('9999-12-01').utc().toDate()
 
 const getExpirationTime = (secondsFromNow: number): Date => {
-  return moment().utc().add(secondsFromNow, 'seconds').toDate()
+  return dayjs().utc().add(secondsFromNow, 'second').toDate()
 }
 
 export { getExpirationTime, foreverDate }

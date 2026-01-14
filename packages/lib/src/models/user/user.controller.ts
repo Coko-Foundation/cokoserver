@@ -1,5 +1,6 @@
 import crypto from 'crypto'
-import moment from 'moment'
+
+import dayjs from 'dayjs'
 
 import {
   AuthenticationError,
@@ -406,11 +407,6 @@ const verifyEmail = async (
           { trx: tr },
         )
 
-        const emailVerificationTokenExpiry = {
-          amount: 24,
-          unit: 'hours',
-        }
-
         if (!identity)
           throw new Error(`${USER_CONTROLLER} verifyEmail: invalid token`)
 
@@ -426,11 +422,8 @@ const verifyEmail = async (
         }
 
         if (
-          moment()
-            .subtract(
-              emailVerificationTokenExpiry.amount,
-              emailVerificationTokenExpiry.unit as moment.unitOfTime.DurationConstructor,
-            )
+          dayjs()
+            .subtract(24, 'hour')
             .isAfter(identity.verificationTokenTimestamp)
         ) {
           throw new Error(`${USER_CONTROLLER} verifyEmail: Token expired`)
@@ -636,19 +629,7 @@ const resetPassword = async (
           )
         }
 
-        const passwordResetTokenExpiry = {
-          amount: 24,
-          unit: 'hours',
-        }
-
-        if (
-          moment()
-            .subtract(
-              passwordResetTokenExpiry.amount,
-              passwordResetTokenExpiry.unit as moment.unitOfTime.DurationConstructor,
-            )
-            .isAfter(user.passwordResetTimestamp)
-        ) {
+        if (dayjs().subtract(24, 'hour').isAfter(user.passwordResetTimestamp)) {
           throw new ValidationError(
             `${USER_CONTROLLER} resetPassword: your token has expired`,
           )

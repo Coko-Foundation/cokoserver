@@ -1,5 +1,7 @@
 import axios from 'axios'
-import moment from 'moment'
+
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 
 import logger from '../../logger'
 import subscriptionManager from '../../graphql/pubsub'
@@ -13,6 +15,8 @@ import { labels } from './constants'
 import { QueryResult } from '../base.model'
 import config from '../../configManager/config'
 import { isValidPositiveIntegerOrZero } from '../../utils/number'
+
+dayjs.extend(utc)
 
 const { USER_UPDATED } = subscriptions
 const { IDENTITY_CONTROLLER } = labels
@@ -30,7 +34,7 @@ const getDefaultIdentity = async (userId): Promise<Identity> => {
 
 const hasValidRefreshToken = (identity): boolean => {
   const { oauthRefreshTokenExpiration, oauthRefreshToken } = identity
-  const UTCNowTimestamp = moment().utc().toDate().getTime()
+  const UTCNowTimestamp = dayjs().utc().valueOf()
 
   return (
     !!oauthRefreshToken &&
@@ -89,8 +93,7 @@ const createOAuthIdentity = async (
 
     if (oauthRefreshTokenExpiration.getTime() !== foreverDate.getTime()) {
       const expiresIn =
-        (oauthRefreshTokenExpiration.getTime() - moment().utc().valueOf()) /
-        1000
+        (oauthRefreshTokenExpiration.getTime() - dayjs().utc().valueOf()) / 1000
 
       await jobManager.sendToQueue(
         defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
@@ -194,7 +197,7 @@ const invalidateProviderAccessToken = async (
   })
 
   await Identity.patchAndFetchById(providerUserIdentity.id, {
-    oauthAccessTokenExpiration: moment().utc().toDate(),
+    oauthAccessTokenExpiration: dayjs().utc().toDate(),
   })
 
   logger.info(
@@ -214,8 +217,8 @@ const invalidateProviderTokens = async (
   })
 
   await Identity.patchAndFetchById(providerUserIdentity.id, {
-    oauthAccessTokenExpiration: moment().utc().toDate(),
-    oauthRefreshTokenExpiration: moment().utc().toDate(),
+    oauthAccessTokenExpiration: dayjs().utc().toDate(),
+    oauthRefreshTokenExpiration: dayjs().utc().toDate(),
   })
 
   subscriptionManager.publish(USER_UPDATED, {
