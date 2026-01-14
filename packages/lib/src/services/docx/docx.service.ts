@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import imageSize from 'image-size'
+import { imageSize } from 'image-size'
 import cloneDeep from 'lodash/cloneDeep'
 
 import {
@@ -435,7 +435,11 @@ class WaxToDocxConverter {
     // implementation from https://github.com/dolanmiu/docx/issues/232
     // see link for possible change to a not-hardcoded doc width, though current value seems to work fine
     const docWidth = 600
-    const dimensions = imageSize(imagePath)
+
+    // switch to async in a future version
+    const imageBuffer = fs.readFileSync(imagePath)
+    const dimensions = imageSize(imageBuffer)
+
     const { height, width } = dimensions
     const scale = width / docWidth
     const type = this.getImageType(imagePath)

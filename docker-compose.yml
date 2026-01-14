@@ -52,6 +52,7 @@ services:
       - ./packages/dev/startup.ts:/home/node/app/packages/dev/startup.ts
       - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts
       - ./packages/lib/src:/home/node/app/packages/lib/src
+      # - ./packages/lib/tmp:/home/node/app/packages/lib/tmp
       - ./packages/lib/vitest.config.ts:/home/node/app/packages/lib/vitest.config.ts
     tty: true
 

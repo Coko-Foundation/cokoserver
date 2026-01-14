@@ -606,8 +606,7 @@ const document: WaxDocument = {
   ],
 }
 
-/* eslint-disable-next-line vitest/no-disabled-tests */
-describe.skip('Docx service', () => {
+describe('Docx service', () => {
   test('Generic document', async () => {
     const imageData: ImageData = {}
     const filePath = getTestFilePath('base.docx')
@@ -616,11 +615,13 @@ describe.skip('Docx service', () => {
     imageData[imageId] = imagePath
 
     const converter = new WaxToDocxConverter(document, imageData)
-    converter.writeToPath(filePath)
+    await converter.writeToPath(filePath)
 
     fs.unlinkSync(imagePath)
-    // fs.unlinkSync(filePath)
 
+    // We just make sure it completes without errors.
+    // For the time being, manual inspection of the generated file is needed
+    // to ensure what the result looks like.
     expect(true).toBe(true)
   }, 10000)
 })
