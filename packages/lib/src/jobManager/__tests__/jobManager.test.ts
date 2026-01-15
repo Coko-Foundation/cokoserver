@@ -1,13 +1,11 @@
-import { describe, beforeAll, afterEach, it, expect, vi } from 'vitest'
+import { describe, beforeAll, afterEach, it, expect, vi, Mock } from 'vitest'
 
 import wait from '../../utils/wait'
-import { JobManager } from '../JobManager'
+import { JobManager, JobQueue } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
 import { JobManagerOptionsError } from '../errors'
 import { db } from '../../db'
 import config from '../../configManager/config'
-
-const N = 3000
 
 /**
  * Note:
@@ -23,17 +21,28 @@ describe('Job queues', () => {
   describe('Job manager', () => {
     const jobManager: JobManager = new JobManager({ exposeBossInstance: true })
 
-    const jobQueues = [
+    const jobQueues: JobQueue[] = [
       {
         name: 'test-me',
         handler: vi.fn(),
+        batchSize: 5,
+        concurrency: 5,
+      },
+      {
+        name: 'long-running',
+        handler: async (): Promise<void> => {
+          await wait(3600)
+        },
+        batchSize: 5,
+        concurrency: 5,
       },
     ]
 
     beforeAll(async () => {
       await config.init({ mailer: false })
       db.init()
-      jobQueues[0].handler.mockClear()
+      const mockHandler = jobQueues[0].handler as Mock
+      mockHandler.mockClear()
       await jobManager.init(jobQueues)
     })
 
@@ -56,7 +65,7 @@ describe('Job queues', () => {
       const stats = await jobManager.boss.getQueueStats(name)
       expect(stats.queuedCount).toBe(1)
 
-      await wait(N)
+      await jobManager.waitForQueueToEmpty(name)
 
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(
@@ -75,12 +84,11 @@ describe('Job queues', () => {
       await jobManager.sendToQueue(name, { id: 1 }, { startAfter: 5 })
 
       // should still have one pending job after N seconds
-      await wait(N)
+      await wait(3000)
       const stats = await jobManager.boss.getQueueStats(name)
-      expect(stats.queuedCount).toBe(1)
+      expect(stats.deferredCount).toBe(1)
 
-      // it should have now been picked up by now
-      await wait(4000)
+      await jobManager.waitForQueueToEmpty(name)
       const newStats = await jobManager.boss.getQueueStats(name)
       expect(newStats.queuedCount).toBe(0)
     }, 10000)
@@ -149,6 +157,74 @@ describe('Job queues', () => {
         ),
       ).rejects.toThrow(JobManagerOptionsError)
     })
+
+    it('gets the queue size', async () => {
+      const name = 'test-me'
+
+      await jobManager.sendToQueue(name, { id: 1 })
+      await jobManager.sendToQueue(name, { id: 2 })
+
+      const size = await jobManager.getQueueSize(name)
+      expect(size).toBe(2)
+
+      await jobManager.waitForQueueToEmpty(name)
+      const updatedSize = await jobManager.getQueueSize(name)
+      expect(updatedSize).toBe(0)
+    })
+
+    it('waits for a queue to empty', async () => {
+      const name = 'test-me'
+
+      await jobManager.sendToQueue(name, { id: 1 })
+      await jobManager.sendToQueue(name, { id: 2 })
+      await jobManager.sendToQueue(name, { id: 3 })
+      await jobManager.sendToQueue(name, { id: 4 })
+      await jobManager.sendToQueue(name, { id: 5 })
+      await jobManager.sendToQueue(name, { id: 6 })
+      await jobManager.sendToQueue(name, { id: 7 })
+      await jobManager.sendToQueue(name, { id: 8 })
+      await jobManager.sendToQueue(name, { id: 9 })
+
+      await jobManager.waitForQueueToEmpty(name)
+      const size = await jobManager.getQueueSize(name)
+      expect(size).toBe(0)
+    }, 10000)
+
+    it('throws when waiting for a queue to empty exceeds timeout', async () => {
+      const name = 'test-me'
+
+      await jobManager.sendToQueue(name, { id: 1 })
+      await jobManager.sendToQueue(name, { id: 2 })
+      await jobManager.sendToQueue(name, { id: 3 })
+      await jobManager.sendToQueue(name, { id: 4 })
+      await jobManager.sendToQueue(name, { id: 5 })
+      await jobManager.sendToQueue(name, { id: 6 })
+      await jobManager.sendToQueue(name, { id: 7 })
+      await jobManager.sendToQueue(name, { id: 8 })
+      await jobManager.sendToQueue(name, { id: 9 })
+
+      await expect(() =>
+        jobManager.waitForQueueToEmpty(name, { timeout: 1000 }),
+      ).rejects.toThrow()
+    })
+
+    it('waits for a job to complete', async () => {
+      const queueName = 'long-running'
+
+      const initialSize = await jobManager.getQueueSize(queueName)
+      expect(initialSize).toBe(0)
+
+      await jobManager.sendToQueue(queueName, { someId: 'hello' })
+      await jobManager.sendToQueue(queueName, { someId: 'goodbye' })
+
+      const inProgressSize = await jobManager.getQueueSize(queueName)
+      expect(inProgressSize).toBe(2)
+
+      await jobManager.waitForJobsToFinish(queueName, { someId: 'hello' })
+
+      const size = await jobManager.getQueueSize(queueName)
+      expect(size).toBeLessThanOrEqual(1)
+    }, 20000)
   })
 
   describe('Boss', () => {

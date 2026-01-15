@@ -8,6 +8,7 @@ import {
 import cronstrue from 'cronstrue'
 import { isValidCron } from 'cron-validator'
 import { z } from 'zod'
+import isMatch from 'lodash/isMatch'
 
 import { db, getDbConnectionConfig, migrationsMeta } from '../db'
 import logger from '../logger'
@@ -90,7 +91,12 @@ const JobQueueSchema = z.strictObject({
 
 const JobQueuesArraySchema = z.array(JobQueueSchema)
 
-type JobQueue = z.infer<typeof JobQueueSchema>
+export type JobQueue = z.infer<typeof JobQueueSchema>
+
+type WaitOptions = {
+  interval?: number
+  timeout?: number
+}
 
 const newSchemaName = 'pgboss_v12'
 
@@ -287,6 +293,7 @@ class JobManager {
         const options = {} as WorkOptions
 
         if (q.batchSize) options.batchSize = q.batchSize
+        // @ts-ignore
         if (q.concurrency) options.localConcurrency = q.concurrency
 
         const handler = async (jobs: Job[]): Promise<any> => {
@@ -354,6 +361,118 @@ class JobManager {
       /* eslint-disable-next-line no-await-in-loop */
       await wait(pollingInterval)
     }
+  }
+
+  async getQueueSize(queueName: string): Promise<number> {
+    const stats = await this.#boss.getQueueStats(queueName)
+    return stats.queuedCount + stats.activeCount
+  }
+
+  /* eslint-disable-next-line class-methods-use-this */
+  async waitForJobsToFinish(
+    queueName: string,
+    filterData,
+    options: WaitOptions = {},
+  ): Promise<void> {
+    const interval = options.interval || 500
+    const timeout = options.timeout || 60000
+
+    return new Promise((resolve, reject) => {
+      let intervalId
+      let timeoutId
+
+      async function checkIsDone(): Promise<void> {
+        try {
+          const res = await db.raw(`
+            SELECT
+              id,
+              name,
+              state,
+              data
+            FROM
+              ${newSchemaName}.job
+            WHERE
+              name = '${queueName}'
+          `)
+
+          const match = res.rows.filter(row => isMatch(row.data, filterData))
+
+          if (match.length === 0) {
+            throw new Error(
+              `No jobs match the filter ${JSON.stringify(filterData)}`,
+            )
+          }
+
+          const pending = match.filter(row => row.state === 'created')
+          if (pending.length > 0) return
+
+          const active = match.filter(row => row.state === 'active')
+          if (active.length > 0) return
+
+          clearInterval(intervalId)
+          clearTimeout(timeoutId)
+          resolve()
+        } catch (e) {
+          clearInterval(intervalId)
+          clearTimeout(timeoutId)
+          reject(e)
+        }
+      }
+
+      intervalId = setInterval(checkIsDone, interval)
+
+      timeoutId = setTimeout(() => {
+        clearInterval(intervalId)
+        reject(
+          new Error(
+            `Job in queue "${queueName}" with data matching ${JSON.stringify(
+              filterData,
+            )} did not complete before timeout of ${timeout} ms.`,
+          ),
+        )
+      }, timeout)
+    })
+  }
+
+  async waitForQueueToEmpty(
+    queueName: string,
+    options: WaitOptions = {},
+  ): Promise<void> {
+    const interval = options.interval || 500
+    const timeout = options.timeout || 60000
+    const self = this
+
+    return new Promise((resolve, reject) => {
+      let intervalId
+      let timeoutId
+
+      async function checkIsEmpty(): Promise<void> {
+        try {
+          const size = await self.getQueueSize(queueName)
+
+          if (size === 0) {
+            clearInterval(intervalId)
+            clearTimeout(timeoutId)
+            resolve()
+          }
+        } catch (e) {
+          clearInterval(intervalId)
+          clearTimeout(timeoutId)
+          reject(e)
+        }
+      }
+
+      intervalId = setInterval(checkIsEmpty, interval)
+
+      timeoutId = setTimeout(() => {
+        clearInterval(intervalId)
+        reject(
+          new Error(
+            `Waiting for queue ${queueName} to empty timed out after ${timeout} ms.`,
+          ),
+        )
+      }, timeout)
+    })
   }
 
   async sendToQueue(
