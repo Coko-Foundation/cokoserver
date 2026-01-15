@@ -36,6 +36,14 @@ export default {
   /**
    * OTHER
    */
+  adminUser: {
+    username: env('ADMIN_USERNAME'),
+    password: env('ADMIN_PASSWORD'),
+    email: env('ADMIN_EMAIL'),
+    givenNames: env('ADMIN_GIVEN_NAMES'),
+    surname: env('ADMIN_SURNAME'),
+  },
+
   clientUrl: env('CLIENT_URL'),
   components: [],
   corsOrigin: env('CORS_ORIGIN'),

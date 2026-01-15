@@ -19,6 +19,7 @@ import fileStorage from './fileStorage'
 import { initUrls } from './utils/urls'
 import { checkConnections } from './startup/checkConnections'
 import seedGlobalTeams from './startup/seedGlobalTeams'
+import seedAdminUser from './startup/seedAdminUser'
 import {
   runCustomStartupScripts,
   runCustomShutdownScripts,
@@ -64,6 +65,7 @@ export const startServer = async (
   await checkConnections()
   await migrationManager.migrate()
   await seedGlobalTeams()
+  await seedAdminUser(config.get('adminUser'))
   await runCustomStartupScripts()
 
   const app = express()

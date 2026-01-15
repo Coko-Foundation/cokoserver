@@ -85,6 +85,14 @@ const SentrySchema = z.strictObject({
   environment: z.string(),
 })
 
+const AdminUserSchema = z.strictObject({
+  username: z.string(),
+  password: z.string(),
+  email: z.email(),
+  givenNames: z.string().optional(),
+  surname: z.string().optional(),
+})
+
 export const ConfigSchema = z.strictObject({
   // database
   db: DatabaseConfigSchema,
@@ -92,6 +100,7 @@ export const ConfigSchema = z.strictObject({
   // pool: KnexPoolConfigSchema.optional(),
   acquireConnectionTimeout: z.number().int().nonnegative().optional(),
 
+  adminUser: AdminUserSchema,
   clientUrl: z.url().optional(),
   components: z.array(z.string()),
   corsOrigin: z.union([z.string(), z.array(z.string())]).optional(),
@@ -116,3 +125,4 @@ export type Teams = z.infer<typeof TeamsConfigSchema>
 export type MailerTransport = z.infer<typeof MailerTransportSchema>
 export type FileStorageConfig = z.infer<typeof FileStorageConfigSchema>
 export type ConfigType = z.infer<typeof ConfigSchema>
+export type AdminUser = z.infer<typeof AdminUserSchema>
