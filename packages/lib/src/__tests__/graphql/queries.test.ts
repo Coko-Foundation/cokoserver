@@ -1,4 +1,12 @@
-import { vi, describe, beforeEach, afterAll, it, expect } from 'vitest'
+import {
+  vi,
+  describe,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+  beforeAll,
+} from 'vitest'
 import { v4 as uuid } from 'uuid'
 import gql from 'graphql-tag'
 
@@ -30,6 +38,7 @@ vi.mock('../../configManager/config', async () => {
       ],
       nonGlobal: [],
     },
+    mailer: false,
   })
 
   return { default: config }
@@ -43,6 +52,11 @@ describe('GraphQL core queries', async () => {
     username: 'testuser',
     password: 'password',
   }
+
+  beforeAll(async () => {
+    db.init()
+    subscriptionManager.init()
+  })
 
   beforeEach(async () => {
     await DbTestUtils.clearDb()

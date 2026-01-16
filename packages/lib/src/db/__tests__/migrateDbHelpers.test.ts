@@ -12,13 +12,16 @@ import {
 } from '../migrateDbHelpers'
 
 describe('Migrate db helpers', () => {
-  const LAST = '1762697452-remove-extension-from-migrations'
+  const LAST = '1768312501-meta-pg-boss'
 
   beforeAll(async () => {
     config.reset()
     await config.init({
       components: ['./src/db/__tests__/mocks/succeeding'],
+      mailer: false,
     })
+
+    db.init()
   })
 
   afterAll(async () => {
@@ -51,11 +54,11 @@ describe('Migrate db helpers', () => {
       await migrate(config)
 
       const rows = await migrations.getRows()
-      expect(rows.length).toBe(7)
+      expect(rows.length).toBe(9)
 
       expect(rows[0].id).toBe('1715865522-one-before-meta')
-      expect(rows[rows.length - 3].id).toBe('1722326234-two')
-      expect(rows[rows.length - 2].id).toBe('1722326235-three')
+      expect(rows[rows.length - 5].id).toBe('1722326234-two')
+      expect(rows[rows.length - 4].id).toBe('1722326235-three')
     })
 
     it('logs a migration', async () => {

@@ -29,8 +29,11 @@ describe('ChatMessage model', () => {
           },
         ],
       },
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     await migrationManager.migrate()
   })
 

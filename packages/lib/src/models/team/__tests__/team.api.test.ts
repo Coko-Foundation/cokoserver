@@ -46,10 +46,12 @@ describe('Team API', async () => {
           },
         ],
       },
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     gqlServer = await createGraphqlTestServer()
-
     await migrationManager.migrate()
   })
 

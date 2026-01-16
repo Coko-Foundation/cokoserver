@@ -20,8 +20,11 @@ describe('ChatChannel Controller', () => {
         './src/models/chatMessage',
         './src/models/chatChannel',
       ],
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     await migrationManager.migrate()
   })
 

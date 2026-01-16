@@ -13,7 +13,11 @@ describe('Identity migrations', () => {
     config.reset()
     await config.init({
       components: ['./src/models/user', './src/models/identity'],
+      mailer: false,
     })
+
+    db.init()
+    subscriptionManager.init()
   })
 
   beforeEach(async () => {

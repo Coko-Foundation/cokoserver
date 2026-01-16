@@ -38,8 +38,11 @@ describe('GraphQL authentication', async () => {
         ],
         nonGlobal: [],
       },
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     gqlServer = await createGraphqlTestServer()
   })
 

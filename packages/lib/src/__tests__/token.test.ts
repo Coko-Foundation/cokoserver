@@ -1,9 +1,29 @@
-import { vi, describe, afterAll, it, expect } from 'vitest'
+import {
+  vi,
+  describe,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+} from 'vitest'
 
+import db from '../db/db'
 import config from '../configManager/config'
 import authentication from '../authentication'
+import User from '../models/user/user.model'
+import DbTestUtils from '../db/DbTestUtils'
 
 describe('token management', () => {
+  beforeAll(async () => {
+    await config.init({ mailer: false })
+    db.init()
+  })
+
+  beforeEach(async () => {
+    await DbTestUtils.clearDb()
+  })
+
   afterAll(() => {
     config.reset()
   })
@@ -12,7 +32,9 @@ describe('token management', () => {
     const {
       token: { create: createToken, verify: verifyToken },
     } = authentication
-    const token = createToken({ id: 1, username: 'test' })
+
+    const u = await User.insert({ username: 'test' })
+    const token = createToken(u)
 
     const callback = (err, _id, user): void => {
       if (err) throw new Error()
@@ -26,7 +48,9 @@ describe('token management', () => {
     const {
       token: { create: createToken, verify: verifyToken },
     } = authentication
-    const token = createToken({ id: 1, username: 'test' })
+
+    const u = await User.insert({ username: 'test' })
+    const token = createToken(u)
 
     const callback = (err, id, user): void => {
       if (err) {
@@ -46,6 +70,7 @@ describe('token management', () => {
   it('accepts a configuration option for expiry', async () => {
     config.reset()
     await config.init({
+      mailer: false,
       tokenExpiresIn: 48 * 3600,
     })
 
@@ -53,7 +78,8 @@ describe('token management', () => {
       token: { create: createToken, verify: verifyToken },
     } = authentication
 
-    const token = createToken({ id: 1, username: 'test' })
+    const u = await User.insert({ username: 'test' })
+    const token = createToken(u)
 
     const tokenValidCallback = (err, id, user): void => {
       if (err) throw new Error()

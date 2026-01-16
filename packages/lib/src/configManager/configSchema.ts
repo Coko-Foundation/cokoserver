@@ -55,7 +55,7 @@ const MailerTransportSchema = z.strictObject({
 })
 
 const MailerConfigSchema = z.strictObject({
-  from: z.email(),
+  from: z.string(),
   transport: MailerTransportSchema,
 })
 
@@ -75,6 +75,7 @@ const StaticFolderSchema = z.strictObject({
 })
 
 const IntegrationConfigSchema = z.strictObject({
+  name: z.string(),
   clientId: z.string(),
   redirectUri: z.url(),
   tokenUrl: z.url(),
@@ -118,7 +119,7 @@ export const ConfigSchema = z.strictObject({
   useGraphQLServer: z.boolean(),
 
   // drop
-  integrations: z.record(z.string(), IntegrationConfigSchema).optional(),
+  integrations: z.array(IntegrationConfigSchema).optional(),
 })
 
 export type Teams = z.infer<typeof TeamsConfigSchema>

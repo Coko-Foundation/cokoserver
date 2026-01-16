@@ -61,6 +61,10 @@ describe('Filesystem utils', () => {
   })
 
   it('empties the temp folder', async () => {
+    await emptyTemp()
+    const initFiles = await fs.readdir(tempFolderPath)
+    expect(initFiles).toHaveLength(0)
+
     const n = 3
 
     await Promise.all(

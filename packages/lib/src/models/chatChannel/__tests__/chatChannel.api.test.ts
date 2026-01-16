@@ -27,8 +27,11 @@ describe('Chat channel api', async () => {
         './src/models/chatChannel',
         './src/models/__tests__/helpers/fake',
       ],
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     gqlServer = await createGraphqlTestServer()
     await migrationManager.migrate()
   })

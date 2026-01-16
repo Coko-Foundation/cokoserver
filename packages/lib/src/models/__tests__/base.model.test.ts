@@ -12,7 +12,7 @@ import { v4 as uuid } from 'uuid'
 import Fake from './helpers/fake/fake.model'
 import { createUser } from './helpers/users'
 import config from '../../configManager/config'
-import { migrationManager } from '../../db'
+import { db, migrationManager } from '../../db'
 import DbTestUtils from '../../db/DbTestUtils'
 
 describe('Base model', () => {
@@ -20,8 +20,10 @@ describe('Base model', () => {
     config.reset()
     await config.init({
       components: ['./src/models/user', './src/models/__tests__/helpers/fake'],
+      mailer: false,
     })
 
+    db.init()
     await migrationManager.migrate()
   })
 

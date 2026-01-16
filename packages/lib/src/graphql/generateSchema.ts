@@ -4,7 +4,7 @@ import merge from 'lodash/merge'
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import { applyMiddleware } from 'graphql-middleware'
 import { GraphQLSchema } from 'graphql'
-import { shield } from 'graphql-shield'
+import { shield } from '@coko/graphql-shield'
 
 import { makeExecutableSchema } from '@graphql-tools/schema'
 

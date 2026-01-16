@@ -7,8 +7,9 @@ import File from '../file.model'
 import { deleteFiles, createFile } from '../file.controller'
 import { tempFolderPath } from '../../../utils/filesystem'
 import config from '../../../configManager/config'
-import { migrationManager } from '../../../db'
+import { db, migrationManager } from '../../../db'
 import DbTestUtils from '../../../db/DbTestUtils'
+import fileStorage from '../../../fileStorage'
 
 const testFilePath = path.join(
   __dirname,
@@ -25,9 +26,12 @@ describe('File Controller', () => {
     config.reset()
     await config.init({
       components: ['./src/models/file'],
+      mailer: false,
     })
 
+    db.init()
     await migrationManager.migrate()
+    fileStorage.init()
   })
 
   beforeEach(async () => {

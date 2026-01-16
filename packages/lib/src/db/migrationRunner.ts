@@ -150,7 +150,9 @@ export default class MigrationRunner {
   async init(): Promise<void> {
     this.threshold = await MigrationRunner.findThreshold()
 
-    const files = await glob(this.pattern)
+    const allFiles = await glob(this.pattern)
+    const files = allFiles.filter(file => !file.endsWith('.d.ts'))
+
     const migrations = await Promise.all(
       files.map(async filePath => this.parseMigration(filePath)),
     )
@@ -190,9 +192,9 @@ export default class MigrationRunner {
     })
 
     // this.umzug.on('reverting', e => internalLogger.wait(`Reverting ${e.name}`))
-    this.umzug.on('reverted', e =>
-      internalLogger.success(`Successfully reverted ${e.name}`),
-    )
+    this.umzug.on('reverted', e => {
+      internalLogger.success(`Successfully reverted ${e.name}`)
+    })
   }
 
   async up(options: MigrateUpOptions): Promise<void> {

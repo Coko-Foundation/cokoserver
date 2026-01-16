@@ -4,7 +4,7 @@ import wait from '../../utils/wait'
 import { JobManager, type JobQueue } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
 import { JobManagerOptionsError } from '../errors'
-import { db } from '../../db'
+import { db, migrationManager } from '../../db'
 import config from '../../configManager/config'
 
 /**
@@ -41,6 +41,7 @@ describe('Job queues', () => {
     beforeAll(async () => {
       await config.init({ mailer: false })
       db.init()
+      await migrationManager.migrate()
       const mockHandler = jobQueues[0].handler as Mock
       mockHandler.mockClear()
       await jobManager.init(jobQueues)

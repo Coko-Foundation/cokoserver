@@ -4,7 +4,7 @@ import { File } from '../../index'
 import { createFilesForObjectId } from '../../__tests__/helpers/files'
 
 import config from '../../../configManager/config'
-import { migrationManager } from '../../../db'
+import { db, migrationManager } from '../../../db'
 import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('File model', () => {
@@ -12,8 +12,10 @@ describe('File model', () => {
     config.reset()
     await config.init({
       components: ['./src/models/file'],
+      mailer: false,
     })
 
+    db.init()
     await migrationManager.migrate()
   })
 

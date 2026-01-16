@@ -1,7 +1,7 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
 
-import { migrationManager } from '../../../db'
+import { db, migrationManager } from '../../../db'
 import { Team, TeamMember, User } from '../../index'
 import { createGlobalTeamWithUsers } from '../../__tests__/helpers/teams'
 import DbTestUtils from '../../../db/DbTestUtils'
@@ -43,8 +43,10 @@ describe('Team Model', () => {
           },
         ],
       },
+      mailer: false,
     })
 
+    db.init()
     await migrationManager.migrate()
   })
 

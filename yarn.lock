@@ -1316,6 +1316,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@coko/graphql-shield@npm:^7.6.6":
+  version: 7.6.6
+  resolution: "@coko/graphql-shield@npm:7.6.6"
+  dependencies:
+    "@types/yup": "npm:0.29.13"
+    object-hash: "npm:^3.0.0"
+    tslib: "npm:^2.4.0"
+    yup: "npm:^0.32.0"
+  peerDependencies:
+    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    graphql-middleware: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^6.0.0
+  checksum: 10c0/7c5a1e63f15305a43a9e8f3a8308a62af3bb4fd98fb2a8a9d2c31b5c0fc38c20d0d6dd44c33b023bc9b31051d6e398d9a0582bf2024810a2b2e91a11ee60d8fe
+  languageName: node
+  linkType: hard
+
 "@coko/lint@npm:3.0.0-alpha.10":
   version: 3.0.0-alpha.10
   resolution: "@coko/lint@npm:3.0.0-alpha.10"
@@ -1379,6 +1394,7 @@ __metadata:
     "@aws-sdk/lib-storage": "npm:^3.965.0"
     "@aws-sdk/s3-request-presigner": "npm:^3.965.0"
     "@aws-sdk/types": "npm:^3.965.0"
+    "@coko/graphql-shield": "npm:^7.6.6"
     "@faker-js/faker": "npm:^10.2.0"
     "@graphql-tools/schema": "npm:^10.0.31"
     "@sentry/node": "npm:^10.32.1"
@@ -1418,7 +1434,6 @@ __metadata:
     glob: "npm:^13.0.0"
     graphql: "npm:^16.12.0"
     graphql-middleware: "npm:^6.1.35"
-    graphql-shield: "npm:^7.6.5"
     graphql-subscriptions: "npm:^3.0.0"
     graphql-tag: "npm:^2.12.6"
     graphql-upload: "npm:^17.0.0"
@@ -9051,21 +9066,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 10c0/faa948e9490493e39a096b9a44941aa0ad66a760ca9413c02b7d177c38251cf6db8560aa182b6efa01e6d519f5e76c4802243e30b87f510fe6e31a89740885d0
-  languageName: node
-  linkType: hard
-
-"graphql-shield@npm:^7.6.5":
-  version: 7.6.5
-  resolution: "graphql-shield@npm:7.6.5"
-  dependencies:
-    "@types/yup": "npm:0.29.13"
-    object-hash: "npm:^3.0.0"
-    tslib: "npm:^2.4.0"
-    yup: "npm:^0.32.0"
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-    graphql-middleware: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^6.0.0
-  checksum: 10c0/aed5783f2b632a31d93c5b3dc2cd8d62d99a471db397aad8d8db58487b4fbce3ae431129369de711500795ac9b5f5aaa2bdef48c4650ac81a9ff8bd8840a3605
   languageName: node
   linkType: hard
 

@@ -93,13 +93,13 @@ const fakePostResponse = ({
     }
   }
 
-  if (url !== config.get('integrations').test.tokenUrl) {
+  const integration = config.get('integrations').find(i => i.name === 'test')
+
+  if (url !== integration.tokenUrl) {
     return {}
   }
 
-  if (
-    dataUnpacked.get('client_id') !== config.get('integrations').test.clientId
-  ) {
+  if (dataUnpacked.get('client_id') !== integration.clientId) {
     return {
       status: 400,
       data: {
@@ -147,23 +147,29 @@ const timeLeft = (dateTime: Date): number => {
 
 vi.mock('axios')
 const specificDate = new Date()
-Date.now = vi.fn(() => specificDate.getTime())
 
 describe('Identity Controller', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
       components: ['./src/models/user', './src/models/identity'],
-      integrations: {
-        test: {
+      integrations: [
+        {
+          name: 'test',
           clientId: 'the-client-id',
           redirectUri: 'http://localhost:4000/provider-redirect',
           tokenUrl: 'https://api.myprovider.com/auth',
         },
-      },
+      ],
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     await migrationManager.migrate()
+
+    vi.useFakeTimers()
+    vi.setSystemTime(specificDate)
   })
 
   beforeEach(async () => {
@@ -174,6 +180,7 @@ describe('Identity Controller', () => {
     config.reset()
     await db.destroy()
     await subscriptionManager.client.end()
+    vi.useRealTimers()
   })
 
   it('authorizes access and inserts the Oauth tokens', async () => {

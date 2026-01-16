@@ -123,9 +123,10 @@ const authorizeOAuth = async (
   oauthAccessTokenExpiration: Date
   oauthRefreshTokenExpiration: Date
 }> => {
-  const tokenUrl = config.get(`integrations.${provider}.tokenUrl`)
-  const clientId = config.get(`integrations.${provider}.clientId`)
-  const redirectUri = config.get(`integrations.${provider}.redirectUri`)
+  const integrations = config.get('integrations')
+  const providerIntegration = integrations.find(i => i.name === provider)
+
+  const { tokenUrl, clientId, redirectUri } = providerIntegration
 
   const postData = {
     code,

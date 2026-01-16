@@ -7,7 +7,7 @@ class PubsubManager {
   public instance: PostgresPubSub
 
   init(): void {
-    if (this.instance) return
+    // if (this.instance) return
 
     const connectionConfig = getDbConnectionConfig('subscriptionsDb')
     const realInstance = new PostgresPubSub(connectionConfig)
@@ -37,7 +37,9 @@ const pubsub = new Proxy(manager, {
     if (prop === 'init') return target.init.bind(target)
 
     if (!target.instance) {
-      throw new Error('PubSub not initialized. Run pubsub.init() first.')
+      throw new Error(
+        'subcriptionManager not initialized. Run subcriptionManager.init() first.',
+      )
     }
 
     const value = (target.instance as any)[prop]

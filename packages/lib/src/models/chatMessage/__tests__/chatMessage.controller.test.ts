@@ -17,7 +17,7 @@ import {
 import config from '../../../configManager/config'
 import DbTestUtils from '../../../db/DbTestUtils'
 
-describe('ChatChannel Controller', () => {
+describe('Chat message Controller', () => {
   beforeAll(async () => {
     config.reset()
     await config.init({
@@ -38,8 +38,11 @@ describe('ChatChannel Controller', () => {
           },
         ],
       },
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     await migrationManager.migrate()
   })
 

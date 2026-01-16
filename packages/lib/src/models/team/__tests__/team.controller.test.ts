@@ -33,8 +33,10 @@ describe('Team Controller', () => {
           },
         ],
       },
+      mailer: false,
     })
 
+    db.init()
     await migrationManager.migrate()
   })
 

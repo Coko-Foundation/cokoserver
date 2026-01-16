@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterAll, it, expect } from 'vitest'
+import { describe, beforeEach, afterAll, it, expect, beforeAll } from 'vitest'
 import fs from 'fs-extra'
 import path from 'path'
 import sharp from 'sharp'
@@ -7,31 +7,37 @@ import FileStorageConstructor from '../FileStorage'
 import { tempFolderPath } from '../../utils/filesystem'
 import request from '../../utils/request'
 import { StoredObject } from '../types'
+import config from '../../configManager/config'
 
 const testFilePath = path.join(__dirname, 'files')
 const textFileContent = 'This is a dummy text file'
 
-const fileStorage = new FileStorageConstructor()
+describe('File Storage Service', () => {
+  let fileStorage
 
-const uploadOneFile = async (isPublic?: boolean): Promise<StoredObject> => {
-  const filePath = path.join(testFilePath, 'helloWorld.txt')
-  const fileStream = fs.createReadStream(filePath)
+  const uploadOneFile = async (isPublic?: boolean): Promise<StoredObject> => {
+    const filePath = path.join(testFilePath, 'helloWorld.txt')
+    const fileStream = fs.createReadStream(filePath)
 
-  const files = await fileStorage.upload(fileStream, 'helloWorld.txt', {
-    public: isPublic,
+    const files = await fileStorage.upload(fileStream, 'helloWorld.txt', {
+      public: isPublic,
+    })
+
+    return files[0]
+  }
+
+  const cleanBucket = async (): Promise<void> => {
+    const list = await fileStorage.list()
+    if (!list.Contents) return // bucket is empty already
+    const fileKeys = list.Contents.map(file => file.Key)
+    if (fileKeys.length > 0) await fileStorage.delete(fileKeys)
+  }
+
+  beforeAll(async () => {
+    await config.init({ mailer: false })
+    fileStorage = new FileStorageConstructor()
   })
 
-  return files[0]
-}
-
-const cleanBucket = async (): Promise<void> => {
-  const list = await fileStorage.list()
-  if (!list.Contents) return // bucket is empty already
-  const fileKeys = list.Contents.map(file => file.Key)
-  if (fileKeys.length > 0) await fileStorage.delete(fileKeys)
-}
-
-describe('File Storage Service', () => {
   beforeEach(async () => {
     await cleanBucket()
   })

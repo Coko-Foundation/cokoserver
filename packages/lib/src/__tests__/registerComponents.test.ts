@@ -15,6 +15,7 @@ vi.mock('../configManager/config', async () => {
   const config = new Config()
   config.init({
     components: ['./src/__tests__/helpers/mockComponent.ts'],
+    mailer: false,
   })
 
   return { default: config }
@@ -25,6 +26,7 @@ describe('App startup', () => {
   const request = supertest(app)
 
   beforeAll(async () => {
+    db.init()
     await registerComponents(app)
   })
 

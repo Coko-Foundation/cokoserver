@@ -8,7 +8,7 @@ import {
   or,
   not,
   race,
-} from 'graphql-shield'
+} from '@coko/graphql-shield'
 
 import User from './models/user/user.model'
 

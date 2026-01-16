@@ -17,8 +17,10 @@ describe('Activity Log Service', () => {
         './src/models/identity',
         './src/models/activityLog',
       ],
+      mailer: false,
     })
 
+    db.init()
     await migrationManager.migrate()
   })
 

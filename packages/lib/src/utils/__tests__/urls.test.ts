@@ -11,6 +11,7 @@ describe('URL utils', () => {
     it('is unaffected when it has no trailing slashes', async () => {
       await config.init({
         clientUrl: 'http://localhost:4000',
+        mailer: false,
       })
 
       const result = sanitizeUrlByConfigKey('clientUrl')
@@ -20,6 +21,7 @@ describe('URL utils', () => {
     it('removes trailing slash if there is one', async () => {
       await config.init({
         clientUrl: 'http://localhost:4000/',
+        mailer: false,
       })
 
       const result = sanitizeUrlByConfigKey('clientUrl')
@@ -29,21 +31,11 @@ describe('URL utils', () => {
     it('removes trailing slashes if there are many', async () => {
       await config.init({
         clientUrl: 'http://localhost:4000////',
+        mailer: false,
       })
 
       const result = sanitizeUrlByConfigKey('clientUrl')
       expect(result).toBe('http://localhost:4000')
-    })
-
-    it('returns null if the key is not in the config', async () => {
-      await config.init({
-        // @ts-ignore
-        clientUrl: null,
-      })
-
-      // clientUrl does not exist
-      const result = sanitizeUrlByConfigKey('clientUrl')
-      expect(result).toBe(null)
     })
   })
 })

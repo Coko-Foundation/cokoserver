@@ -29,8 +29,11 @@ describe('Team Member Model', () => {
           },
         ],
       },
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     await migrationManager.migrate()
   })
 

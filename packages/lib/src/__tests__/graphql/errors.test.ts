@@ -1,4 +1,12 @@
-import { vi, describe, it, expect, afterAll, beforeEach } from 'vitest'
+import {
+  vi,
+  describe,
+  it,
+  expect,
+  afterAll,
+  beforeEach,
+  beforeAll,
+} from 'vitest'
 
 import gql from 'graphql-tag'
 
@@ -19,6 +27,7 @@ vi.mock('../../configManager/config', async () => {
       './src/models/team',
       './src/models/teamMember',
     ],
+    mailer: false,
   })
 
   return { default: config }
@@ -26,6 +35,11 @@ vi.mock('../../configManager/config', async () => {
 
 describe('GraphQL errors', async () => {
   const gqlServer = await createGraphqlTestServer()
+
+  beforeAll(async () => {
+    db.init()
+    subscriptionManager.init()
+  })
 
   beforeEach(async () => {
     await DbTestUtils.clearDb()

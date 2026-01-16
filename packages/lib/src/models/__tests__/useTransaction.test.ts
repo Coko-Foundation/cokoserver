@@ -2,7 +2,7 @@ import { describe, beforeAll, afterAll, afterEach, it, expect } from 'vitest'
 import { Transaction } from 'objection'
 
 import useTransaction from '../useTransaction'
-import { migrationManager } from '../../db'
+import { db, migrationManager } from '../../db'
 import config from '../../configManager/config'
 import Team from '../team/team.model'
 import DbTestUtils from '../../db/DbTestUtils'
@@ -49,8 +49,6 @@ const createValidTeams = async (trx?: Transaction): Promise<void> => {
 
 describe('Use transaction', () => {
   beforeAll(async () => {
-    await DbTestUtils.clearDb()
-
     config.reset()
     await config.init({
       components: [
@@ -72,8 +70,11 @@ describe('Use transaction', () => {
         ],
         nonGlobal: [],
       },
+      mailer: false,
     })
 
+    db.init()
+    await DbTestUtils.clearDb()
     await migrationManager.migrate()
   })
 

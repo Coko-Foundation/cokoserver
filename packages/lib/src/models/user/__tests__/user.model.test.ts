@@ -53,7 +53,11 @@ describe('User model', () => {
           },
         ],
       },
+      mailer: false,
     })
+
+    db.init()
+    subscriptionManager.init()
     await DbTestUtils.dropAllTables()
     await migrationManager.migrate()
   })

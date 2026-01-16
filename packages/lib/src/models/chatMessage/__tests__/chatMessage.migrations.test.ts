@@ -31,7 +31,11 @@ describe('Chat message migrations', () => {
           },
         ],
       },
+      mailer: false,
     })
+
+    db.init()
+    subscriptionManager.init()
   })
 
   beforeEach(async () => {

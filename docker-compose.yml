@@ -7,6 +7,7 @@ services:
       - db
       - filehosting
       - createbucket
+      - mailhog
     command: node ./startDev.js
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
@@ -99,6 +100,12 @@ services:
         /usr/bin/mc admin policy attach cokoServer/ readwrite --user ${S3_ACCESS_KEY_ID:-accessKeyId};
         exit 0;
       "
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025' # SMTP port
+      - '8025:8025' # Web UI port
 
 volumes:
   minio_storage:

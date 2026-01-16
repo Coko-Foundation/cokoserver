@@ -22,7 +22,11 @@ describe('Chat channel migrations', () => {
         './src/models/chatChannel',
         './src/models/__tests__/helpers/fake',
       ],
+      mailer: false,
     })
+
+    db.init()
+    subscriptionManager.init()
   })
 
   beforeEach(async () => {

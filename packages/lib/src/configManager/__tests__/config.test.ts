@@ -6,7 +6,7 @@ import { ConfigUnknownPropertyError } from '../errors'
 describe('Config', () => {
   it('does not allow custom properties outside of values', async () => {
     const config = new Config()
-    await config.init()
+    await config.init({ mailer: false })
 
     expect(() => {
       // @ts-ignore
@@ -16,19 +16,19 @@ describe('Config', () => {
 
   it('reads a value', async () => {
     const config = new Config()
-    await config.init()
+    await config.init({ mailer: false })
     expect(config.get('useGraphQLServer')).toBe(true)
   })
 
   it('checks if a value exists', async () => {
     const config = new Config()
-    await config.init()
+    await config.init({ mailer: false })
     expect(config.has('randomValue')).toBe(false)
   })
 
   it('accepts override values on init', async () => {
     const config = new Config()
-    await config.init({ secret: 'secretTest' })
+    await config.init({ mailer: false, secret: 'secretTest' })
     expect(config.get('secret')).toBe('secretTest')
   })
 
@@ -36,6 +36,7 @@ describe('Config', () => {
     const config = new Config()
     await config.init({
       sentry: false,
+      mailer: false,
     })
 
     expect(config.get('sentry')).toBe(false)

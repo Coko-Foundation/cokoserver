@@ -24,10 +24,12 @@ describe('User API', async () => {
         './src/models/team',
         './src/models/teamMember',
       ],
+      mailer: false,
     })
 
+    db.init()
+    subscriptionManager.init()
     gqlServer = await createGraphqlTestServer()
-
     await migrationManager.migrate()
   })
 

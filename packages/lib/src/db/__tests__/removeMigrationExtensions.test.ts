@@ -1,12 +1,18 @@
-import { describe, it, beforeEach, expect } from 'vitest'
+import { describe, it, beforeEach, expect, beforeAll } from 'vitest'
 
 import db from '../db'
 import DbTestUtils from '../DbTestUtils'
 import { migrations as migrationsTable } from '../migrateDbHelpers'
 
 import { up } from '../coreMigrations/1762697452-remove-extension-from-migrations'
+import config from '../../configManager/config'
 
 describe('Remove extensions from migrations', () => {
+  beforeAll(async () => {
+    await config.init({ mailer: false })
+    db.init()
+  })
+
   beforeEach(async () => {
     await DbTestUtils.dropAllTables()
     await migrationsTable.createTable()
