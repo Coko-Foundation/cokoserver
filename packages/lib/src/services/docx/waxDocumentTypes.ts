@@ -1,5 +1,5 @@
 // #region marks
-type BaseMarkType =
+export type BaseMarkType =
   | 'strong'
   | 'em'
   | 'code'
@@ -9,34 +9,34 @@ type BaseMarkType =
   | 'smallcaps'
   | 'underline'
 
-interface BaseMark {
+export interface BaseMark {
   type: BaseMarkType
 }
 
 // Link mark with required href attribute
-interface LinkMark {
+export interface LinkMark {
   type: 'link'
   attrs: {
     href: string
   }
 }
 
-type Mark = BaseMark | LinkMark
+export type Mark = BaseMark | LinkMark
 // #endregion marks
 
-interface ParagraphNode {
+export interface ParagraphNode {
   type: 'paragraph'
   content: TextNode[]
 }
 
-interface TextNode {
+export interface TextNode {
   type: 'text'
   text: string
   marks?: Mark[]
 }
 
 // #region images
-interface ImageNode {
+export interface ImageNode {
   type: 'image'
   attrs: {
     src?: string
@@ -44,48 +44,48 @@ interface ImageNode {
   }
 }
 
-interface FigureNode {
+export interface FigureNode {
   type: 'figure'
   content: [ImageNode]
 }
 // #endregion images
 
 // #region lists
-interface ListItemNode {
+export interface ListItemNode {
   type: 'list_item'
   content: (ParagraphNode | OrderedListNode | BulletListNode)[]
 }
 
-interface OrderedListNode {
+export interface OrderedListNode {
   type: 'orderedlist'
   content: ListItemNode[]
 }
 
-interface BulletListNode {
+export interface BulletListNode {
   type: 'bulletlist'
   content: ListItemNode[]
 }
 // #endregion lists
 
 // #region tables
-interface TableCellNode {
+export interface TableCellNode {
   type: 'table_cell'
   content: ParagraphNode[]
   attrs?: Record<string, any>
 }
 
-interface TableRowNode {
+export interface TableRowNode {
   type: 'table_row'
   content: TableCellNode[]
 }
 
-interface TableNode {
+export interface TableNode {
   type: 'table'
   content: TableRowNode[]
 }
 // #endregion tables
 
-type TopLevelNode =
+export type TopLevelNode =
   | ParagraphNode
   | FigureNode
   | OrderedListNode

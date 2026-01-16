@@ -4,6 +4,9 @@ import { knexSnakeCaseMappers } from 'objection'
 import config from '../configManager/config'
 import getDbConnectionConfig from './connectionConfig'
 
+// export needed for migrations in apps
+export type Db = Knex
+
 // Attach to dummy function instead of class so that we can call db as a
 // function (eg. db(table_name).select(...))
 const manager = Object.assign(() => {}, {

@@ -1,7 +1,7 @@
 import { describe, beforeAll, afterEach, it, expect, vi, Mock } from 'vitest'
 
 import wait from '../../utils/wait'
-import { JobManager, JobQueue } from '../JobManager'
+import { JobManager, type JobQueue } from '../JobManager'
 import defaultJobQueueNames from '../defaultJobQueueNames'
 import { JobManagerOptionsError } from '../errors'
 import { db } from '../../db'

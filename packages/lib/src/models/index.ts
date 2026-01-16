@@ -1,4 +1,6 @@
-import BaseModel from './base.model'
+import { JSONSchema, Pojo, RelationMappings, Transaction } from 'objection'
+
+import BaseModel, { QueryResult } from './base.model'
 
 import ChatChannel from './chatChannel/chatChannel.model'
 import ChatMessage from './chatMessage/chatMessage.model'
@@ -27,4 +29,9 @@ export {
   ActivityLog,
   ServiceCredential,
   useTransaction,
+  type JSONSchema,
+  type QueryResult,
+  type Pojo,
+  type RelationMappings,
+  type Transaction,
 }

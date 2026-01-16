@@ -1,4 +1,4 @@
-import db from './db'
+import db, { Db } from './db'
 import { migrationManager } from './migrate'
 import connectionConfig from './connectionConfig'
 
@@ -14,6 +14,7 @@ const META_TABLE_NAME = META_TABLE
 
 export {
   db,
+  Db,
   migrationManager,
   getDbConnectionConfig,
   migrationsMeta,

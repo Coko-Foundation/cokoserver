@@ -8,7 +8,7 @@ import config from './configManager/config'
 import logger from './logger/index'
 import User from './models/user/user.model'
 
-const createToken = (user): string => {
+const createToken = (user: User): string => {
   logger.info(`Creating token for ${user.username}`)
 
   const expiresIn = config.get('tokenExpiresIn')
@@ -23,7 +23,7 @@ const createToken = (user): string => {
   )
 }
 
-const verifyToken = (token, done): void => {
+const verifyToken = (token: string, done): void => {
   jwt.verify(token, config.get('secret'), (err, decoded) => {
     if (err) return done(null)
 
