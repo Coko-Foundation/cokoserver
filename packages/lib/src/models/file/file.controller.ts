@@ -1,5 +1,6 @@
 import { S3 } from '@aws-sdk/client-s3'
 import { Transaction } from 'objection'
+import { ReadStream } from 'fs'
 
 import logger from '../../logger'
 import File from './file.model'
@@ -13,14 +14,19 @@ import FileStorageNoop from '../../fileStorage/FileStorageNoop'
 const { FILE_CONTROLLER } = labels
 
 type CreateFileOptions = {
+  alt?: string
+  caption?: string
   forceObjectKeyValue?: string
   meta?: object
+  objectId?: string
   public?: boolean
   s3?: S3
+  tags?: string[]
   trx?: Transaction
 }
 
 type DeleteFileOptions = {
+  removeFromFileServer?: boolean
   s3?: S3
   trx?: Transaction
 }
@@ -33,16 +39,22 @@ const getStorage = (
 }
 
 const createFile = async (
-  fileStream,
-  name,
-  alt = null,
-  caption = null,
-  tags = [],
-  objectId = null,
+  fileStream: ReadStream,
+  name: string,
   options: CreateFileOptions = {},
 ): Promise<File> => {
   try {
-    const { trx, forceObjectKeyValue, s3, public: isPublic, meta } = options
+    const {
+      alt = null,
+      caption = null,
+      forceObjectKeyValue,
+      meta,
+      objectId = null,
+      public: isPublic,
+      s3,
+      tags = [],
+      trx,
+    } = options
 
     const storage = getStorage(s3) as FileStorageConstructor
 
@@ -74,12 +86,11 @@ const createFile = async (
 }
 
 const deleteFiles = async (
-  ids,
-  removeFromFileServer = true,
+  ids: string[],
   options: DeleteFileOptions = {},
 ): Promise<number> => {
   try {
-    const { trx, s3 } = options
+    const { removeFromFileServer = true, trx, s3 } = options
 
     const storage = getStorage(s3)
 

@@ -56,15 +56,9 @@ describe('File Controller', () => {
     const filePath = path.join(testFilePath, 'test.jpg')
     const fileStream = fs.createReadStream(filePath)
 
-    const newFile = await createFile(
-      fileStream,
-      'test.jpg',
-      null,
-      null,
-      [],
-      null,
-      { forceObjectKeyValue: 'specific.jpg' },
-    )
+    const newFile = await createFile(fileStream, 'test.jpg', {
+      forceObjectKeyValue: 'specific.jpg',
+    })
 
     expect(newFile).toBeDefined()
     expect(newFile.storedObjects).toHaveLength(4)
