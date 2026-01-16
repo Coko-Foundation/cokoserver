@@ -87,6 +87,11 @@ class InternalLogger {
     if (suppress) return
     console.log(`${chalk.yellow(BULLET)} ${str}`)
   }
+
+  work(str: string): void {
+    if (suppress) return
+    console.log(chalk.yellow(`🛠  ${str}`))
+  }
 }
 
 const internalLogger = new InternalLogger()

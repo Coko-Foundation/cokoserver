@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterAll, expect } from 'vitest'
 import config from '../../configManager/config'
 import GraphQLDisabledError from '../GraphQLDisabledError'
-import { createExportablePubsub } from '../pubsub'
+import subscriptionManager from '../pubsub'
 
 describe('Pubsub', () => {
   beforeEach(() => {
@@ -17,8 +17,6 @@ describe('Pubsub', () => {
       useGraphQLServer: false,
     })
 
-    const subscriptionManager = createExportablePubsub()
-
     expect(() => subscriptionManager.client).toThrow(GraphQLDisabledError)
     expect(() => subscriptionManager.asyncIterator('USER_UPDATED')).toThrow(
       GraphQLDisabledError,
@@ -29,8 +27,6 @@ describe('Pubsub', () => {
     await config.init({
       useGraphQLServer: true,
     })
-
-    const subscriptionManager = createExportablePubsub()
 
     expect(subscriptionManager.client).toBeDefined()
     expect(subscriptionManager.asyncIterator('USER_UPDATED')).toHaveProperty(

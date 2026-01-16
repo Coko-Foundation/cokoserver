@@ -7,13 +7,17 @@ import output from 'madge/lib/output'
 import ora from 'ora'
 import nodemon from 'nodemon'
 
-import logger from '../logger'
 import internalLogger from '../logger/internals'
 import loadBuilderConfig from './loadBuilderConfig'
 import generateTsConfig from './generateTsConfig'
 import { MigrateOptions, RollbackOptions } from '../db/migrate'
 import { db, migrationManager } from '../db'
 import config from '../configManager/config'
+import {
+  deleteFileFromTemp,
+  tempFolderPath,
+  writeFileToTemp,
+} from '../utils/filesystem'
 
 const pkg = require('../../package.json')
 
@@ -25,23 +29,27 @@ const tsc = path.join(tscPath, '..', 'bin', 'tsc')
 const tsxPath = path.dirname(require.resolve('tsx'))
 const tsx = path.join(tsxPath, 'cli.mjs')
 
+const tempTsConfigFile = 'tsconfig.json'
+
 program
   .command('build')
   .description('Build production server')
   .showHelpAfterError()
-  .action(() => {
-    logger.info('🛠  Building TypeScript...')
+  .action(async () => {
+    internalLogger.work('Building project...')
 
-    const tsConfig = generateTsConfig()
+    try {
+      const tsConfig = generateTsConfig()
+      const configPath = path.join(tempFolderPath, tempTsConfigFile)
+      await writeFileToTemp(JSON.stringify(tsConfig), tempTsConfigFile)
 
-    const command = `
-      echo ${tsConfig} |
-      ${tsc} --project /dev/stdin --outDir ${outDir}
-    `.trim()
+      const command = `${tsc} --project ${configPath} --outDir ${outDir}`
+      execSync(command, { stdio: 'inherit' })
 
-    execSync(command, { stdio: 'inherit' })
-
-    logger.info('✅ Build completed successfully.')
+      internalLogger.success('Build completed successfully.')
+    } finally {
+      await deleteFileFromTemp(tempTsConfigFile)
+    }
   })
 
 program
@@ -67,7 +75,7 @@ program
     const scriptPath = path.join(__dirname, '..', 'init.js')
 
     const exec = `
-      echo ${tsConfig} |
+      echo '${JSON.stringify(tsConfig)}' |
       ${tsx} --inspect=0.0.0.0:${inspectorPort} --tsconfig /dev/stdin
     `.trim()
 
@@ -89,6 +97,27 @@ program
       .on('restart', files => {
         internalLogger.nodemon(`Retarting dev server due to files ${files}...`)
       })
+  })
+
+program
+  .command('typecheck')
+  .description('Typecheck your code')
+  .showHelpAfterError()
+  .action(async () => {
+    internalLogger.work('Typechecking your code...')
+
+    try {
+      const tsConfig = generateTsConfig()
+      const configPath = path.join(tempFolderPath, tempTsConfigFile)
+      await writeFileToTemp(JSON.stringify(tsConfig), tempTsConfigFile)
+
+      const command = `${tsc} --noEmit --project ${configPath}`
+      execSync(command, { stdio: 'inherit' })
+
+      internalLogger.success('Typecheck completed successfully.')
+    } finally {
+      await deleteFileFromTemp(tempTsConfigFile)
+    }
   })
 
 const migrateCommand = program
@@ -133,7 +162,7 @@ migrateCommand
       await migrationManager.migrate(optionsToPass as MigrateOptions)
       process.exit(0)
     } catch (e) {
-      logger.error(e)
+      internalLogger.error(e)
       process.exit(1)
     }
   })
@@ -162,7 +191,7 @@ migrateCommand
       await migrationManager.rollback(optionsToPass as RollbackOptions)
       process.exit(0)
     } catch (e) {
-      logger.error(e)
+      internalLogger.error(e)
       process.exit(1)
     }
   })
@@ -175,7 +204,7 @@ migrateCommand
       await migrationManager.pending()
       process.exit(0)
     } catch (e) {
-      logger.error(e)
+      internalLogger.error(e)
       process.exit(1)
     }
   })
@@ -188,7 +217,7 @@ migrateCommand
       await migrationManager.executed()
       process.exit(0)
     } catch (e) {
-      logger.error(e)
+      internalLogger.error(e)
       process.exit(1)
     }
   })
@@ -220,7 +249,7 @@ program
 
       process.exit(0)
     } catch (e) {
-      logger.error(e)
+      internalLogger.error(e)
       process.exit(1)
     }
   })
