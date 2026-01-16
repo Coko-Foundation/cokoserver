@@ -63,7 +63,7 @@ const makeTransportConfig = async (
 }
 
 const sendEmail = async (
-  mailData,
+  mailData: any,
   mailerConfigOverrides = {},
 ): Promise<SentMessageInfo> => {
   const { transportConfig, testTransportUsed } = await makeTransportConfig(
