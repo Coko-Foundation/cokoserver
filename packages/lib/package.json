@@ -19,7 +19,8 @@
     "coko-server": "./dist/cli/coko-server.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "rm -rf dist && tsc && yarn copy-assets",
