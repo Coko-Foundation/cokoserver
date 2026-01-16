@@ -55,7 +55,7 @@ import {
   tempFolderPath,
 } from './utils/filesystem'
 
-import { clientUrl, serverUrl } from './utils/urls'
+import { clientUrl, serverUrl, initUrls } from './utils/urls'
 import createGraphqlTestServer from './utils/createGraphqlTestServer'
 
 import { type FileStorageConfig } from './configManager/configSchema'
@@ -134,6 +134,7 @@ export {
   // urls
   clientUrl,
   serverUrl,
+  initUrls,
 
   // microservices
   callMicroservice,
