@@ -7,13 +7,11 @@ services:
       - db
       - filehosting
       - createbucket
-    command: ['yarn', 'coko-server', 'start']
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
       - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
     environment:
       - NODE_ENV=production
-      - NODE_CONFIG_DIR=./dist/dev/config
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_DB=${POSTGRES_DB:-test}
@@ -24,8 +22,11 @@ services:
       - SUBSCRIPTIONS_POSTGRES_DB=${SUBSCRIPTIONS_POSTGRES_DB}
       - SECRET=${SECRET:-secret}
       - SERVER_PORT=${SERVER_PORT:-3000}
-      # - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
-      # - SERVER_URL=http://www.google.com///
+      - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
+      - SERVER_URL=http://localhost:3000
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=password
+      - ADMIN_EMAIL=admin@example.com
       # - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
       # - MAILER_HOSTNAME=${MAILER_HOSTNAME}
       # - MAILER_PORT=${MAILER_PORT}
@@ -35,15 +36,12 @@ services:
       - S3_BUCKET=${S3_BUCKET:-uploads}
       - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-accessKeyId}
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-password}
-      # - MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES=100
-      # - S3_SEPARATE_DELETE_OPERATIONS=true
-      # - S3_FORCE_PATH_STYLE=true
-      - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
+      # - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
       # - CORS_ORIGIN=https://studio.apollographql.com
     tty: true
 
   db:
-    image: postgres:15
+    image: postgres:18
     ports:
       - ${POSTGRES_PORT:-5432}:5432
     environment:

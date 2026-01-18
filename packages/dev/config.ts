@@ -43,7 +43,6 @@ export default {
       mountPoint: '/',
     },
   ],
-  mailer: false,
   integrations: [
     {
       name: 'test',
@@ -54,5 +53,7 @@ export default {
         'https://api.sandbox.lulu.com/auth/realms/glasstree/protocol/openid-connect/token',
     },
   ],
+  mailer: false,
+  sentry: false,
   random: false,
 }

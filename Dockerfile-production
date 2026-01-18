@@ -1,17 +1,24 @@
 FROM cokoapps/base:24
 
 RUN corepack enable
-
 WORKDIR /home/node/app
 
-COPY .yarnrc.yml .
 COPY package.json .
 COPY yarn.lock .
+COPY .yarnrc.yml .
+
+COPY packages/dev/package.json ./packages/dev/package.json
+COPY packages/lib/package.json ./packages/lib/package.json
 
 RUN chown -R node:node .
 USER node
 
-RUN yarn workspaces focus --production && yarn cache clean && rm -rf ~/.npm
+RUN yarn workspaces focus --all --production && yarn cache clean && rm -rf ~/.npm
 COPY --chown=node:node . .
 
-RUN yarn coko-server build
+# build lib
+RUN yarn workspace @coko/server build
+# build app
+RUN yarn workspace dev coko-server build
+
+CMD ["yarn", "workspace", "dev", "coko-server", "start"]

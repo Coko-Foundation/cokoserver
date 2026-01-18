@@ -1,4 +1,5 @@
 import path from 'path'
+import { env } from './env'
 
 type Component = {
   // model:
@@ -12,8 +13,13 @@ const loadComponent = async (componentPath: string): Promise<Component> => {
   try {
     let p: string
 
+    const root =
+      env('NODE_ENV') === 'production'
+        ? path.join(process.cwd(), 'dist')
+        : process.cwd()
+
     if (componentPath.startsWith('.')) {
-      p = path.join(process.cwd(), componentPath)
+      p = path.join(root, componentPath)
     } else {
       p = path.dirname(require.resolve(componentPath))
     }

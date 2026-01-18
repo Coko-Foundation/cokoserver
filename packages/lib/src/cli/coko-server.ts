@@ -29,6 +29,8 @@ const tsc = path.join(tscPath, '..', 'bin', 'tsc')
 const tsxPath = path.dirname(require.resolve('tsx'))
 const tsx = path.join(tsxPath, 'cli.mjs')
 
+const cokoServerPath = path.dirname(require.resolve('@coko/server'))
+
 const tempTsConfigFile = 'tsconfig.json'
 
 program
@@ -57,7 +59,7 @@ program
   .description('Start server')
   .showHelpAfterError()
   .action(async () => {
-    const serverPath = path.join(outDir, 'startServer.js')
+    const serverPath = path.join(cokoServerPath, 'startServer.js')
     const { startServer } = await import(serverPath)
     startServer()
   })

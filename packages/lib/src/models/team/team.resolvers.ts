@@ -20,11 +20,11 @@ import { QueryResult } from '../base.model'
 const { TEAM_RESOLVER } = labels
 const { USER_UPDATED } = subscriptions
 
-const broadcastUserUpdated = async (userId: string): Promise<boolean> => {
+const broadcastUserUpdated = async (userId: string): Promise<void> => {
   try {
     const updatedUser = await getUser(userId)
 
-    return subscriptionManager.publish(USER_UPDATED, {
+    subscriptionManager.publish(USER_UPDATED, {
       userUpdated: updatedUser,
     })
   } catch (e) {

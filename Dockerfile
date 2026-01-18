@@ -11,7 +11,6 @@ COPY .prettierignore .
 COPY package.json .
 COPY yarn.lock .
 COPY .yarnrc.yml .
-# COPY .yarn .yarn
 
 COPY packages/dev/package.json ./packages/dev/package.json
 COPY packages/lib/package.json ./packages/lib/package.json

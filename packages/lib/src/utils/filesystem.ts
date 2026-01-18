@@ -2,6 +2,7 @@ import path from 'path'
 import { buffer } from 'stream/consumers'
 
 import fs, { ReadStream } from 'fs-extra'
+import { env } from './env'
 
 type FindConfigurationFileOptions = {
   extensions?: string[]
@@ -16,9 +17,13 @@ const findConfigurationFile = (
   options: FindConfigurationFileOptions = {},
 ): string => {
   const extensions = options.extensions || ['js', 'ts']
-  const basePath = options.basePath
-    ? path.join(process.cwd(), options.basePath)
-    : process.cwd()
+
+  const root =
+    env('NODE_ENV') === 'production'
+      ? path.join(process.cwd(), 'dist')
+      : process.cwd()
+
+  const basePath = options.basePath ? path.join(root, options.basePath) : root
 
   const foundFiles = extensions.reduce((found, ext) => {
     const searchPath = path.join(basePath, `${filename}.${ext}`)
