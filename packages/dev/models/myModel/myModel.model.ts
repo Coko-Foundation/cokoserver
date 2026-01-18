@@ -3,8 +3,6 @@ import { BaseModel, modelJsonSchemaTypes } from '@coko/server'
 const { boolean } = modelJsonSchemaTypes
 
 class MyModel extends BaseModel {
-  type: string
-
   constructor() {
     super()
     this.type = 'myModel'
