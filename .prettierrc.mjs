@@ -1,6 +1,3 @@
-export default {
-  arrowParens: 'avoid',
-  semi: false,
-  singleQuote: true,
-  trailingComma: 'all',
-}
+import prettier from "@coko/lint/src/prettier.mjs";
+
+export default prettier;

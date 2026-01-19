@@ -1331,9 +1331,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@coko/lint@npm:3.0.0-alpha.10":
-  version: 3.0.0-alpha.10
-  resolution: "@coko/lint@npm:3.0.0-alpha.10"
+"@coko/lint@npm:3.0.0-alpha.11":
+  version: 3.0.0-alpha.11
+  resolution: "@coko/lint@npm:3.0.0-alpha.11"
   dependencies:
     "@babel/core": "npm:^7.28.4"
     "@babel/eslint-parser": "npm:^7.28.4"
@@ -1380,7 +1380,7 @@ __metadata:
     typescript-eslint: "npm:^8.46.2"
   bin:
     coko-lint: ./src/cli.js
-  checksum: 10c0/3d796bcad57aaf414a25de83a4265959f77a1e5a8d8e45343303bb66a32faee66ddd8ca182743584654053aaa53880cf1bc9434a8983ec184cf459c5c3ac497d
+  checksum: 10c0/c27943fe8b625762623c11a05752b2dc6af787db99a4fe2058cc2d79d02a192d44959762d9b51b4223ba88e9665ce591960e220e1c417a7173f03724f911bd99
   languageName: node
   linkType: hard
 
@@ -5995,7 +5995,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coko-server-monorepo@workspace:."
   dependencies:
-    "@coko/lint": "npm:3.0.0-alpha.10"
+    "@coko/lint": "npm:3.0.0-alpha.11"
     chalk: "npm:^4.1.2"
     lint-staged: "npm:^15.2.8"
     lodash: "npm:^4.17.21"
