@@ -1,7 +1,4 @@
-import {
-  defineEslintConfig,
-  serverEslintConfig,
-} from '@coko/lint/src/eslint.mjs'
+import { defineEslintConfig, serverEslintConfig } from '@coko/lint'
 
 // const allFilesConfig = serverEslintConfig.find(item => {
 //   return item.files && item.files[0] === '**/*.{js,mjs,ts}'

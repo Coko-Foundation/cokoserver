@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "scripts": {
-    "cz": "lint-staged && ./node_modules/.bin/git-cz",
+    "commit": "yarn coko-lint commit --skip-stylelint",
     "lint": "yarn coko-lint run --skip-stylelint",
     "release": "standard-version",
     "test": "docker compose run --rm --remove-orphans server yarn workspace @coko/server test",
@@ -17,7 +17,7 @@
     }
   },
   "devDependencies": {
-    "@coko/lint": "3.0.0-alpha.11",
+    "@coko/lint": "3.0.0-alpha.18",
     "chalk": "^4.1.2",
     "lint-staged": "^15.2.8",
     "lodash": "^4.17.21",

@@ -1,4 +1,4 @@
-import commitizen from '@coko/lint/src/commitizen'
+const { commitizen } = require('@coko/lint')
 
 const modified = {
   ...commitizen,
@@ -17,4 +17,4 @@ const modified = {
   askForBreakingChangeFirst: true,
 }
 
-export default modified
+module.exports = modified

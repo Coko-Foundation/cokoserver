@@ -1,3 +1,3 @@
-import prettier from "@coko/lint/src/prettier.mjs";
+import { prettier } from '@coko/lint'
 
-export default prettier;
+export default prettier
