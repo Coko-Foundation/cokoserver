@@ -25,6 +25,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc && yarn copy-assets",
     "copy-assets": "copyfiles -u 1 'src/**/*.{json,graphql}' dist",
+    "prepack": "yarn build",
     "test": "NODE_ENV=test vitest run --reporter=tree"
   },
   "dependencies": {
