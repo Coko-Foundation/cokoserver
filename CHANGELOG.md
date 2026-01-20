@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.22.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.21.1...v4.22.0) (2025-12-12)
+
+
+### Features
+
+* **job manager:** add wait for jobs to finish method ([1df9bab](https://github.com/Coko-Foundation/cokoserver/commit/1df9bab6729d82a5606946624cc73c95331ce6ba))
+
+### [4.21.1](https://github.com/Coko-Foundation/cokoserver/compare/v4.21.0...v4.21.1) (2025-12-10)
+
+
+### Bug Fixes
+
+* **job manager:** fix method name typo ([ba4df19](https://github.com/Coko-Foundation/cokoserver/commit/ba4df19e9503bb4ec6b785e1c81e98130f057665))
+
+## [4.21.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.20.0...v4.21.0) (2025-12-09)
+
+
+### Features
+
+* **job manager:** add getQueueSize and waitForQueueToEmpty methods ([b8bd673](https://github.com/Coko-Foundation/cokoserver/commit/b8bd6731039dc443ee5e6c25cd7400ccca373a85))
+
 ## [4.20.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.19.0...v4.20.0) (2025-11-26)
 
 
