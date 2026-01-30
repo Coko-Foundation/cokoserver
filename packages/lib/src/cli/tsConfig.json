@@ -9,5 +9,6 @@
     "strict": false,
     "noImplicitAny": false,
     "target": "es2022"
-  }
+  },
+  "exclude": ["node_modules"]
 }
