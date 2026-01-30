@@ -10,19 +10,6 @@ export const userWithInvalidPassword = {
   password: '1234',
 }
 
-export const userWithFullName = {
-  type: 'user',
-  username: 'testuser',
-  password: 'test1234',
-  givenNames: 'Sam',
-  surname: 'Something',
-}
-
-export const userWithoutName = {
-  type: 'user',
-  password: 'test1234',
-}
-
 export const updatedUser = {
   username: 'changeduser',
   password: 'changed',

@@ -267,15 +267,6 @@ class User extends BaseModel {
     return User.getTeams(this.id)
   }
 
-  getDisplayName(): string {
-    const { givenNames, surname, username } = this
-
-    if (givenNames && surname) return `${givenNames} ${surname}`
-    if (username) return username
-
-    throw new Error('User model: Cannot get displayName')
-  }
-
   static async updatePassword(
     userId: string,
     currentPassword: string,

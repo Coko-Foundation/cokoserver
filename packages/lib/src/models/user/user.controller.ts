@@ -98,12 +98,12 @@ const getUser = async (
 }
 
 const getDisplayName = (user: User): string => {
-  try {
-    return user.getDisplayName()
-  } catch (e) {
-    logger.error(`${USER_CONTROLLER} getDisplayName: ${e.message}`)
-    throw e
-  }
+  const { givenNames, surname, username } = user
+
+  if (givenNames && surname) return `${givenNames} ${surname}`
+  if (username) return username
+
+  throw new Error(`${USER_CONTROLLER} getDisplayName: Cannot get displayName`)
 }
 
 const getUsers = async (

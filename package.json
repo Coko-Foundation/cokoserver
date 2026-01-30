@@ -7,6 +7,7 @@
   "scripts": {
     "commit": "yarn coko-lint commit --skip-stylelint",
     "lint": "yarn coko-lint run --skip-stylelint",
+    "publish": "yarn workspace @coko/server npm publish",
     "release": "yarn workspace @coko/server standard-version",
     "test": "docker compose run --rm --remove-orphans server yarn workspace @coko/server test",
     "typecheck": "yarn workspace @coko/server tsc --noEmit -p tsconfig.typecheck.json"

@@ -18,8 +18,6 @@ import {
   user,
   otherUser,
   userWithInvalidPassword,
-  userWithFullName,
-  userWithoutName,
 } from '../../__tests__/fixtures/users'
 
 import User from '../user.model'
@@ -207,26 +205,6 @@ describe('User model', () => {
         passwordHash: 'hashedFishyPassword',
       }),
     ).rejects.toThrow()
-  })
-
-  it('returns username as display name when givenNames and surname are not defined', async () => {
-    const newUser = await User.insert(user)
-    const displayName = await newUser.getDisplayName()
-    expect(displayName).toEqual(user.username)
-  })
-
-  it('returns full name as display name when given names and surname are defined', async () => {
-    const newUser = await User.insert(userWithFullName)
-    const displayName = await newUser.getDisplayName()
-    expect(displayName).toEqual(`${newUser.givenNames} ${newUser.surname}`)
-  })
-
-  it('getDisplayName throws an error when neither username nor givenNames nor surname are defined', async () => {
-    const newUser = await User.insert(userWithoutName)
-
-    expect(() => {
-      newUser.getDisplayName()
-    }).toThrow()
   })
 
   it('throws when user tries to update their password by providing a wrong current password', async () => {

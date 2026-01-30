@@ -82,8 +82,27 @@ describe('User Controller', () => {
 
   it('returns the display name of user', async () => {
     const user = await createUser()
-    const fullName = await getDisplayName(user)
+    const fullName = getDisplayName(user)
     expect(fullName).toEqual(`${user.givenNames} ${user.surname}`)
+  })
+
+  it('returns full name as display name if it exists', () => {
+    const displayName = getDisplayName({
+      givenNames: 'John',
+      surname: 'Doe',
+      username: 'testUser',
+    } as User)
+
+    expect(displayName).toEqual('John Doe')
+  })
+
+  it('returns username as display name when givenNames and surname are not defined', () => {
+    const displayName = getDisplayName({ username: 'testuser' } as User)
+    expect(displayName).toEqual('testuser')
+  })
+
+  it('throws when display name cannot be determined', () => {
+    expect(() => getDisplayName({} as User)).toThrow()
   })
 
   it('can activate an existing user', async () => {
