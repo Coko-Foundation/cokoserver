@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.1...v5.0.0-alpha.2) (2026-01-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **server:** user.getDisplayName is dropped from model, but getDisplayName controller remains
+
+### Bug Fixes
+
+* **server:** fix user display name in subscriptions ([8ea8d4c](https://github.com/Coko-Foundation/cokoserver/commit/8ea8d4c195bb6e30df5dc8329686797ba103b013))
+
 ## [5.0.0-alpha.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.0...v5.0.0-alpha.1) (2026-01-30)
 
 
