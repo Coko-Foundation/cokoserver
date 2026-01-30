@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.0...v5.0.0-alpha.1) (2026-01-30)
+
+
+### Bug Fixes
+
+* **server:** fix issue where tsx is reading both dist and src files ([17689dd](https://github.com/Coko-Foundation/cokoserver/commit/17689dd6e83ac8921863375cf2046415bc49a3ec))
+
 ## [5.0.0-alpha.0](https://github.com/Coko-Foundation/cokoserver/compare/v4.22.0...v5.0.0-alpha.0) (2026-01-20)
 
 
