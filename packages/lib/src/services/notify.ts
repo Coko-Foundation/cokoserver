@@ -32,7 +32,11 @@ const notify = (type, data): SentMessageInfo => {
 
   switch (type) {
     case EMAIL:
-      sendEmail(data)
+      try {
+        sendEmail(data)
+      } catch (e) {
+        logger.error(e)
+      }
       break
     default:
       throw Error('Notification type is required')
