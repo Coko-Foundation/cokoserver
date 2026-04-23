@@ -35,6 +35,7 @@ const verifyToken = (token: string, done): void => {
   })
 }
 
+/* eslint-disable promise/no-callback-in-promise */
 const verifyPassword = (username: string, password: string, done): void => {
   const errorMessage = 'Wrong username or password.'
   logger.debug('User finding:', username)
@@ -45,6 +46,7 @@ const verifyPassword = (username: string, password: string, done): void => {
       return Promise.all([user, user.isPasswordValid(password)])
     })
     .then(([user, isValid]) => {
+      /* eslint-disable-next-line promise/always-return */
       if (isValid) {
         done(null, user, { id: user.id })
         return
@@ -61,6 +63,7 @@ const verifyPassword = (username: string, password: string, done): void => {
       }
     })
 }
+/* eslint-enable promise/no-callback-in-promise */
 
 export default {
   token: {
