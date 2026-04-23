@@ -12,6 +12,7 @@ const builderConfigSchema = z.strictObject({
     ignore: z.array(z.string()),
     inspectorPort: z.number().int().positive(),
   }),
+  assetExtensions: z.array(z.string()),
 })
 
 type BuilderConfig = z.infer<typeof builderConfigSchema>
@@ -21,6 +22,7 @@ const DEFAULT_CONFIG = {
     ignore: ['./tmp/*'],
     inspectorPort: 9229,
   },
+  assetExtensions: ['json', 'graphql'],
 }
 
 function arrayCustomizer(objValue, srcValue): any[] | undefined {

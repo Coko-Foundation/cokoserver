@@ -6,6 +6,7 @@ import madge from 'madge'
 import output from 'madge/lib/output'
 import ora from 'ora'
 import nodemon from 'nodemon'
+import copyfiles from 'copyfiles'
 
 import internalLogger from '../logger/internals'
 import loadBuilderConfig from './loadBuilderConfig'
@@ -41,12 +42,28 @@ program
     internalLogger.work('Building project...')
 
     try {
+      const { assetExtensions } = loadBuilderConfig()
       const tsConfig = generateTsConfig()
       const configPath = path.join(tempFolderPath, tempTsConfigFile)
       await writeFileToTemp(JSON.stringify(tsConfig), tempTsConfigFile)
 
       const command = `${tsc} --project ${configPath} --outDir ${outDir}`
       execSync(command, { stdio: 'inherit' })
+
+      if (assetExtensions.length > 0) {
+        const pattern = `**/*.{${assetExtensions.join(',')}}`
+
+        await new Promise<void>((resolve, reject) => {
+          copyfiles(
+            [pattern, outDir],
+            { exclude: ['node_modules/**', 'dist/**'] },
+            err => {
+              if (err) reject(err)
+              else resolve()
+            },
+          )
+        })
+      }
 
       internalLogger.success('Build completed successfully.')
     } finally {
