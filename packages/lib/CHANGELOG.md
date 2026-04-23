@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.3](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.2...v5.0.0-alpha.3) (2026-04-23)
+
+
+### Bug Fixes
+
+* make sure an error when creating mailer transport is caught ([5d8afe5](https://github.com/Coko-Foundation/cokoserver/commit/5d8afe564b6b02e400a24ae44116d661de3181ff))
+* **server:** copy assets during production build ([c3f2e9b](https://github.com/Coko-Foundation/cokoserver/commit/c3f2e9bdc5350c8b3f1e574702bfab54ba1d659b))
+* **server:** log email errors but don't let it throw ([057db7a](https://github.com/Coko-Foundation/cokoserver/commit/057db7adf2fdba6851f33cef7fa92471573601fc))
+
 ## [5.0.0-alpha.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.1...v5.0.0-alpha.2) (2026-01-30)
 
 
