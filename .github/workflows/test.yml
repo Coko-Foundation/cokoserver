@@ -19,4 +19,6 @@ jobs:
 
       - name: Test server
         id: test_server
-        run: docker compose run server yarn workspace @coko/server test --coverage
+        run: |
+          docker compose run server \
+          yarn workspace @coko/server test --coverage --reporter=tree

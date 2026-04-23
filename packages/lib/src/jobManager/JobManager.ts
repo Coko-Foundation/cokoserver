@@ -293,7 +293,6 @@ class JobManager {
         const options = {} as WorkOptions
 
         if (q.batchSize) options.batchSize = q.batchSize
-        // @ts-ignore
         if (q.concurrency) options.localConcurrency = q.concurrency
 
         const handler = async (jobs: Job[]): Promise<any> => {
