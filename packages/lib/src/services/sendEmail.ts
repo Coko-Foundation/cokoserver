@@ -66,14 +66,14 @@ const sendEmail = async (
   mailData: any,
   mailerConfigOverrides = {},
 ): Promise<SentMessageInfo> => {
-  const { transportConfig, testTransportUsed } = await makeTransportConfig(
-    config,
-    mailerConfigOverrides,
-  )
-
-  const transporter = nodemailer.createTransport(transportConfig)
-
   try {
+    const { transportConfig, testTransportUsed } = await makeTransportConfig(
+      config,
+      mailerConfigOverrides,
+    )
+
+    const transporter = nodemailer.createTransport(transportConfig)
+
     const info = await transporter.sendMail({
       from: config.get('mailer.from'),
       ...mailData,
