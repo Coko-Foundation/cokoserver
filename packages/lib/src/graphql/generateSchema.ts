@@ -4,7 +4,7 @@ import merge from 'lodash/merge'
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import { applyMiddleware } from 'graphql-middleware'
 import { GraphQLSchema } from 'graphql'
-import { shield } from '@coko/graphql-shield'
+import { shield, deny } from '@coko/graphql-shield'
 
 import { makeExecutableSchema } from '@graphql-tools/schema'
 
@@ -94,6 +94,7 @@ const generateSchema = async (): Promise<GraphQLSchema> => {
     const authorizationMiddleware = shield(permissions, {
       allowExternalErrors: true,
       debug: !isProduction,
+      fallbackRule: deny,
     })
 
     middleware.push(authorizationMiddleware)
