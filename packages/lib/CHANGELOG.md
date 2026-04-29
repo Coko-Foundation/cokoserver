@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.8](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.7...v5.0.0-alpha.8) (2026-04-29)
+
+
+### Bug Fixes
+
+* **server:** skip admin creation if adminUser is set to false ([3168dd5](https://github.com/Coko-Foundation/cokoserver/commit/3168dd5e2333ab9984406c506345e983e070f3bf))
+
 ## [5.0.0-alpha.7](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.6...v5.0.0-alpha.7) (2026-04-29)
 
 
