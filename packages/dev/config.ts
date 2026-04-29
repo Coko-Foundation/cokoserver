@@ -56,4 +56,5 @@ export default {
   mailer: false,
   sentry: false,
   random: false,
+  // adminUser: false,
 }

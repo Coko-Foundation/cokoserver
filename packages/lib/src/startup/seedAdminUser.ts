@@ -4,9 +4,17 @@ import User from '../models/user/user.model'
 import Team from '../models/team/team.model'
 import Identity from '../models/identity/identity.model'
 import { AdminUser } from '../configManager/configSchema'
+import config from '../configManager/config'
 
 const seedAdminUser = async (data?: AdminUser): Promise<void> => {
   internalLogger.section('Seed admin user')
+
+  if (!config.get('adminUser')) {
+    internalLogger.warn(
+      'Admin user set to false in config. Skipping user creation...',
+    )
+    return
+  }
 
   const adminTeam = await Team.findOne(
     { role: 'admin' },
