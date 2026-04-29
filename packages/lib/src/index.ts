@@ -13,6 +13,8 @@ import { db, type Db, migrationManager } from './db'
 import subscriptionManager from './graphql/pubsub'
 import authentication from './authentication'
 import { createFile, deleteFiles } from './models/file/file.controller'
+import { NotFoundError } from './errors'
+import { teamRolesEnum, teamDisplayNamesEnum } from './utils/teams'
 
 import {
   BaseModel,
@@ -119,6 +121,8 @@ export {
   WaxToDocxConverter,
   type Wax,
   DbTestUtils,
+  teamRolesEnum,
+  teamDisplayNamesEnum,
 
   // file storage
   fileStorage,
@@ -148,4 +152,7 @@ export {
   deleteFileFromTemp,
   emptyTemp,
   writeFileToTemp,
+
+  // errors
+  NotFoundError,
 }

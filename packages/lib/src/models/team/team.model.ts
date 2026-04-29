@@ -10,6 +10,7 @@ import logger from '../../logger'
 import BaseModel, { TrxOption } from '../base.model'
 import TeamMember from '../teamMember/teamMember.model'
 import User from '../user/user.model'
+import { teamRolesEnum, teamDisplayNamesEnum } from '../../utils/teams'
 
 import {
   booleanDefaultFalse,
@@ -18,21 +19,9 @@ import {
 } from '../_helpers/types'
 
 import config from '../../configManager/config'
-import { type Teams } from '../../configManager/configSchema'
-
 import useTransaction from '../useTransaction'
 
 type TrxAndStatusOptions = { status?: string } & TrxOption
-
-function createEnumFromConfig(teamsConfig: Teams, key: string): string[] {
-  return Array.from(
-    new Set(
-      Object.values(teamsConfig)
-        .flat()
-        .map(t => t[key]),
-    ),
-  )
-}
 
 class Team extends BaseModel {
   objectId!: string
@@ -79,9 +68,8 @@ class Team extends BaseModel {
   }
 
   static get schema(): object {
-    const cfg = config.get('teams')
-    const rolesEnum = createEnumFromConfig(cfg, 'role')
-    const displayNamesEnum = createEnumFromConfig(cfg, 'displayName')
+    const rolesEnum = teamRolesEnum()
+    const displayNamesEnum = teamDisplayNamesEnum()
 
     return {
       type: 'object',

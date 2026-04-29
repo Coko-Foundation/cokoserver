@@ -18,7 +18,9 @@ const makeTransportConfig = async (
   const isProduction = process.env.NODE_ENV === 'production'
 
   const globalConfig =
-    configObject.has('mailer.transport') && configObject.get('mailer.transport')
+    (configObject.has('mailer.transport') &&
+      configObject.get('mailer.transport')) ||
+    {}
 
   let configToUse: MailerTransport
 
