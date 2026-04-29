@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.6](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.5...v5.0.0-alpha.6) (2026-04-29)
+
+
+### Bug Fixes
+
+* fix zod union syntax ([06acff4](https://github.com/Coko-Foundation/cokoserver/commit/06acff40c242f964cf2fcf6c03f192cad183ae03))
+
 ## [5.0.0-alpha.5](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.4...v5.0.0-alpha.5) (2026-04-29)
 
 
