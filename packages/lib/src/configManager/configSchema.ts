@@ -101,7 +101,7 @@ export const ConfigSchema = z.strictObject({
   // pool: KnexPoolConfigSchema.optional(),
   acquireConnectionTimeout: z.number().int().nonnegative().optional(),
 
-  adminUser: AdminUserSchema,
+  adminUser: z.union(AdminUserSchema, z.literal(false)),
   clientUrl: z.url().optional(),
   components: z.array(z.string()),
   corsOrigin: z.union([z.string(), z.array(z.string())]).optional(),
