@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.11](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.10...v5.0.0-alpha.11) (2026-05-05)
+
+
+### Bug Fixes
+
+* **server:** read component config after config has been initialized ([d8ff789](https://github.com/Coko-Foundation/cokoserver/commit/d8ff789862a2ac4b993d4cf484692b7c48b8d449))
+
 ## [5.0.0-alpha.10](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.9...v5.0.0-alpha.10) (2026-05-05)
 
 
