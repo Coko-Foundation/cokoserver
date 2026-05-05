@@ -118,7 +118,7 @@ const setup = async (
 
   /* APOLLO EXPRESS */
 
-  const createdLoaders = loaders()
+  const createdLoaders = await loaders()
 
   app.use(
     '/graphql',
