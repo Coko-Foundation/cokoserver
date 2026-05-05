@@ -5,14 +5,6 @@ import loadComponent from '../utils/loadComponent'
 
 type Loaders = Record<string, any>
 
-// Require components here so that the requires are done only once per app runtime
-let componentPromises: Promise<any>[] = []
-
-if (config.has('components') && Array.isArray(config.get('components'))) {
-  const names: string[] = config.get('components')
-  componentPromises = names.map((name: string) => loadComponent(name))
-}
-
 const defaultLoader = (model: any): DataLoader<any, any> =>
   new DataLoader(async ids => {
     const results = await model.query().whereIn('id', ids)
@@ -22,11 +14,16 @@ const defaultLoader = (model: any): DataLoader<any, any> =>
   })
 
 export default async (): Promise<Loaders> => {
+  const componentNames: string[] =
+    config.has('components') && Array.isArray(config.get('components'))
+      ? config.get('components')
+      : []
+
   const components = []
 
-  for (const p of componentPromises) {
+  for (const name of componentNames) {
     /* eslint-disable-next-line no-await-in-loop */
-    components.push(await p)
+    components.push(await loadComponent(name))
   }
 
   const loaders = {}
