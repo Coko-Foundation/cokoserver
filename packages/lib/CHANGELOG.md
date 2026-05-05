@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.12](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.11...v5.0.0-alpha.12) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **graphql:** revert permissions fallback change
+
+### Bug Fixes
+
+* **graphql:** graphql permissions fallback should not be deny ([9bfd3b6](https://github.com/Coko-Foundation/cokoserver/commit/9bfd3b68c7f9782fdeb41a9bc5a7a608ed413274))
+
 ## [5.0.0-alpha.11](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.10...v5.0.0-alpha.11) (2026-05-05)
 
 
