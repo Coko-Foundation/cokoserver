@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.10](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.9...v5.0.0-alpha.10) (2026-05-05)
+
+
+### Bug Fixes
+
+* **graphql:** fix loaders not being awaited ([c347fd8](https://github.com/Coko-Foundation/cokoserver/commit/c347fd842331c34b318905b98f407bf404693bcd))
+
 ## [5.0.0-alpha.9](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.8...v5.0.0-alpha.9) (2026-04-29)
 
 ## [5.0.0-alpha.8](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.7...v5.0.0-alpha.8) (2026-04-29)
