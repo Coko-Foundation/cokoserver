@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.14](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.13...v5.0.0-alpha.14) (2026-05-11)
+
+
+### Bug Fixes
+
+* **fileStorage:** fix url signing mismatch ([01536a3](https://github.com/Coko-Foundation/cokoserver/commit/01536a3805784618d8323444373f78c9efc6217a))
+
 ## [5.0.0-alpha.13](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.12...v5.0.0-alpha.13) (2026-05-11)
 
 
