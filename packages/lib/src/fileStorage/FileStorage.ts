@@ -42,6 +42,7 @@ class FileStorage {
   bucket: string
   imageConversionToSupportedFormatMapper = { eps: 'svg' }
   s3: S3
+  #s3ForSigning: S3
   separateDeleteOperations: boolean
   url: string
   publicUrl: string
@@ -93,6 +94,10 @@ class FileStorage {
     }
 
     this.s3 = new S3(s3config)
+    this.#s3ForSigning =
+      this.publicUrl !== this.url
+        ? new S3({ ...s3config, endpoint: this.publicUrl })
+        : this.s3
 
     this.separateDeleteOperations = s3SeparateDeleteOperations
 
@@ -290,15 +295,7 @@ class FileStorage {
       Key: objectKey,
     })
 
-    const signed = await getSignedUrl(this.s3, command, s3Params)
-
-    if (this.publicUrl !== this.url) {
-      const internalOrigin = new URL(this.url).origin
-      const publicOrigin = new URL(this.publicUrl).origin
-      return signed.replace(internalOrigin, publicOrigin)
-    }
-
-    return signed
+    return getSignedUrl(this.#s3ForSigning, command, s3Params)
   }
 
   getPublicURL(objectKey): string {
