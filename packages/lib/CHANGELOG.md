@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.13](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.12...v5.0.0-alpha.13) (2026-05-11)
+
+
+### Features
+
+* **fileStorage:** allow s3 public url to allow browser and compose network mismatch ([affb93d](https://github.com/Coko-Foundation/cokoserver/commit/affb93db342822ac2d8716eb4ba51b0e48138f4c))
+
 ## [5.0.0-alpha.12](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.11...v5.0.0-alpha.12) (2026-05-05)
 
 
