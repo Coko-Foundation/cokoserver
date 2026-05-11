@@ -33,6 +33,7 @@ const FileStorageConfigSchema = z.strictObject({
   secretAccessKey: z.string().optional(),
 
   url: z.url(),
+  publicUrl: z.url().optional(),
   bucket: z.string(),
   region: z.string().optional(),
 

@@ -44,6 +44,7 @@ class FileStorage {
   s3: S3
   separateDeleteOperations: boolean
   url: string
+  publicUrl: string
 
   constructor(
     connectionConfig?: FileStorageConfig,
@@ -59,11 +60,13 @@ class FileStorage {
       bucket,
       region,
       url,
+      publicUrl,
       s3ForcePathStyle,
       s3SeparateDeleteOperations,
     } = configToUse
 
     this.url = url
+    this.publicUrl = publicUrl || url
     this.bucket = bucket
 
     const forcePathStyle = s3ForcePathStyle ?? true
@@ -287,11 +290,19 @@ class FileStorage {
       Key: objectKey,
     })
 
-    return getSignedUrl(this.s3, command, s3Params)
+    const signed = await getSignedUrl(this.s3, command, s3Params)
+
+    if (this.publicUrl !== this.url) {
+      const internalOrigin = new URL(this.url).origin
+      const publicOrigin = new URL(this.publicUrl).origin
+      return signed.replace(internalOrigin, publicOrigin)
+    }
+
+    return signed
   }
 
   getPublicURL(objectKey): string {
-    return `${this.url}/${this.bucket}/${objectKey}`
+    return `${this.publicUrl}/${this.bucket}/${objectKey}`
   }
 
   async healthCheck(): Promise<HeadBucketCommandOutput> {

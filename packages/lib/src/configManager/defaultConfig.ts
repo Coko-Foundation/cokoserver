@@ -53,6 +53,7 @@ export default {
     secretAccessKey: env('S3_SECRET_ACCESS_KEY')!,
 
     url: env('S3_URL')!,
+    publicUrl: env('S3_PUBLIC_URL'),
     bucket: env('S3_BUCKET')!,
     region: env('S3_REGION'),
 
