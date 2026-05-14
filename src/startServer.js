@@ -69,7 +69,12 @@ const startServer = async () => {
   const httpServer = http.createServer(app)
   httpServer.app = app
 
-  app.use(express.json({ limit: '50mb' }))
+  app.use(
+    express.json({
+      limit: '50mb',
+      type: ['application/json', 'application/ld+json'],
+    }),
+  )
   app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
 
