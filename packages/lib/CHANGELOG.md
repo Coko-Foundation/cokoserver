@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.15](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.14...v5.0.0-alpha.15) (2026-05-18)
+
+
+### Bug Fixes
+
+* **server:** fix migrating from existing checkpoint with extension to no extension ([f537f0e](https://github.com/Coko-Foundation/cokoserver/commit/f537f0eb1469ce68fd9bfbeda446ba7d8c975ff7))
+
 ## [5.0.0-alpha.14](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.13...v5.0.0-alpha.14) (2026-05-11)
 
 
