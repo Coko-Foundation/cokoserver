@@ -174,7 +174,9 @@ export default class MigrationRunner {
       executed: async (): Promise<string[]> => {
         await migrationsTable.createTable()
         const rows = await migrationsTable.getRows()
-        return rows.map(row => row.id)
+        return rows.map(row =>
+          MigrationRunner.stripMigrationExtensionName(row.id),
+        )
       },
     }
 
