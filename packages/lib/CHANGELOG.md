@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.17](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.16...v5.0.0-alpha.17) (2026-05-18)
+
+
+### Bug Fixes
+
+* **db:** make sure to await alter table statements in pg boss meta column migration ([20a0263](https://github.com/Coko-Foundation/cokoserver/commit/20a02635f0381b7397623479a2a8784146b3b5b8))
+
 ## [5.0.0-alpha.16](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.15...v5.0.0-alpha.16) (2026-05-18)
 
 
