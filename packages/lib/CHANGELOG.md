@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-alpha.16](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.15...v5.0.0-alpha.16) (2026-05-18)
+
+
+### Bug Fixes
+
+* **db:** use db helpers to avoid column issues when editing the meta table ([09f620f](https://github.com/Coko-Foundation/cokoserver/commit/09f620f89dee93675763650f37b91b545899617e))
+
 ## [5.0.0-alpha.15](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.14...v5.0.0-alpha.15) (2026-05-18)
 
 
