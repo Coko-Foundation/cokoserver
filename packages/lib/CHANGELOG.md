@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-beta.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.17...v5.0.0-beta.0) (2026-06-08)
+
 ## [5.0.0-alpha.17](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.16...v5.0.0-alpha.17) (2026-05-18)
 
 
