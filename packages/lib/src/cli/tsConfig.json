@@ -11,5 +11,5 @@
     "noImplicitAny": false,
     "target": "es2022"
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist", "tmp"]
 }

@@ -13,6 +13,10 @@ function generateTsConfig(): TSConfig {
   const modified = { ...base }
   const buildAbsolutePath = path.resolve(`${process.cwd()}/**/*`)
   modified.include = [buildAbsolutePath]
+  modified.compilerOptions = {
+    ...modified.compilerOptions,
+    rootDir: process.cwd(),
+  }
   return modified
 }
 
