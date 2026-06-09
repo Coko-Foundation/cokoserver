@@ -50,20 +50,18 @@ program
       const command = `${tsc} --project ${configPath} --outDir ${outDir}`
       execSync(command, { stdio: 'inherit' })
 
-      if (assetExtensions.length > 0) {
-        const pattern = `**/*.{${assetExtensions.join(',')}}`
+      const pattern = `**/*.{${assetExtensions.join(',')}}`
 
-        await new Promise<void>((resolve, reject) => {
-          copyfiles(
-            [pattern, outDir],
-            { exclude: ['node_modules/**', 'dist/**'] },
-            err => {
-              if (err) reject(err)
-              else resolve()
-            },
-          )
-        })
-      }
+      await new Promise<void>((resolve, reject) => {
+        copyfiles(
+          [pattern, outDir],
+          { exclude: ['node_modules/**', 'dist/**', 'tmp/**'] },
+          err => {
+            if (err) reject(err)
+            else resolve()
+          },
+        )
+      })
 
       internalLogger.success('Build completed successfully.')
     } finally {
