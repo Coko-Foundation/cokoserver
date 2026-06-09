@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-beta.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-beta.0...v5.0.0-beta.1) (2026-06-09)
+
+
+### Bug Fixes
+
+* **cli:** exclude tmp folder from copyfiles ([a7f720e](https://github.com/Coko-Foundation/cokoserver/commit/a7f720e756c1d445f913f072c236356d6652b81a))
+* **cli:** fix build command rootdir ([c6e9676](https://github.com/Coko-Foundation/cokoserver/commit/c6e9676644588ec80c260b390c405ea27f87d42b))
+
 ## [5.0.0-beta.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.17...v5.0.0-beta.0) (2026-06-08)
 
 ## [5.0.0-alpha.17](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-alpha.16...v5.0.0-alpha.17) (2026-05-18)
