@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0-beta.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-beta.1...v5.0.0-beta.2) (2026-06-09)
+
+
+### Bug Fixes
+
+* **cli:** add skipLibCheck in the cli tsconfig ([4041299](https://github.com/Coko-Foundation/cokoserver/commit/4041299e308e1097cb2ee483f15bd8ab2603bfae))
+
 ## [5.0.0-beta.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-beta.0...v5.0.0-beta.1) (2026-06-09)
 
 
