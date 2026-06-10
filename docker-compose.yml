@@ -59,6 +59,7 @@ services:
       # - ./packages/lib/tmp:/home/node/app/packages/lib/tmp
       - ./packages/lib/vitest.config.ts:/home/node/app/packages/lib/vitest.config.ts
     tty: true
+    init: true
 
   db:
     image: postgres:18
