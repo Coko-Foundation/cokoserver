@@ -122,7 +122,7 @@ class JobManager {
   async init(passedQueues: JobQueue[] = []): Promise<void> {
     internalLogger.section('Set up job manager')
 
-    const connectionConfig = getDbConnectionConfig()
+    const connectionConfig = getDbConnectionConfig('jobQueueDb')
 
     const bossInstance = new PgBoss({
       schema: newSchemaName,

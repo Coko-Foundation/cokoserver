@@ -30,6 +30,19 @@ export default {
     ),
     caCert: env('SUBSCRIPTIONS_POSTGRES_CA_CERT'),
   },
+  jobQueueDb: {
+    host: env('JOB_QUEUE_POSTGRES_HOST'),
+    port: env('JOB_QUEUE_POSTGRES_PORT', { type: 'number' }),
+    database: env('JOB_QUEUE_POSTGRES_DB'),
+    user: env('JOB_QUEUE_POSTGRES_USER'),
+    password: env('JOB_QUEUE_POSTGRES_PASSWORD'),
+
+    allowSelfSignedCertificates: env(
+      'JOB_QUEUE_POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES',
+      { type: 'boolean' },
+    ),
+    caCert: env('JOB_QUEUE_POSTGRES_CA_CERT'),
+  },
   // pool
   acquireConnectionTimeout: 5000,
 

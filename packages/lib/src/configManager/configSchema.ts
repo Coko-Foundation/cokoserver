@@ -17,7 +17,7 @@ const DatabaseConfigSchema = z.strictObject({
   caCert: z.string().optional(),
 })
 
-const SubscriptionsDatabaseConfigSchema = z.strictObject({
+const AlternateDatabaseConfigSchema = z.strictObject({
   host: z.string().optional(),
   port: z.number().int().positive().optional(),
   database: z.string().optional(),
@@ -98,7 +98,8 @@ const AdminUserSchema = z.strictObject({
 export const ConfigSchema = z.strictObject({
   // database
   db: DatabaseConfigSchema,
-  subscriptionsDb: SubscriptionsDatabaseConfigSchema.optional(),
+  subscriptionsDb: AlternateDatabaseConfigSchema.optional(),
+  jobQueueDb: AlternateDatabaseConfigSchema.optional(),
   // pool: KnexPoolConfigSchema.optional(),
   acquireConnectionTimeout: z.number().int().nonnegative().optional(),
 
