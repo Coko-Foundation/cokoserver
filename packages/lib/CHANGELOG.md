@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0...v5.1.0) (2026-06-12)
+
+
+### Features
+
+* **job manager:** add job queue to optionally have a distinct db connection ([f5356b9](https://github.com/Coko-Foundation/cokoserver/commit/f5356b9ab1132749282f93519c62a4a0b31a0657))
+
 ## [5.0.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-beta.2...v5.0.0) (2026-06-10)
 
 ## [5.0.0-beta.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0-beta.1...v5.0.0-beta.2) (2026-06-09)
