@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.1.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.1.0...v5.1.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* **db:** do not drop pgcrypto extension as it runs before pgboss schema migration ([8a7eeeb](https://github.com/Coko-Foundation/cokoserver/commit/8a7eeebbf29db91c7e24958324ed58f132f41d2b))
+
 ## [5.1.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.0.0...v5.1.0) (2026-06-12)
 
 
