@@ -47,7 +47,7 @@ describe('Migrations', () => {
   it('gets pending migrations', async () => {
     await migrate(config, { step: 3 })
     const pend = await pending(config)
-    expect(pend).toHaveLength(6)
+    expect(pend).toHaveLength(5)
     expect(pend[0].name).toBeDefined()
     expect(pend[0].path).toBeDefined()
   })
@@ -55,13 +55,13 @@ describe('Migrations', () => {
   it('gets core migrations as pending if no components declared', async () => {
     config.reset()
     const pend = await pending(config)
-    expect(pend).toHaveLength(6)
+    expect(pend).toHaveLength(5)
   })
 
   it('gets executed migrations', async () => {
     await migrate(config)
     const exec = await executed(config)
-    expect(exec).toHaveLength(9)
+    expect(exec).toHaveLength(8)
   })
 
   describe('migrate', () => {
@@ -75,7 +75,7 @@ describe('Migrations', () => {
       expect(migrationsExistAfter).toBe(true)
 
       const exec = await executed(config)
-      expect(exec).toHaveLength(9)
+      expect(exec).toHaveLength(8)
     })
 
     it('fails skipping last migration if options are invalid', async () => {
@@ -132,9 +132,9 @@ describe('Migrations', () => {
     })
 
     it('skips last x migrations', async () => {
-      await migrate(config, { step: 3 }) // from a total of 9
+      await migrate(config, { step: 3 }) // from a total of 8
       let pend = await pending(config)
-      expect(pend).toHaveLength(6)
+      expect(pend).toHaveLength(5)
 
       await migrate(config, { skipLast: 2 })
       pend = await pending(config)
@@ -144,7 +144,7 @@ describe('Migrations', () => {
     it('migrates up to a specific migration', async () => {
       await migrate(config, { to: '1722326234-two.ts' })
       const pend = await pending(config)
-      expect(pend).toHaveLength(4)
+      expect(pend).toHaveLength(3)
     })
 
     it('throws an error when runnning a broken migration', async () => {
@@ -177,30 +177,30 @@ describe('Migrations', () => {
       await setFailingConfig()
       await migrate(config, { step: 3 })
       let pend = await pending(config)
-      expect(pend).toHaveLength(7)
+      expect(pend).toHaveLength(6)
 
       await expect(migrate(config)).rejects.toThrow()
       pend = await pending(config)
-      expect(pend).toHaveLength(4)
+      expect(pend).toHaveLength(3)
 
       await rollback(config, { lastSuccessfulRun: true })
       pend = await pending(config)
-      expect(pend).toHaveLength(7)
+      expect(pend).toHaveLength(6)
     })
 
     it('ignores step if last successful run is true', async () => {
       await setFailingConfig()
       await migrate(config, { step: 3 })
       let pend = await pending(config)
-      expect(pend).toHaveLength(7)
+      expect(pend).toHaveLength(6)
 
       await expect(migrate(config)).rejects.toThrow()
       pend = await pending(config)
-      expect(pend).toHaveLength(4)
+      expect(pend).toHaveLength(3)
 
       await rollback(config, { lastSuccessfulRun: true, step: 1 })
       pend = await pending(config)
-      expect(pend).toHaveLength(7)
+      expect(pend).toHaveLength(6)
     })
 
     it('fails to rollback to last successful run if it is identical to the last migration', async () => {

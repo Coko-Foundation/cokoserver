@@ -54,11 +54,11 @@ describe('Migrate db helpers', () => {
       await migrate(config)
 
       const rows = await migrations.getRows()
-      expect(rows.length).toBe(9)
+      expect(rows.length).toBe(8)
 
       expect(rows[0].id).toBe('1715865522-one-before-meta')
-      expect(rows[rows.length - 5].id).toBe('1722326234-two')
-      expect(rows[rows.length - 4].id).toBe('1722326235-three')
+      expect(rows[rows.length - 4].id).toBe('1722326234-two')
+      expect(rows[rows.length - 3].id).toBe('1722326235-three')
     })
 
     it('logs a migration', async () => {
