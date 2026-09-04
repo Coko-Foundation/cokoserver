@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.1.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.1.1...v5.1.2) (2026-09-04)
+
+
+### Bug Fixes
+
+* fix migration wiping whole tmp folder causing interference with test runs ([af59050](https://github.com/Coko-Foundation/cokoserver/commit/af59050d5b1eafabe66f1f69e5b221d1e3e14513))
+
 ### [5.1.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.1.0...v5.1.1) (2026-06-24)
 
 
