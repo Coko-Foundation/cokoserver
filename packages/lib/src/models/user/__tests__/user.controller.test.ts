@@ -1,0 +1,235 @@
+import {
+  describe,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+  vi,
+} from 'vitest'
+import User from '../user.model'
+import Identity from '../../identity/identity.model'
+
+import { db, migrationManager } from '../../../db'
+import config from '../../../configManager/config'
+
+import {
+  createUser,
+  createUserAndDefaultIdentity,
+  createUserWithPasswordAndIdentities,
+  createUserWithPasswordAndDefaultIdentity,
+} from '../../__tests__/helpers/users'
+
+import {
+  getDisplayName,
+  getUser,
+  getUsers,
+  activateUser,
+  activateUsers,
+  login,
+  signUp,
+  deactivateUser,
+  deactivateUsers,
+  deleteUser,
+  deleteUsers,
+  resetPassword,
+  sendPasswordResetEmail,
+  setDefaultIdentity,
+  updateUser,
+  updatePassword,
+} from '../user.controller'
+
+import DbTestUtils from '../../../db/DbTestUtils'
+
+vi.mock('../../../services/notify.js')
+vi.mock('../../_helpers/emailTemplates.js')
+
+describe('User Controller', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: ['./src/models/user', './src/models/identity'],
+      mailer: false,
+    })
+
+    db.init()
+    await migrationManager.migrate()
+  })
+
+  beforeEach(async () => {
+    await DbTestUtils.clearDb()
+  })
+
+  afterAll(async () => {
+    config.reset()
+    await db.destroy()
+  })
+
+  it('fetches a specific user', async () => {
+    const user = await createUser()
+    const fetchedUser = await getUser(user.id)
+    expect(fetchedUser).toBeDefined()
+  })
+
+  it('fetches all the available users', async () => {
+    const user1 = await createUser()
+    const user2 = await createUser()
+    const { result: fetchedUsers } = await getUsers()
+    expect(fetchedUsers).toHaveLength(2)
+    expect(fetchedUsers[0].id).toEqual(user1.id)
+    expect(fetchedUsers[1].id).toEqual(user2.id)
+  })
+
+  it('returns the display name of user', async () => {
+    const user = await createUser()
+    const fullName = getDisplayName(user)
+    expect(fullName).toEqual(`${user.givenNames} ${user.surname}`)
+  })
+
+  it('returns full name as display name if it exists', () => {
+    const displayName = getDisplayName({
+      givenNames: 'John',
+      surname: 'Doe',
+      username: 'testUser',
+    } as User)
+
+    expect(displayName).toEqual('John Doe')
+  })
+
+  it('returns username as display name when givenNames and surname are not defined', () => {
+    const displayName = getDisplayName({ username: 'testuser' } as User)
+    expect(displayName).toEqual('testuser')
+  })
+
+  it('throws when display name cannot be determined', () => {
+    expect(() => getDisplayName({} as User)).toThrow()
+  })
+
+  it('can activate an existing user', async () => {
+    const user = await createUser()
+    await activateUser(user.id)
+    const fetchedUser = await getUser(user.id)
+    expect(fetchedUser.isActive).toEqual(true)
+  })
+
+  it('can activate multiple users', async () => {
+    const user1 = await createUser()
+    const user2 = await createUser()
+    await activateUsers([user1.id, user2.id])
+    const { result: fetchedUsers } = await getUsers()
+    expect(fetchedUsers[0].isActive).toEqual(true)
+    expect(fetchedUsers[1].isActive).toEqual(true)
+  })
+
+  it('can deactivate an existing user', async () => {
+    const user = await createUser()
+    await activateUser(user.id)
+    await deactivateUser(user.id)
+    const fetchedUser = await getUser(user.id)
+    expect(fetchedUser.isActive).toEqual(false)
+  })
+
+  it('can deactivate multiple users', async () => {
+    const user1 = await createUser()
+    const user2 = await createUser()
+    await activateUsers([user1.id, user2.id])
+    await deactivateUsers([user1.id, user2.id])
+    const { result: fetchedUsers } = await getUsers()
+    expect(fetchedUsers[0].isActive).toEqual(false)
+    expect(fetchedUsers[1].isActive).toEqual(false)
+  })
+
+  it('can delete an existing user', async () => {
+    const { user } = await createUserAndDefaultIdentity()
+    await deleteUser(user.id)
+
+    const users = await User.find({})
+    expect(users.totalCount).toBe(0)
+    const identities = await Identity.find({})
+    expect(identities.totalCount).toBe(0)
+  })
+
+  it('can delete multiple users', async () => {
+    const { user: user1 } = await createUserAndDefaultIdentity()
+    const { user: user2 } = await createUserAndDefaultIdentity()
+
+    await deleteUsers([user1.id, user2.id])
+
+    const users = await User.find({})
+    expect(users.totalCount).toBe(0)
+    const identities = await Identity.find({})
+    expect(identities.totalCount).toBe(0)
+  })
+
+  it('can update user current password', async () => {
+    const { user } = await createUserWithPasswordAndDefaultIdentity('password1')
+    await updatePassword(user.id, 'password1', 'password2')
+    const fetchedUser = await getUser(user.id)
+    const isPasswordChanged = await fetchedUser.isPasswordValid('password2')
+    expect(isPasswordChanged).toEqual(true)
+  })
+
+  it('can allow user to login with email and password', async () => {
+    const { id } = await createUserWithPasswordAndIdentities('password1')
+
+    const res = await login({
+      email: id.email,
+      password: 'password1',
+    })
+
+    expect(res.token).toBeDefined()
+  })
+
+  it('can allow user to login with username and password', async () => {
+    const { user } = await createUserWithPasswordAndIdentities('password1')
+
+    const res = await login({
+      username: user.username,
+      password: 'password1',
+    })
+
+    expect(res.token).toBeDefined()
+  })
+
+  it('can set a default identity to a user', async () => {
+    const { user, id: identity } =
+      await createUserWithPasswordAndIdentities('password1')
+
+    await setDefaultIdentity(user.id, identity.id)
+    const fetchedUser = await getUser(user.id, { related: 'defaultIdentity' })
+    expect(fetchedUser.defaultIdentity.id).toEqual(identity.id)
+  })
+
+  it('can update user info', async () => {
+    const { user } = await createUserWithPasswordAndIdentities('password1')
+
+    await updateUser(user.id, { givenNames: 'Newgiven', surname: 'NewSurname' })
+    const fetchedUser = await getUser(user.id)
+    expect(fetchedUser.givenNames).toEqual('Newgiven')
+    expect(fetchedUser.surname).toEqual('NewSurname')
+  })
+
+  it('can sign up a new user', async () => {
+    const user = await signUp({
+      username: 'aUserName',
+      givenNames: 'Some Givenname',
+      surname: 'A Surname',
+      email: 'user@exmple.com',
+      password: 'terriblePassword',
+    })
+
+    const fetchedUser = await User.findOne({ username: 'aUserName' })
+    expect(fetchedUser.id).toEqual(user)
+  })
+
+  it('can reset a user password', async () => {
+    const { user, id } = await createUserWithPasswordAndDefaultIdentity()
+    await sendPasswordResetEmail(id.email)
+    const fetchedUser = await getUser(user.id)
+    expect(fetchedUser.passwordResetToken).toBeDefined()
+    await resetPassword(fetchedUser.passwordResetToken, 'newPassword2')
+    const updatedUser = await getUser(user.id)
+    const isNewPassValid = await updatedUser.isPasswordValid('newPassword2')
+    expect(isNewPassValid).toEqual(true)
+  })
+})

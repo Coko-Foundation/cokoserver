@@ -1,0 +1,83 @@
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+
+import Identity from '../models/identity/identity.model'
+import User from '../models/user/user.model'
+import { subscriptions } from '../models/user/constants'
+import subscriptionManager from '../graphql/pubsub'
+import defaultJobQueueNames from './defaultJobQueueNames'
+
+dayjs.extend(utc)
+
+const { USER_UPDATED } = subscriptions
+
+const defaultJobQueues = [
+  // {
+  //   name: defaultJobQueueNames.RENEW_AUTH_TOKENS_JOB,
+  //   handler: async job => {
+  //     const bufferTime = 24 * 3600
+  //     const { userId, providerLabel } = job.data
+
+  //     try {
+  //       await renewAuthTokens(userId, providerLabel)
+  //       job.done()
+  //     } catch (e) {
+  //       logger.error(`Job ${defaultJobQueueNames.RENEW_AUTH_TOKENS_JOB}: callback error:`, e)
+  //       throw e
+  //     }
+
+  //       // Schedule auth renewal
+  //       const { oauthRefreshTokenExpiration } = await Identity.findOne({
+  //         userId,
+  //         provider: providerLabel,
+  //       })
+
+  //       const expiresIn = (oauthRefreshTokenExpiration - dayjs().utc()) / 1000
+
+  //       const renewAfter = expiresIn - bufferTime
+
+  //       if (renewAfter < 0) {
+  //         throw new Error('"renewAfter" is less than 0')
+  //       }
+
+  //       await jobManager.sendToQueue(defaultJobQueueNames.RENEW_AUTH_TOKENS_JOB, { userId, providerLabel }, { startAfter: renewAfter })
+  //   },
+  // },
+
+  /**
+   * Triggers the user updated subscription when the user's refresh token has
+   * expired. (refresh token being for a social identity)
+   */
+  {
+    name: defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
+    handler: async (job): Promise<void> => {
+      const { userId, providerLabel } = job.data
+      const user = await User.findById(userId)
+
+      const providerUserIdentity = await Identity.findOne({
+        userId,
+        provider: providerLabel,
+      })
+
+      if (!providerUserIdentity) {
+        throw new Error(
+          `Refresh token expired job: Identity for user with id ${userId} does not exist for provider ${providerLabel}`,
+        )
+      }
+
+      const { oauthRefreshTokenExpiration } = providerUserIdentity
+      const UTCNowTimestamp = dayjs().utc().valueOf()
+
+      const refreshTokenExpired =
+        oauthRefreshTokenExpiration.getTime() < UTCNowTimestamp
+
+      if (refreshTokenExpired) {
+        subscriptionManager.publish(USER_UPDATED, {
+          userUpdated: user,
+        })
+      }
+    },
+  },
+]
+
+export { defaultJobQueues }

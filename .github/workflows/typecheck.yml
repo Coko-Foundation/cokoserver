@@ -1,0 +1,18 @@
+on:
+  workflow_call:
+
+jobs:
+  typecheck:
+    name: TypeCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Typecheck
+        run: yarn typecheck

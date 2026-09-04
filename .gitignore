@@ -66,16 +66,16 @@ data/
 minio/
 uploads/
 
-# IDE
+# IDE / tools
 .idea
 .vscode
 .vscode-test
 .devcontainer
+.claude
 
 # Misc
 .cache/
 .DS_Store
-.nvmrc
 
 # yarn v4
 .pnp.*

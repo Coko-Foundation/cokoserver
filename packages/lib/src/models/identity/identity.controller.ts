@@ -1,0 +1,241 @@
+import axios from 'axios'
+
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+
+import logger from '../../logger'
+import subscriptionManager from '../../graphql/pubsub'
+import { getExpirationTime, foreverDate } from '../../utils/time'
+import { jobManager, defaultJobQueueNames } from '../../jobManager'
+import { getUser } from '../user/user.controller'
+import Identity from './identity.model'
+
+import { subscriptions } from '../user/constants'
+import { labels } from './constants'
+import { QueryResult } from '../base.model'
+import config from '../../configManager/config'
+import { isValidPositiveIntegerOrZero } from '../../utils/number'
+
+dayjs.extend(utc)
+
+const { USER_UPDATED } = subscriptions
+const { IDENTITY_CONTROLLER } = labels
+
+const getUserIdentities = async (userId): Promise<QueryResult<Identity>> => {
+  return Identity.find({ userId })
+}
+
+const getDefaultIdentity = async (userId): Promise<Identity> => {
+  return Identity.findOne({
+    userId,
+    isDefault: true,
+  })
+}
+
+const hasValidRefreshToken = (identity): boolean => {
+  const { oauthRefreshTokenExpiration, oauthRefreshToken } = identity
+  const UTCNowTimestamp = dayjs().utc().valueOf()
+
+  return (
+    !!oauthRefreshToken &&
+    !!oauthRefreshTokenExpiration &&
+    oauthRefreshTokenExpiration.getTime() > UTCNowTimestamp
+  )
+}
+
+/**
+ * Authorise user OAuth.
+ * Save OAuth access and refresh tokens.
+ * Trigger subscription indicating the identity has changed.
+ */
+const createOAuthIdentity = async (
+  userId,
+  provider,
+  sessionState,
+  code,
+): Promise<Identity> => {
+  // Throw error if unable to acquire and then store authorisation
+  try {
+    let identity = await Identity.findOne({ userId, provider })
+
+    if (identity && hasValidRefreshToken(identity)) {
+      return identity
+    }
+
+    const { ...authData } = await authorizeOAuth(provider, sessionState, code)
+
+    const {
+      email,
+      given_name: givenNames,
+      family_name: surname,
+      sub: providerUserId,
+    } = JSON.parse(
+      Buffer.from(authData.oauthAccessToken.split('.')[1], 'base64').toString(),
+    )
+
+    if (!identity) {
+      identity = await Identity.insert({
+        email,
+        provider,
+        userId,
+        profileData: {
+          givenNames,
+          surname,
+          providerUserId,
+        },
+        ...authData,
+      })
+    } else {
+      identity = await Identity.patchAndFetchById(identity.id, { ...authData })
+    }
+
+    const { oauthRefreshTokenExpiration } = authData
+
+    if (oauthRefreshTokenExpiration.getTime() !== foreverDate.getTime()) {
+      const expiresIn =
+        (oauthRefreshTokenExpiration.getTime() - dayjs().utc().valueOf()) / 1000
+
+      await jobManager.sendToQueue(
+        defaultJobQueueNames.REFRESH_TOKEN_EXPIRED,
+        { userId, providerLabel: provider },
+        { startAfter: Math.round(expiresIn) },
+      )
+    }
+
+    return identity
+  } catch (e) {
+    logger.error(`${IDENTITY_CONTROLLER} createOAuthIdentity: ${e.message}`)
+    throw e
+  }
+}
+
+/** authorizeOAuth
+ * Send an Oauth2 authorisation code requesting access and refresh tokens.
+ * Return the validated tokens or throw an error.
+ */
+const authorizeOAuth = async (
+  provider,
+  sessionState,
+  code,
+): Promise<{
+  oauthAccessToken: string
+  oauthRefreshToken: string
+  oauthAccessTokenExpiration: Date
+  oauthRefreshTokenExpiration: Date
+}> => {
+  const integrations = config.get('integrations')
+  const providerIntegration = integrations.find(i => i.name === provider)
+
+  const { tokenUrl, clientId, redirectUri } = providerIntegration
+
+  const postData = {
+    code,
+    grant_type: 'authorization_code',
+    session_state: sessionState,
+    client_id: clientId,
+    redirect_uri: redirectUri,
+  }
+
+  const params = new URLSearchParams(postData)
+
+  // Get tokens
+  const { data } = await axios({
+    method: 'POST',
+    url: tokenUrl,
+    data: params.toString(),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+
+  if (data.token_type?.toLowerCase() !== 'bearer') {
+    throw new Error(`Invalid "token_type": ${data.token_type}`)
+  }
+
+  if (data.session_state !== sessionState) {
+    throw new Error(`Invalid "session_state": ${data.session_state}`)
+  }
+
+  /* eslint-disable camelcase */
+  const { access_token, expires_in, refresh_token, refresh_expires_in } = data
+
+  if (!access_token) {
+    throw new Error('Missing access_token from response!')
+  }
+
+  if (!isValidPositiveIntegerOrZero(expires_in)) {
+    throw new Error('Missing expires_in from response!')
+  }
+
+  if (!refresh_token) {
+    throw new Error('Missing refresh_token from response!')
+  }
+
+  if (!isValidPositiveIntegerOrZero(refresh_expires_in)) {
+    throw new Error('Missing refresh_expires_in from response!')
+  }
+
+  return {
+    oauthAccessToken: access_token,
+    oauthRefreshToken: refresh_token,
+    oauthAccessTokenExpiration:
+      expires_in === 0 ? foreverDate : getExpirationTime(expires_in),
+    oauthRefreshTokenExpiration:
+      refresh_expires_in === 0
+        ? foreverDate
+        : getExpirationTime(refresh_expires_in),
+  }
+  /* eslint-enable camelcase */
+}
+
+const invalidateProviderAccessToken = async (
+  userId,
+  providerLabel,
+): Promise<void> => {
+  const providerUserIdentity = await Identity.findOne({
+    userId,
+    provider: providerLabel,
+  })
+
+  await Identity.patchAndFetchById(providerUserIdentity.id, {
+    oauthAccessTokenExpiration: dayjs().utc().toDate(),
+  })
+
+  logger.info(
+    `access token for provider ${providerLabel} became invalid, trying to get a new one via the refresh token`,
+  )
+}
+
+const invalidateProviderTokens = async (
+  userId,
+  providerLabel,
+): Promise<void> => {
+  const updatedUser = await getUser(userId)
+
+  const providerUserIdentity = await Identity.findOne({
+    userId,
+    provider: providerLabel,
+  })
+
+  await Identity.patchAndFetchById(providerUserIdentity.id, {
+    oauthAccessTokenExpiration: dayjs().utc().toDate(),
+    oauthRefreshTokenExpiration: dayjs().utc().toDate(),
+  })
+
+  subscriptionManager.publish(USER_UPDATED, {
+    userUpdated: updatedUser,
+  })
+
+  logger.error(
+    `refresh token for provider ${providerLabel} became invalid, authorization flow (provider login) should be followed by the user`,
+  )
+}
+
+export {
+  createOAuthIdentity,
+  getUserIdentities,
+  getDefaultIdentity,
+  hasValidRefreshToken,
+  invalidateProviderAccessToken,
+  invalidateProviderTokens,
+}

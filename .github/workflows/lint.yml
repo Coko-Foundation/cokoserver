@@ -1,0 +1,19 @@
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install
+          yarn workspace @coko/server build
+
+      - name: Lint
+        run: yarn coko-lint run --skip-stylelint

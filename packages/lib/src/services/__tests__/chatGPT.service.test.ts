@@ -1,0 +1,59 @@
+import { describe, afterAll, it, expect } from 'vitest'
+
+/**
+ * Nested requires because the tests are skipped, so the after all is never
+ * run to clean up hanging connections.
+ */
+
+describe('ChatGPT', () => {
+  afterAll(async () => {
+    const { db } = await import('../../db')
+    const { default: subscriptionManager } =
+      await import('../../graphql/pubsub')
+
+    await db.destroy()
+    await subscriptionManager.client.end()
+  })
+
+  /**
+   * Keep disabled by default, as these tests connect to an external api that
+   * might be down, causing pipelines to fail through no fault of our own.
+   */
+
+  /* eslint-disable-next-line vitest/no-disabled-tests */
+  it.skip('returns text given a prompt', async () => {
+    const { default: chatGPT } = await import('../chatGPT/chatGPT.controllers')
+
+    // config.get.mockReturnValue(process.env.CHAT_GPT_KEY)
+    const result = await chatGPT('what is the coko foundation')
+    console.log(result) // eslint-disable-line no-console
+    expect(result).toBeTruthy()
+  }, 20000)
+
+  /* eslint-disable-next-line vitest/no-disabled-tests */
+  it.skip('uses the graphql resolver to call the openai api', async () => {
+    const { default: createGraphqlTestServer } =
+      await import('../../utils/createGraphqlTestServer')
+    const gqlServer = await createGraphqlTestServer()
+
+    const CHAT_GPT = `
+      query chatGPT ($input: String!) {
+        chatGPT (input: $input)
+      }
+    `
+
+    const result = await gqlServer.executeOperation({
+      query: CHAT_GPT,
+      variables: {
+        input: 'what is the coko foundation',
+      },
+    })
+
+    if (result.body.kind !== 'single') {
+      throw new Error('Expected single result, got incremental')
+    }
+
+    const data = result.body.singleResult.data?.chatGPT
+    expect(data).toBeTruthy()
+  }, 20000)
+})

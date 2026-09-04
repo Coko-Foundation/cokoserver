@@ -1,0 +1,123 @@
+import {
+  vi,
+  describe,
+  beforeEach,
+  afterAll,
+  it,
+  expect,
+  beforeAll,
+} from 'vitest'
+
+import gql from 'graphql-tag'
+
+import { User } from '../../models'
+import { db } from '../../db'
+import createGraphqlTestServer from '../../utils/createGraphqlTestServer'
+import subscriptionManager from '../../graphql/pubsub'
+import DbTestUtils from '../../db/DbTestUtils'
+
+vi.mock('../../configManager/config', async () => {
+  const { default: Config } =
+    await import('../../configManager/ConfigConstructor')
+
+  const config = new Config()
+  config.init({
+    components: [
+      './src/models/user',
+      './src/models/identity',
+      './src/models/team',
+      './src/models/teamMember',
+    ],
+    mailer: false,
+  })
+
+  return { default: config }
+})
+
+describe('GraphQL core mutations', async () => {
+  let user: User
+  const gqlServer = await createGraphqlTestServer()
+
+  const userData = {
+    username: 'testuser',
+    password: 'password',
+  }
+
+  beforeAll(async () => {
+    db.init()
+    subscriptionManager.init()
+  })
+
+  beforeEach(async () => {
+    await DbTestUtils.clearDb()
+    user = await User.insert(userData)
+  })
+
+  afterAll(async () => {
+    await db.destroy()
+    await subscriptionManager.client.end()
+  })
+
+  describe('mutations', () => {
+    it('can update a user', async () => {
+      const MUTATION = gql`
+        mutation ($id: ID!, $input: UpdateUserInput!) {
+          updateUser(id: $id, input: $input) {
+            username
+          }
+        }
+      `
+
+      const response = await gqlServer.executeOperation(
+        {
+          query: MUTATION,
+          variables: {
+            id: user.id,
+            input: { username: 'newUsername' },
+          },
+        },
+        {
+          contextValue: {
+            userId: user.id,
+          },
+        },
+      )
+
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
+      const data = response.body.singleResult.data?.updateUser as User
+      expect(data.username).toEqual('newUsername')
+    })
+
+    it('can delete a user', async () => {
+      const MUTATION = gql`
+        mutation ($id: ID!) {
+          deleteUser(id: $id)
+        }
+      `
+
+      const response = await gqlServer.executeOperation(
+        {
+          query: MUTATION,
+          variables: {
+            id: user.id,
+          },
+        },
+        {
+          contextValue: {
+            userId: user.id,
+          },
+        },
+      )
+
+      if (response.body.kind !== 'single') {
+        throw new Error('Expected single result, got incremental')
+      }
+
+      const data = response.body.singleResult.data?.deleteUser
+      expect(data).toEqual('1')
+    })
+  })
+})

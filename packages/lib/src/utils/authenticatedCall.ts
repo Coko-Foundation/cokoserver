@@ -1,0 +1,30 @@
+import { AxiosResponse } from 'axios'
+import { invalidateProviderAccessToken } from '../models/identity/identity.controller'
+
+import makeCall from './makeCall'
+import { getAuthTokens } from './tokens'
+
+const authenticatedCall = async (
+  userId: string,
+  providerLabel: string,
+  callParameters: any,
+): Promise<AxiosResponse> => {
+  if (!callParameters) throw new Error(`Call parameters are required`)
+
+  const accessToken = await getAuthTokens(userId, providerLabel)
+
+  const response = await makeCall(callParameters, accessToken)
+
+  if (response.status === 401) {
+    // for the case that something happened and accessToken become invalid -> set that expired
+    await invalidateProviderAccessToken(userId, providerLabel)
+
+    const freshAccessToken = await getAuthTokens(userId, providerLabel)
+
+    return makeCall(callParameters, freshAccessToken)
+  }
+
+  return response
+}
+
+export { authenticatedCall, getAuthTokens }

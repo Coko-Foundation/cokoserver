@@ -1,0 +1,226 @@
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
+import { v4 as uuid } from 'uuid'
+
+import { db, migrationManager } from '../../../db'
+import subscriptionManager from '../../../graphql/pubsub'
+import { createChatChannelTeamWithUsers } from '../../__tests__/helpers/teams'
+import { ChatMessage, ChatChannel, User } from '../../index'
+import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
+
+describe('ChatMessage model', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
+        './src/models/chatChannel',
+        './src/models/chatMessage',
+      ],
+      teams: {
+        global: [],
+        nonGlobal: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+      mailer: false,
+    })
+
+    db.init()
+    subscriptionManager.init()
+    await migrationManager.migrate()
+  })
+
+  beforeEach(async () => {
+    await DbTestUtils.clearDb()
+  })
+
+  afterAll(async () => {
+    config.reset()
+    await db.destroy()
+    await subscriptionManager.client.end()
+  })
+
+  it('does not create a new chat message without content', async () => {
+    const user = await User.insert({})
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'editors',
+      relatedObjectId: relatedObject,
+    })
+
+    const createMessageWithoutContent = (): Promise<ChatMessage> =>
+      ChatMessage.insert({
+        chatChannelId: channel.id,
+        userId: user.id,
+      })
+
+    await expect(createMessageWithoutContent()).rejects.toThrow()
+
+    const createMessageWithEmptyContent = (): Promise<ChatMessage> =>
+      ChatMessage.insert({
+        chatChannelId: channel.id,
+        userId: user.id,
+        content: '',
+      })
+
+    await expect(createMessageWithEmptyContent()).rejects.toThrow()
+  })
+
+  it('does not create a new chat message without a channel', async () => {
+    const user = await User.insert({})
+
+    const createMessage = async (): Promise<ChatMessage> =>
+      ChatMessage.insert({
+        userId: user.id,
+        content: 'test',
+      })
+
+    await expect(createMessage()).rejects.toThrow()
+  })
+
+  it('does not create a new chat message with an invalid channel', async () => {
+    const user = await User.insert({})
+    const channelId = uuid()
+
+    const createMessage = async (): Promise<ChatMessage> =>
+      ChatMessage.insert({
+        userId: user.id,
+        content: 'test',
+        chatChannelId: channelId,
+      })
+
+    await expect(createMessage()).rejects.toThrow()
+  })
+
+  it('does not create a new chat message without a user', async () => {
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'authors',
+      relatedObjectId: relatedObject,
+    })
+
+    const createMessage = async (): Promise<ChatMessage> =>
+      ChatMessage.insert({
+        chatChannelId: channel.id,
+        content: 'test',
+      })
+
+    await expect(createMessage()).rejects.toThrow()
+  })
+
+  it('does not create a new chat message with an invalid user', async () => {
+    const userId = uuid()
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'authors',
+      relatedObjectId: relatedObject,
+    })
+
+    const createMessage = async (): Promise<ChatMessage> =>
+      ChatMessage.insert({
+        chatChannelId: channel.id,
+        content: 'test',
+        userId,
+      })
+
+    await expect(createMessage()).rejects.toThrow()
+  })
+
+  it('fetches user of message', async () => {
+    const user = await User.insert({})
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'reviewers',
+      relatedObjectId: relatedObject,
+    })
+
+    const message = await ChatMessage.insert({
+      chatChannelId: channel.id,
+      userId: user.id,
+      content: '<p>this is a test</p>',
+    })
+
+    const result = await ChatMessage.findById(message.id, { related: 'user' })
+
+    expect(result.user.id).toEqual(user.id)
+  })
+
+  it('adds mentioned user to chat message', async () => {
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'reviewers',
+      relatedObjectId: relatedObject,
+    })
+
+    const { user } = await createChatChannelTeamWithUsers(channel.id)
+
+    const message = await ChatMessage.insert({
+      chatChannelId: channel.id,
+      userId: user.id,
+      content: '<p>this is a test</p>',
+      mentions: [user.id],
+    })
+
+    expect(message.mentions).toHaveLength(1)
+    expect(message.mentions[0]).toEqual(user.id)
+  })
+
+  /* eslint-disable-next-line vitest/no-disabled-tests */
+  it.skip('throws when mentioned user is not team member of channel', async () => {
+    const user2 = await User.insert({})
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'reviewers',
+      relatedObjectId: relatedObject,
+    })
+
+    const { user } = await createChatChannelTeamWithUsers(channel.id)
+
+    await expect(
+      ChatMessage.insert({
+        chatChannelId: channel.id,
+        userId: user.id,
+        content: '<p>this is a test</p>',
+        mentions: [user2.id],
+      }),
+    ).rejects.toThrow()
+  })
+
+  /* eslint-disable-next-line vitest/no-disabled-tests */
+  it.skip('throws when updating a message mentions array with a user who is not team member of channel', async () => {
+    const user2 = await User.insert({})
+    const relatedObject = uuid()
+
+    const channel = await ChatChannel.insert({
+      chatType: 'reviewers',
+      relatedObjectId: relatedObject,
+    })
+
+    const { user } = await createChatChannelTeamWithUsers(channel.id)
+
+    const message = await ChatMessage.insert({
+      chatChannelId: channel.id,
+      userId: user.id,
+      content: '<p>this is a test</p>',
+    })
+
+    await expect(
+      message.patch({
+        mentions: [user2.id],
+      }),
+    ).rejects.toThrow()
+  })
+})

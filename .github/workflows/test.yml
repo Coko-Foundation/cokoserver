@@ -1,0 +1,24 @@
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build server
+        id: build_server
+        run: docker compose build
+
+      - name: Pull containers
+        id: pull_containers
+        run: docker compose pull
+
+      - name: Test server
+        id: test_server
+        run: |
+          docker compose run server \
+          yarn workspace @coko/server test --coverage --reporter=tree

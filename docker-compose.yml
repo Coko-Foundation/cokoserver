@@ -7,13 +7,13 @@ services:
       - db
       - filehosting
       - createbucket
-    command: ['yarn', 'coko-server', 'start-dev']
+      - mailhog
+    command: node ./startDev.js
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
       - ${INSPECTOR_PORT:-9229}:${INSPECTOR_PORT:-9229}
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-      - NODE_CONFIG_DIR=./dev/config
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_DB=${POSTGRES_DB:-test}
@@ -22,11 +22,16 @@ services:
       - POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES=${POSTGRES_ALLOW_SELF_SIGNED_CERTIFICATES}
       - POSTGRES_CA_CERT=${POSTGRES_CA_CERT}
       - SUBSCRIPTIONS_POSTGRES_DB=${SUBSCRIPTIONS_POSTGRES_DB}
+      - SUBSCRIPTIONS_POSTGRES_HOST=${SUBSCRIPTIONS_POSTGRES_HOST}
+      - JOB_QUEUE_POSTGRES_DB=${SUBSCRIPTIONS_POSTGRES_DB}
+      - JOB_QUEUE_POSTGRES_HOST=${SUBSCRIPTIONS_POSTGRES_HOST}
       - SECRET=${SECRET:-secret}
       - SERVER_PORT=${SERVER_PORT:-3000}
-      - ALLOW_CONFIG_MUTATIONS=${ALLOW_CONFIG_MUTATIONS:-''}
-      # - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
-      # - SERVER_URL=http://www.google.com///
+      - CLIENT_URL=${CLIENT_URL:-http://0.0.0.0:4000////}
+      - SERVER_URL=http://localhost:3000
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=password
+      - ADMIN_EMAIL=admin@example.com
       # - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
       # - MAILER_HOSTNAME=${MAILER_HOSTNAME}
       # - MAILER_PORT=${MAILER_PORT}
@@ -36,18 +41,28 @@ services:
       - S3_BUCKET=${S3_BUCKET:-uploads}
       - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-accessKeyId}
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-password}
-      # - MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES=100
-      # - S3_SEPARATE_DELETE_OPERATIONS=true
-      # - S3_FORCE_PATH_STYLE=true
-      - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
+      # - INSPECTOR_PORT=${INSPECTOR_PORT:-9229}
       # - CORS_ORIGIN=https://studio.apollographql.com
-      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_DSN=${SENTRY_DSN:-fake}
       - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-local}
+      - SUPPRESS_LOGGER_IN_TEST_ENV=true
     volumes:
-      - ./dev:/home/node/app/dev
-      - ./src:/home/node/app/src
-      - ./authorization.js:/home/node/app/authorization.js
+      - ./packages/dev/ignoreMe:/home/node/app/packages/dev/ignoreMe
+      - ./packages/dev/models:/home/node/app/packages/dev/models
+      - ./packages/dev/static:/home/node/app/packages/dev/static
+      - ./packages/dev/builder.json:/home/node/app/packages/dev/builder.json
+      - ./packages/dev/config.ts:/home/node/app/packages/dev/config.ts
+      - ./packages/dev/configSchema.ts:/home/node/app/packages/dev/configSchema.ts
+      - ./packages/dev/jobQueues.ts:/home/node/app/packages/dev/jobQueues.ts
+      - ./packages/dev/permissions.ts:/home/node/app/packages/dev/permissions.ts
+      - ./packages/dev/shutdown.ts:/home/node/app/packages/dev/shutdown.ts
+      - ./packages/dev/startup.ts:/home/node/app/packages/dev/startup.ts
+      - ./packages/dev/testme.ts:/home/node/app/packages/dev/testme.ts
+      - ./packages/lib/src:/home/node/app/packages/lib/src
+      # - ./packages/lib/tmp:/home/node/app/packages/lib/tmp
+      - ./packages/lib/vitest.config.ts:/home/node/app/packages/lib/vitest.config.ts
     tty: true
+    init: true
 
   db:
     image: postgres:18
@@ -89,6 +104,12 @@ services:
         /usr/bin/mc admin policy attach cokoServer/ readwrite --user ${S3_ACCESS_KEY_ID:-accessKeyId};
         exit 0;
       "
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025' # SMTP port
+      - '8025:8025' # Web UI port
 
 volumes:
   minio_storage:

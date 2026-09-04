@@ -1,0 +1,112 @@
+import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
+import { db, migrationManager } from '../../../db'
+import subscriptionManager from '../../../graphql/pubsub'
+
+import ChatMessage from '../chatMessage.model'
+import ChatChannel from '../../chatChannel/chatChannel.model'
+import User from '../../user/user.model'
+import Fake from '../../__tests__/helpers/fake/fake.model'
+import config from '../../../configManager/config'
+import DbTestUtils from '../../../db/DbTestUtils'
+
+describe('Chat message migrations', () => {
+  beforeAll(async () => {
+    config.reset()
+    await config.init({
+      components: [
+        './src/models/user',
+        './src/models/identity',
+        './src/models/team',
+        './src/models/teamMember',
+        './src/models/chatChannel',
+        './src/models/chatMessage',
+        './src/models/__tests__/helpers/fake',
+      ],
+      teams: {
+        global: [],
+        nonGlobal: [
+          {
+            displayName: 'Editor',
+            role: 'editor',
+          },
+        ],
+      },
+      mailer: false,
+    })
+
+    db.init()
+    subscriptionManager.init()
+  })
+
+  beforeEach(async () => {
+    await DbTestUtils.dropAllTables()
+  })
+
+  afterAll(async () => {
+    config.reset()
+    await db.destroy()
+    await subscriptionManager.client.end()
+  })
+
+  it('adds an on delete and on update cascade on the user id column', async () => {
+    await migrationManager.migrate({
+      to: '1722494210-rename-chat-thread-to-chat-channel.js',
+    })
+
+    const user = await User.insert({})
+    const fake = await Fake.insert({})
+
+    const channel = await ChatChannel.insert({
+      chatType: 'test',
+      relatedObjectId: fake.id,
+    })
+
+    await ChatMessage.insert({
+      chatChannelId: channel.id,
+      content: 'hello',
+      userId: user.id,
+    })
+
+    await ChatMessage.insert({
+      chatChannelId: channel.id,
+      content: 'hello again',
+      userId: user.id,
+    })
+
+    let messages = await ChatMessage.find({
+      chatChannelId: channel.id,
+    })
+
+    expect(messages.totalCount).toBe(2)
+
+    // cannot delete because it violates a foreign key constraint
+    await expect(ChatChannel.deleteById(channel.id)).rejects.toThrow()
+
+    await migrationManager.migrate({ step: 1 })
+
+    // deleting succeeds and messages are removed
+    await ChatChannel.deleteById(channel.id)
+
+    messages = await ChatMessage.find({
+      chatChannelId: channel.id,
+    })
+
+    expect(messages.totalCount).toBe(0)
+
+    // test rollback
+    const anotherChannel = await ChatChannel.insert({
+      chatType: 'test-again',
+      relatedObjectId: fake.id,
+    })
+
+    await ChatMessage.insert({
+      chatChannelId: anotherChannel.id,
+      content: 'woot',
+      userId: user.id,
+    })
+
+    await migrationManager.rollback({ step: 1 })
+
+    await expect(ChatChannel.deleteById(anotherChannel.id)).rejects.toThrow()
+  })
+})
