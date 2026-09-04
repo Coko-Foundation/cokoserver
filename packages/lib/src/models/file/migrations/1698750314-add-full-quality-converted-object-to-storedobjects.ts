@@ -1,4 +1,5 @@
 import path from 'path'
+import crypto from 'crypto'
 import { buffer } from 'stream/consumers'
 
 import fs from 'fs-extra'
@@ -114,7 +115,14 @@ export async function up(): Promise<void> {
     await useTransaction(async trx => {
       const files = await File.query(trx)
 
-      const tempDir = tempFolderPath
+      // scoped to its own subfolder (rather than the shared tempFolderPath
+      // root) so this migration's cleanup can't race with, and delete files
+      // out from under, unrelated concurrent uses of the temp folder
+      const tempDir = path.join(
+        tempFolderPath,
+        `full-quality-conversion-${crypto.randomBytes(6).toString('hex')}`,
+      )
+
       await fs.ensureDir(tempDir)
 
       await Promise.all(
@@ -194,7 +202,7 @@ export async function up(): Promise<void> {
         }),
       )
 
-      await fs.emptyDir(tempDir)
+      await fs.remove(tempDir)
       return true
     })
   } catch (e) {
