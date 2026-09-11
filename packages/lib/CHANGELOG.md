@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.2.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.1.2...v5.2.0) (2026-09-11)
+
+
+### Features
+
+* **server:** add build.exclude option to builder.json ([7c0cd11](https://github.com/Coko-Foundation/cokoserver/commit/7c0cd116e0ea23e48c2dea8bedbaec2a30c85c9b))
+
 ### [5.1.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.1.1...v5.1.2) (2026-09-04)
 
 
