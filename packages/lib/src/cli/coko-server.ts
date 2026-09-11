@@ -42,8 +42,11 @@ program
     internalLogger.work('Building project...')
 
     try {
-      const { assetExtensions } = loadBuilderConfig()
-      const tsConfig = generateTsConfig()
+      const {
+        assetExtensions,
+        build: { exclude },
+      } = loadBuilderConfig()
+      const tsConfig = generateTsConfig(exclude)
       const configPath = path.join(tempFolderPath, tempTsConfigFile)
       await writeFileToTemp(JSON.stringify(tsConfig), tempTsConfigFile)
 
@@ -86,9 +89,10 @@ program
   .action(async () => {
     const {
       devServer: { inspectorPort, ignore },
+      build: { exclude },
     } = loadBuilderConfig()
 
-    const tsConfig = generateTsConfig()
+    const tsConfig = generateTsConfig(exclude)
     const scriptPath = path.join(__dirname, '..', 'init.js')
 
     const exec = `
@@ -124,7 +128,10 @@ program
     internalLogger.work('Typechecking your code...')
 
     try {
-      const tsConfig = generateTsConfig()
+      const {
+        build: { exclude },
+      } = loadBuilderConfig()
+      const tsConfig = generateTsConfig(exclude)
       const configPath = path.join(tempFolderPath, tempTsConfigFile)
       await writeFileToTemp(JSON.stringify(tsConfig), tempTsConfigFile)
 
@@ -141,7 +148,10 @@ const migrateCommand = program
   .command('migrate')
   .description('Run or roll back migrations')
   .hook('preAction', async () => {
-    const tsConfig = generateTsConfig()
+    const {
+      build: { exclude },
+    } = loadBuilderConfig()
+    const tsConfig = generateTsConfig(exclude)
 
     const { register } = await import('ts-node')
 

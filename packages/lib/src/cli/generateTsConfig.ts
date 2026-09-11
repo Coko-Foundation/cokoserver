@@ -5,14 +5,16 @@ import { CompilerOptions } from 'typescript'
 interface TSConfig {
   compilerOptions: CompilerOptions
   include: string[]
+  exclude: string[]
 }
 
 const base = require('./tsConfig.json')
 
-function generateTsConfig(): TSConfig {
+function generateTsConfig(exclude: string[] = []): TSConfig {
   const modified = { ...base }
   const buildAbsolutePath = path.resolve(`${process.cwd()}/**/*`)
   modified.include = [buildAbsolutePath]
+  modified.exclude = [...(base.exclude ?? []), ...exclude]
   modified.compilerOptions = {
     ...modified.compilerOptions,
     rootDir: process.cwd(),
