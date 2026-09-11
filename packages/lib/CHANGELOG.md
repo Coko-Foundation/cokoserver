@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.2.0...v5.2.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **cli:** resolve build.exclude paths relative to process.cwd ([0455ad1](https://github.com/Coko-Foundation/cokoserver/commit/0455ad145dd1731fa44019b44e7680ffea576658))
+
 ## [5.2.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.1.2...v5.2.0) (2026-09-11)
 
 
