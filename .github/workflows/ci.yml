@@ -1,7 +1,10 @@
-name: Pull request pipeline
+name: CI pipeline
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   lint:
