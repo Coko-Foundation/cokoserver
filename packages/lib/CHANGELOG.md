@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.5.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.4.0...v5.5.0) (2026-09-23)
+
+
+### Features
+
+* **models:** add patchById method to base model ([d6d2240](https://github.com/Coko-Foundation/cokoserver/commit/d6d2240726aa17e8b425122e5f321ebf078e6c0d))
+
 ## [5.4.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.3.0...v5.4.0) (2026-09-23)
 
 
