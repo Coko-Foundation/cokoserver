@@ -50,6 +50,10 @@ export type TrxAndRelatedOptions = {
   related?: string | string[]
 }
 
+export type FindByIdOptions = TrxAndRelatedOptions & {
+  throwIfNotFound?: boolean
+}
+
 class BaseModel extends Model {
   id: string
   created: string
@@ -198,11 +202,11 @@ class BaseModel extends Model {
     // this: { new (): T } & typeof BaseModel,
     this: new () => T,
     ids: string[],
-    options: TrxAndRelatedOptions = {},
+    options: FindByIdOptions = {},
   ): Promise<T[]> {
     try {
       const ModelClass = this as typeof BaseModel & { new (): T }
-      const { trx, related } = options
+      const { trx, related, throwIfNotFound = true } = options
 
       return useTransaction(
         async tr => {
@@ -214,7 +218,7 @@ class BaseModel extends Model {
 
           const result = await queryBuilder.findByIds(ids)
 
-          if (result.length < ids.length) {
+          if (throwIfNotFound && result.length < ids.length) {
             const delta = ids.filter(
               id => !result.map(res => res.id).includes(id),
             )
@@ -235,15 +239,27 @@ class BaseModel extends Model {
     }
   }
 
+  static findById<T extends BaseModel>(
+    this: new () => T,
+    id: string,
+    options?: TrxAndRelatedOptions & { throwIfNotFound?: true },
+  ): Promise<T>
+
+  static findById<T extends BaseModel>(
+    this: new () => T,
+    id: string,
+    options: TrxAndRelatedOptions & { throwIfNotFound: false },
+  ): Promise<T | undefined>
+
   static async findById<T extends BaseModel>(
     // this: { new (): T } & typeof BaseModel,
     this: new () => T,
     id: string,
-    options: TrxAndRelatedOptions = {},
-  ): Promise<T> {
+    options: FindByIdOptions = {},
+  ): Promise<T | undefined> {
     try {
       const ModelClass = this as typeof BaseModel & { new (): T }
-      const { trx, related } = options
+      const { trx, related, throwIfNotFound = true } = options
 
       return useTransaction(
         async tr => {
@@ -253,7 +269,11 @@ class BaseModel extends Model {
             queryBuilder = queryBuilder.withGraphFetched(related)
           }
 
-          const result: T = await queryBuilder.findById(id).throwIfNotFound()
+          const query = queryBuilder.findById(id)
+          const result: T | undefined = throwIfNotFound
+            ? await query.throwIfNotFound()
+            : await query
+
           return result
         },
         {

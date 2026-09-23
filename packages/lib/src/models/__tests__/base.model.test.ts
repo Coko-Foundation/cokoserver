@@ -192,6 +192,19 @@ describe('Base model', () => {
     await expect(Fake.findByIds([entity1.id, uuid()])).rejects.toThrow()
   })
 
+  it('returns only existing entities in findByIds when throwIfNotFound is false', async () => {
+    const entity1 = await Fake.insert({
+      status: 'a',
+    })
+
+    const res = await Fake.findByIds([entity1.id, uuid()], {
+      throwIfNotFound: false,
+    })
+
+    expect(res).toHaveLength(1)
+    expect(res[0].id).toEqual(entity1.id)
+  })
+
   it('throws when invalid params in find', async () => {
     // @ts-ignore
     await expect(Fake.find(1)).rejects.toThrow()
@@ -212,6 +225,18 @@ describe('Base model', () => {
   it('throws when id does not exist', async () => {
     // @ts-ignore
     await expect(Fake.findById(1)).rejects.toThrow()
+  })
+
+  it('returns undefined when id does not exist and throwIfNotFound is false', async () => {
+    const entity = await Fake.findById(uuid(), { throwIfNotFound: false })
+    expect(entity).toBeUndefined()
+  })
+
+  it('fetches one entity by provided id when throwIfNotFound is false', async () => {
+    const newEntity = await Fake.insert({})
+
+    const entity = await Fake.findById(newEntity.id, { throwIfNotFound: false })
+    expect(entity?.id).toEqual(newEntity.id)
   })
 
   it('fetches one entity', async () => {
