@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.4.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.3.0...v5.4.0) (2026-09-23)
+
+
+### Features
+
+* **models:** add throwIfNotFound option to findById(s) in base model ([4990329](https://github.com/Coko-Foundation/cokoserver/commit/49903298fe67c70bad8728b1e56fc2089bf57f65))
+
 ## [5.3.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.2.1...v5.3.0) (2026-09-11)
 
 
