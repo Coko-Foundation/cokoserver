@@ -296,6 +296,34 @@ describe('Base model', () => {
     await expect(Fake.patchAndFetchById()).rejects.toThrow()
   })
 
+  it('patches entity by id with provided data', async () => {
+    const newEntity = await Fake.insert({ status: 'a' })
+    const affectedRows = await Fake.patchById(newEntity.id, { status: 'b' })
+    const entity = await Fake.findById(newEntity.id)
+
+    expect(affectedRows).toEqual(1)
+    expect(entity.status).toEqual('b')
+  })
+
+  it('throws when patchById is called with an id that does not exist', async () => {
+    await expect(Fake.patchById(uuid(), { status: 'b' })).rejects.toThrow()
+  })
+
+  it('returns 0 when patchById is called with an id that does not exist and throwIfNotFound is false', async () => {
+    const affectedRows = await Fake.patchById(
+      uuid(),
+      { status: 'b' },
+      { throwIfNotFound: false },
+    )
+
+    expect(affectedRows).toEqual(0)
+  })
+
+  it('throws when patchById called with invalid params', async () => {
+    // @ts-ignore
+    await expect(Fake.patchById()).rejects.toThrow()
+  })
+
   it('updates entity with provided data', async () => {
     const newEntity = await Fake.insert({})
     const result = await newEntity.update({ status: 'test' })

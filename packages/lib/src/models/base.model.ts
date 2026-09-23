@@ -434,6 +434,28 @@ class BaseModel extends Model {
     }
   }
 
+  static async patchById<T extends BaseModel>(
+    this: new () => T,
+    id: string,
+    data: PartialModelObject<T>,
+    options: TrxOption & { throwIfNotFound?: boolean } = {},
+  ): Promise<number> {
+    try {
+      const ModelClass = this as typeof BaseModel & { new (): T }
+      const { trx, throwIfNotFound = true } = options
+
+      const query = (ModelClass.query(trx) as ModelQueryBuilder<T>)
+        .findById(id)
+        .patch(data)
+      const res = throwIfNotFound ? await query.throwIfNotFound() : await query
+
+      return res
+    } catch (e) {
+      logger.error(`${this.name} model: patchById failed.`, e)
+      throw e
+    }
+  }
+
   // INSTANCE METHOD
   async update(
     data: PartialModelObject<this>,
