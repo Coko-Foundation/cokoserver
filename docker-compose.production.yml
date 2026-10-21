@@ -50,7 +50,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
 
   filehosting:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    image: pgsty/minio
     ports:
       - ${S3_PORT:-9000}:9000
       - ${MINIO_CONSOLE_PORT:-9001}:9001
@@ -67,7 +67,7 @@ services:
       retries: 30
 
   createbucket:
-    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    image: pgsty/mc
     depends_on:
       filehosting:
         condition: service_healthy
