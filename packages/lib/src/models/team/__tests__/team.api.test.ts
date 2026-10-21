@@ -3,6 +3,8 @@ import gql from 'graphql-tag'
 import { ApolloServer } from '@apollo/server'
 
 import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
+import createContextFactory from '../../../graphql/context'
+import { collectBatchFns } from '../../../graphql/loaders'
 import { Team, TeamMember, User } from '../..'
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
@@ -13,6 +15,7 @@ import DbTestUtils from '../../../db/DbTestUtils'
 
 describe('Team API', async () => {
   let gqlServer: ApolloServer
+  let createContext: ReturnType<typeof createContextFactory>
 
   beforeAll(async () => {
     config.reset()
@@ -52,6 +55,7 @@ describe('Team API', async () => {
     db.init()
     subscriptionManager.init()
     gqlServer = await createGraphqlTestServer()
+    createContext = createContextFactory(await collectBatchFns())
     await migrationManager.migrate()
   })
 
@@ -106,10 +110,13 @@ describe('Team API', async () => {
       }
     `
 
-    const result = await gqlServer.executeOperation({
-      query: GET_OBJECT_TEAMS,
-      variables: { filter: { objectId: fake.id } },
-    })
+    const result = await gqlServer.executeOperation(
+      {
+        query: GET_OBJECT_TEAMS,
+        variables: { filter: { objectId: fake.id } },
+      },
+      { contextValue: await createContext() },
+    )
 
     if (result.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
@@ -160,10 +167,13 @@ describe('Team API', async () => {
       }
     `
 
-    const result = await gqlServer.executeOperation({
-      query: GET_GLOBAL_TEAMS,
-      variables: { filter: { global: true } },
-    })
+    const result = await gqlServer.executeOperation(
+      {
+        query: GET_GLOBAL_TEAMS,
+        variables: { filter: { global: true } },
+      },
+      { contextValue: await createContext() },
+    )
 
     if (result.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
@@ -241,6 +251,7 @@ describe('Team API', async () => {
       },
       {
         contextValue: {
+          ...(await createContext()),
           userId: user.id,
         },
       },

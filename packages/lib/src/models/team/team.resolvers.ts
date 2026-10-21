@@ -118,8 +118,15 @@ const teamMemberResolver = async (
   { currentUserOnly },
   ctx,
 ): Promise<TeamMember[]> => {
-  // const { id } = team
-  // return ctx.loaders.TeamMember.teamMembersBasedOnTeamIdsLoader.load(id)
+  // Apps can replace the TeamMember component, in which case this loader
+  // might not exist, so fall back to querying directly
+  const loader = ctx?.loaders?.TeamMember?.teamMembersBasedOnTeamIdsLoader
+
+  if (loader) {
+    const members: TeamMember[] = await loader.load(team.id)
+    if (!currentUserOnly) return members
+    return members.filter(member => member.userId === ctx.userId)
+  }
 
   const where = {
     teamId: team.id,

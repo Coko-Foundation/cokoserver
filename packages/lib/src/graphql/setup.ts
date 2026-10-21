@@ -16,11 +16,13 @@ import AuthenticationError from '../errors/AuthenticationError'
 import config from '../configManager/config'
 import logger from '../logger'
 
-import loaders from './loaders'
+import createContextFactory from './context'
+import { collectBatchFns, buildLoaders } from './loaders'
 import generateSchema from './generateSchema'
 
 type Context = {
   userId: string | null
+  loaders: Record<string, any>
 }
 
 const setup = async (
@@ -35,6 +37,7 @@ const setup = async (
   app.use(graphqlUploadExpress())
 
   const schema = await generateSchema()
+  const batchFns = await collectBatchFns()
 
   /* SUBSCRIPTION SERVER */
 
@@ -44,7 +47,12 @@ const setup = async (
   })
 
   const getDynamicContext = (ctx): Context => {
-    const context = { userId: null }
+    const context = {
+      userId: null,
+      // The context lives for as long as the subscription does,
+      // so caching would serve stale results to later events
+      loaders: buildLoaders(batchFns, { cache: false }),
+    }
 
     if (ctx.connectionParams.authToken) {
       try {
@@ -118,7 +126,7 @@ const setup = async (
 
   /* APOLLO EXPRESS */
 
-  const createdLoaders = await loaders()
+  const createContext = createContextFactory(batchFns)
 
   app.use(
     '/graphql',
@@ -126,14 +134,7 @@ const setup = async (
       session: false,
     }),
     expressMiddleware(apolloServer, {
-      context: async ({ req, res }) => {
-        return {
-          userId: req.user, // req.user is set by passport
-          loaders: createdLoaders,
-          req,
-          res,
-        }
-      },
+      context: createContext,
     }),
   )
 }

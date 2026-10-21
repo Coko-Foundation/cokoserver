@@ -5,6 +5,8 @@ import { ApolloServer } from '@apollo/server'
 import { db, migrationManager } from '../../../db'
 import subscriptionManager from '../../../graphql/pubsub'
 import createGraphqlTestServer from '../../../utils/createGraphqlTestServer'
+import createContextFactory from '../../../graphql/context'
+import { collectBatchFns } from '../../../graphql/loaders'
 import DbTestUtils from '../../../db/DbTestUtils'
 import config from '../../../configManager/config'
 
@@ -14,6 +16,7 @@ import { QueryResult } from '../../base.model'
 
 describe('User API', async () => {
   let gqlServer: ApolloServer
+  let createContext: ReturnType<typeof createContextFactory>
 
   beforeAll(async () => {
     config.reset()
@@ -30,6 +33,7 @@ describe('User API', async () => {
     db.init()
     subscriptionManager.init()
     gqlServer = await createGraphqlTestServer()
+    createContext = createContextFactory(await collectBatchFns())
     await migrationManager.migrate()
   })
 
@@ -72,9 +76,12 @@ describe('User API', async () => {
       }
     `
 
-    const response = await gqlServer.executeOperation({
-      query: GET_USER_IDENTITIES,
-    })
+    const response = await gqlServer.executeOperation(
+      {
+        query: GET_USER_IDENTITIES,
+      },
+      { contextValue: await createContext() },
+    )
 
     if (response.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
@@ -95,9 +102,12 @@ describe('User API', async () => {
       { isVerified: true },
     )
 
-    const newResponse = await gqlServer.executeOperation({
-      query: GET_USER_IDENTITIES,
-    })
+    const newResponse = await gqlServer.executeOperation(
+      {
+        query: GET_USER_IDENTITIES,
+      },
+      { contextValue: await createContext() },
+    )
 
     if (newResponse.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
@@ -143,9 +153,12 @@ describe('User API', async () => {
       }
     `
 
-    const response = await gqlServer.executeOperation({
-      query: GET_USER_IDENTITIES,
-    })
+    const response = await gqlServer.executeOperation(
+      {
+        query: GET_USER_IDENTITIES,
+      },
+      { contextValue: await createContext() },
+    )
 
     if (response.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
@@ -177,9 +190,12 @@ describe('User API', async () => {
       }
     `
 
-    const response = await gqlServer.executeOperation({
-      query: ACTIVE_USERS,
-    })
+    const response = await gqlServer.executeOperation(
+      {
+        query: ACTIVE_USERS,
+      },
+      { contextValue: await createContext() },
+    )
 
     if (response.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')
@@ -222,18 +238,21 @@ describe('User API', async () => {
       }
     `
 
-    const response = await gqlServer.executeOperation({
-      query: UPDATE_USER_INFO,
-      variables: {
-        id: u.id,
-        input: {
-          givenNames: 'Jack',
-          surname: 'Black',
-          identityId: identity.id,
-          email: 'jack@example.com',
+    const response = await gqlServer.executeOperation(
+      {
+        query: UPDATE_USER_INFO,
+        variables: {
+          id: u.id,
+          input: {
+            givenNames: 'Jack',
+            surname: 'Black',
+            identityId: identity.id,
+            email: 'jack@example.com',
+          },
         },
       },
-    })
+      { contextValue: await createContext() },
+    )
 
     if (response.body.kind !== 'single') {
       throw new Error('Expected single result, got incremental')

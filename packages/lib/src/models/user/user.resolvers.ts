@@ -261,15 +261,21 @@ const resetPasswordResolver = async (
   }
 }
 
-const identitiesResolver = async (user, _): Promise<Identity[]> => {
+// Apps can replace the Identity component, in which case these loaders
+// might not exist, so fall back to querying directly
+const identitiesResolver = async (user, _, ctx): Promise<Identity[]> => {
+  const loader = ctx?.loaders?.Identity?.identitiesBasedOnUserIdsLoader
+  if (loader) return loader.load(user.id)
+
   const identities = await getUserIdentities(user.id)
   return identities.result
-  // return ctx.loaders.Identity.identitiesBasedOnUserIdsLoader.load(user.id)
 }
 
-const defaultIdentityResolver = async (user): Promise<Identity> => {
+const defaultIdentityResolver = async (user, _, ctx): Promise<Identity> => {
+  const loader = ctx?.loaders?.Identity?.defaultIdentityBasedOnUserIdsLoader
+  if (loader) return loader.load(user.id)
+
   return getDefaultIdentity(user.id)
-  // return ctx.loaders.Identity.defaultIdentityBasedOnUserIdsLoader.load(user.id)
 }
 
 const displayNameResolver = (user): string => {
