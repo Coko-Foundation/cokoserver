@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.5.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.5.0...v5.5.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* **graphql:** fix dataloaders returning stale results ([ce9f2ce](https://github.com/Coko-Foundation/cokoserver/commit/ce9f2ce002a3032c3783b5f8ee0e65b7d5a9d07b))
+
 ## [5.5.0](https://github.com/Coko-Foundation/cokoserver/compare/v5.4.0...v5.5.0) (2026-09-23)
 
 
