@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.5.2](https://github.com/Coko-Foundation/cokoserver/compare/v5.5.1...v5.5.2) (2026-10-26)
+
+
+### Bug Fixes
+
+* **server:** fix issue where importing a ts model from a migration breaks the migration runner ([bacc644](https://github.com/Coko-Foundation/cokoserver/commit/bacc644982edc38df82197f47731ccef2b436854))
+
 ### [5.5.1](https://github.com/Coko-Foundation/cokoserver/compare/v5.5.0...v5.5.1) (2026-10-21)
 
 
