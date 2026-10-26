@@ -1,6 +1,6 @@
 import path from 'path'
 
-import fs from 'fs-extra'
+import fs from 'fs'
 import { z } from 'zod'
 import mergeWith from 'lodash/mergeWith'
 

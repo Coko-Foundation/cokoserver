@@ -1,7 +1,8 @@
 import path from 'path'
 import { buffer } from 'stream/consumers'
 
-import fs, { ReadStream } from 'fs-extra'
+import fs, { ReadStream } from 'fs'
+import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { env } from './env'
 
 type FindConfigurationFileOptions = {
@@ -61,7 +62,6 @@ const writeFileToTemp = async (
   filePath: string,
 ): Promise<void> => {
   const outputPath = path.join(tempFolderPath, filePath)
-  await fs.ensureFile(outputPath)
 
   const isString = typeof readStream === 'string'
   const isBase64 =
@@ -80,20 +80,28 @@ const writeFileToTemp = async (
     dataBuffer = await buffer(readStream)
   }
 
-  await fs.outputFile(outputPath, dataBuffer)
+  await mkdir(path.dirname(outputPath), { recursive: true })
+  await writeFile(outputPath, dataBuffer)
 }
 
 const deleteFileFromTemp = async (filePath: string): Promise<void> => {
   const deletePath = path.join(tempFolderPath, filePath)
-  await fs.remove(deletePath)
+  await rm(deletePath, { force: true })
 }
 
 const emptyTemp = async (): Promise<void> => {
-  await fs.emptyDir(tempFolderPath)
+  await mkdir(tempFolderPath, { recursive: true })
+  const entries = await readdir(tempFolderPath)
+
+  await Promise.all(
+    entries.map(entry =>
+      rm(path.join(tempFolderPath, entry), { recursive: true, force: true }),
+    ),
+  )
 }
 
 const ensureTempFolderExists = async (): Promise<void> => {
-  await fs.ensureDir(tempFolderPath)
+  await mkdir(tempFolderPath, { recursive: true })
 }
 
 export {

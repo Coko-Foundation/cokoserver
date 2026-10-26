@@ -5,7 +5,7 @@ import { buffer } from 'stream/consumers'
 import mime from 'mime-types'
 import sharp from 'sharp'
 import { sync as commandExists } from 'command-exists'
-import fs from 'fs-extra'
+import fs from 'fs'
 import exifr from 'exifr'
 
 import config from '../configManager/config'

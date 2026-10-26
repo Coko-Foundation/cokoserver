@@ -1,10 +1,11 @@
 import { describe, beforeEach, afterAll, it, expect, beforeAll } from 'vitest'
-import fs from 'fs-extra'
+import fs from 'fs'
+import { readFile } from 'fs/promises'
 import path from 'path'
 import sharp from 'sharp'
 
 import FileStorageConstructor from '../FileStorage'
-import { tempFolderPath } from '../../utils/filesystem'
+import { emptyTemp, tempFolderPath } from '../../utils/filesystem'
 import request from '../../utils/request'
 import { StoredObject } from '../types'
 import config from '../../configManager/config'
@@ -43,7 +44,7 @@ describe('File Storage Service', () => {
   })
 
   afterAll(async () => {
-    await fs.emptyDir(tempFolderPath)
+    await emptyTemp()
   })
 
   it('communicates with file server', async () => {
@@ -197,7 +198,7 @@ describe('File Storage Service', () => {
     await fileStorage.download(file.key, tempPath)
     expect(fs.existsSync(tempPath)).toBe(true)
 
-    const content = await fs.readFile(tempPath, 'utf8')
+    const content = await readFile(tempPath, 'utf8')
     expect(content).toBe(textFileContent)
   })
 

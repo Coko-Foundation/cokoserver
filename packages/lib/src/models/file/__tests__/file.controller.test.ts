@@ -1,11 +1,11 @@
 import { describe, beforeAll, beforeEach, afterAll, it, expect } from 'vitest'
 import { v4 as uuid } from 'uuid'
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 
 import File from '../file.model'
 import { deleteFiles, createFile } from '../file.controller'
-import { tempFolderPath } from '../../../utils/filesystem'
+import { emptyTemp } from '../../../utils/filesystem'
 import config from '../../../configManager/config'
 import { db, migrationManager } from '../../../db'
 import DbTestUtils from '../../../db/DbTestUtils'
@@ -43,7 +43,7 @@ describe('File Controller', () => {
     const knex = File.knex()
     knex.destroy()
 
-    await fs.emptyDir(tempFolderPath)
+    await emptyTemp()
   })
 
   it('creates a file', async () => {

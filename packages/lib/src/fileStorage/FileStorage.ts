@@ -2,7 +2,8 @@ import { Readable } from 'stream'
 import path from 'path'
 import crypto from 'crypto'
 
-import fs from 'fs-extra'
+import fs from 'fs'
+import { mkdir, rm } from 'fs/promises'
 import mime from 'mime-types'
 
 import {
@@ -143,7 +144,7 @@ class FileStorage {
   ): Promise<StoredObject[]> {
     const randomHash = crypto.randomBytes(6).toString('hex')
     const tempDir = path.join(tempFolderPath, randomHash)
-    await fs.ensureDir(tempDir)
+    await mkdir(tempDir, { recursive: true })
     const originalFilePath = path.join(randomHash, hashedFilename)
     await writeFileToTemp(fileStream, originalFilePath)
 
@@ -181,7 +182,7 @@ class FileStorage {
       }),
     )
 
-    await fs.remove(tempDir)
+    await rm(tempDir, { recursive: true, force: true })
     return storedObjects
   }
 

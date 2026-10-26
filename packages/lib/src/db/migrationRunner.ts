@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 
 import { glob } from 'glob'
@@ -48,7 +48,7 @@ export default class MigrationRunner {
       })
       .map(modulePath => path.join(modulePath, 'migrations'))
       .concat(path.join(__dirname, 'coreMigrations'))
-      .filter(fs.pathExistsSync)
+      .filter(p => fs.existsSync(p))
 
     const globPatterns = migrationPaths.map(
       migrationPath => `${migrationPath}/*.{js,ts,sql}`,

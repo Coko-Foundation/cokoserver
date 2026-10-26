@@ -2,7 +2,8 @@ import path from 'path'
 import crypto from 'crypto'
 import { buffer } from 'stream/consumers'
 
-import fs from 'fs-extra'
+import fs from 'fs'
+import { mkdir, rm } from 'fs/promises'
 import mime from 'mime-types'
 import sharp from 'sharp'
 import { Upload } from '@aws-sdk/lib-storage'
@@ -50,7 +51,7 @@ const sharpConversionFullFilePath = async (
   filenameWithoutExtension,
   format,
 ): Promise<string> => {
-  await fs.ensureDir(tempFileDir)
+  await mkdir(tempFileDir, { recursive: true })
 
   const tempFullFilePath = path.join(
     tempFileDir,
@@ -123,7 +124,7 @@ export async function up(): Promise<void> {
         `full-quality-conversion-${crypto.randomBytes(6).toString('hex')}`,
       )
 
-      await fs.ensureDir(tempDir)
+      await mkdir(tempDir, { recursive: true })
 
       await Promise.all(
         files.map(async file => {
@@ -135,7 +136,7 @@ export async function up(): Promise<void> {
 
           if (mimetype && mimetype.match(/^image\//) && !fullStoredObject) {
             const tempFileDir = path.join(tempDir, file.id)
-            await fs.ensureDir(tempFileDir)
+            await mkdir(tempFileDir, { recursive: true })
 
             const originalStoredObject = file.storedObjects.find(
               storedObject => storedObject.type === 'original',
@@ -202,7 +203,7 @@ export async function up(): Promise<void> {
         }),
       )
 
-      await fs.remove(tempDir)
+      await rm(tempDir, { recursive: true, force: true })
       return true
     })
   } catch (e) {
