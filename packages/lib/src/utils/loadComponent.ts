@@ -1,5 +1,5 @@
 import path from 'path'
-import { env } from './env'
+import { getAppRoot } from './filesystem'
 
 type Component = {
   // model:
@@ -13,10 +13,7 @@ const loadComponent = async (componentPath: string): Promise<Component> => {
   try {
     let p: string
 
-    const root =
-      env('NODE_ENV') === 'production'
-        ? path.join(process.cwd(), 'dist')
-        : process.cwd()
+    const root = getAppRoot()
 
     if (componentPath.startsWith('.')) {
       p = path.join(root, componentPath)

@@ -16,6 +16,7 @@ import sortBy from 'lodash/sortBy'
 import isFunction from 'lodash/isFunction'
 
 import internalLogger from '../logger/internals'
+import { getAppRoot } from '../utils/filesystem'
 
 import db from './db'
 import {
@@ -38,9 +39,11 @@ export default class MigrationRunner {
   umzug: Umzug
 
   constructor(components: string[] = []) {
+    const root = getAppRoot()
+
     const migrationPaths = components
       .map(c => {
-        if (c.startsWith('.')) return path.join(process.cwd(), c)
+        if (c.startsWith('.')) return path.join(root, c)
         return path.dirname(require.resolve(c))
       })
       .map(modulePath => path.join(modulePath, 'migrations'))

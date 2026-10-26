@@ -11,6 +11,11 @@ type FindConfigurationFileOptions = {
 
 const tempFolderPath = path.join(process.cwd(), 'tmp')
 
+const getAppRoot = (): string =>
+  env('NODE_ENV') === 'production'
+    ? path.join(process.cwd(), 'dist')
+    : process.cwd()
+
 // returns path
 const findConfigurationFile = (
   filename: string,
@@ -18,10 +23,7 @@ const findConfigurationFile = (
 ): string => {
   const extensions = options.extensions || ['js', 'ts']
 
-  const root =
-    env('NODE_ENV') === 'production'
-      ? path.join(process.cwd(), 'dist')
-      : process.cwd()
+  const root = getAppRoot()
 
   const basePath = options.basePath ? path.join(root, options.basePath) : root
 
@@ -101,5 +103,6 @@ export {
   emptyTemp,
   writeFileToTemp,
   ensureTempFolderExists,
+  getAppRoot,
   tempFolderPath,
 }
