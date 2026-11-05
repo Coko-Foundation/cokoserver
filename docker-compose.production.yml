@@ -1,8 +1,11 @@
 services:
   server:
+    image: coko-server:node-${NODE_VERSION:-24}
     build:
       context: .
       dockerfile: Dockerfile-production
+      args:
+        NODE_VERSION: ${NODE_VERSION:-24}
     depends_on:
       - db
       - filehosting

@@ -1,4 +1,6 @@
-FROM cokoapps/base-dev:24
+ARG NODE_VERSION=24
+
+FROM cokoapps/base-dev:${NODE_VERSION}
 
 RUN corepack enable
 

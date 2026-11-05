@@ -2,9 +2,15 @@ on:
   workflow_call:
 
 jobs:
-  lint:
-    name: Test
+  test:
+    name: Test (node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [24, 26]
+    env:
+      NODE_VERSION: ${{ matrix.node-version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -15,7 +21,7 @@ jobs:
 
       - name: Pull containers
         id: pull_containers
-        run: docker compose pull
+        run: docker compose pull --ignore-buildable
 
       - name: Test server
         id: test_server
